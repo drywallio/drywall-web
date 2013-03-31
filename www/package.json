@@ -1,0 +1,54 @@
+{
+	"name": "drywall-web",
+	"description": "",
+	"version": "0.0.1",
+	"homepage": "https://drywall.cf.sg/",
+	"author": {
+		"name": "Cofounders Pte. Ltd.",
+		"email": "drywall@cf.sg"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:cofounders/drywall-web.git"
+	},
+	"licenses": [
+		{
+			"type": "All rights reserved",
+			"url":
+				"https://github.com/cofounders/drywall-web/raw/master/LICENSE"
+		}
+	],
+	"scripts": {
+		"test": "grunt test"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"grunt": "0.4.1",
+		"grunt-contrib-clean": "0.4.0",
+		"grunt-contrib-connect": "0.2.0",
+		"grunt-contrib-copy": "0.4.0",
+		"grunt-contrib-cssmin": "0.5.0",
+		"grunt-contrib-handlebars": "0.5.8",
+		"grunt-contrib-htmlmin": "0.1.1",
+		"grunt-contrib-imagemin": "0.1.2",
+		"grunt-contrib-jshint": "0.3.0",
+		"grunt-contrib-nodeunit": "0.1.2",
+		"grunt-contrib-requirejs": "0.4.0",
+		"grunt-contrib-stylus": "0.5.0",
+		"grunt-contrib-watch": "0.3.1",
+		"grunt-ghost": "1.0.8",
+		"grunt-rev": "0.1.0",
+		"grunt-usemin":
+			"git://github.com/cbas/grunt-usemin.git#patch-1",
+		"backbone": "*",
+		"handlebars": "*",
+		"requirejs": "*",
+		"underscore": "*"
+	},
+	"engines": {
+		"node": "0.10.1",
+		"npm": "1.2.14",
+		"grunt": "0.4.1a"
+	},
+	"keywords": []
+}

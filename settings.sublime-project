@@ -1,0 +1,13 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns": [
+				"www/intermediate",
+				"www/publish",
+				"www/node_modules"
+			]
+		}
+	]
+}
