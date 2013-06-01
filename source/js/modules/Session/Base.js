@@ -8,16 +8,20 @@ function (_, Backbone) {
 			this.options = options || {};
 			this.fetch();
 		},
+		destroy: function (options) {
+			return this.sync('delete', this, options);
+		},
 		sync: function (method, model, options) {
 			options = options || {};
-			var url = this.options.url || this.url,
+			var url = model.options.url || model.url,
 				key = _.isFunction(url) ? url() : '' + url,
 				response;
 			switch (method) {
 			case 'create':
 			case 'update':
-				var data = JSON.stringify(this.toJSON());
-				response = localStorage.setItem(key, data);
+				var data = model.toJSON();
+				var text = JSON.stringify(data);
+				response = localStorage.setItem(key, text);
 				break;
 			case 'delete':
 				response = localStorage.removeItem(key);
