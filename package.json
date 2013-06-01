@@ -1,7 +1,7 @@
 {
 	"name": "drywall-web",
 	"description": "",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"homepage": "https://drywall.cf.sg/",
 	"author": {
 		"name": "Cofounders Pte. Ltd.",
@@ -30,16 +30,15 @@
 		"grunt-contrib-cssmin": "0.5.0",
 		"grunt-contrib-handlebars": "0.5.8",
 		"grunt-contrib-htmlmin": "0.1.1",
-		"grunt-contrib-imagemin": "0.1.2",
+		"grunt-contrib-imagemin": "0.1.4",
 		"grunt-contrib-jshint": "0.3.0",
 		"grunt-contrib-nodeunit": "0.1.2",
-		"grunt-contrib-requirejs": "0.4.0",
+		"grunt-contrib-requirejs": "0.4.1",
 		"grunt-contrib-stylus": "0.5.0",
 		"grunt-contrib-watch": "0.3.1",
-		"grunt-ghost": "1.0.8",
+		"grunt-ghost": "1.0.10",
 		"grunt-rev": "0.1.0",
-		"grunt-usemin":
-			"git://github.com/cbas/grunt-usemin.git#patch-1",
+		"grunt-usemin": "0.1.11",
 		"backbone": "*",
 		"handlebars": "*",
 		"requirejs": "*",
@@ -48,7 +47,7 @@
 	"engines": {
 		"node": "0.10.1",
 		"npm": "1.2.14",
-		"grunt": "0.4.1a"
+		"grunt": "0.4.1"
 	},
 	"keywords": []
 }

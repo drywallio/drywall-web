@@ -9,11 +9,11 @@ require.config({
 			'/ajax/libs/backbone.js/1.0.0/backbone-min',
 		facebook: '//connect.facebook.net/en_US/all',
 		handlebars: '//cdnjs.cloudflare.com' +
-			'/ajax/libs/handlebars.js/1.0.rc.2/handlebars.min',
+			'/ajax/libs/handlebars.js/1.0.0-rc.4/handlebars.min',
 		jquery: '//cdnjs.cloudflare.com' +
 			'/ajax/libs/jquery/1.9.1/jquery.min',
-		'backbone.layoutmanager': 'https://raw.github.com/tbranyen/' +
-			'backbone.layoutmanager/0.8.5/backbone.layoutmanager',
+		'backbone.layoutmanager': 'https://rawgithub.com/tbranyen/' +
+			'backbone.layoutmanager/0.8.7/backbone.layoutmanager',
 		mustache: '//cdnjs.cloudflare.com' +
 			'/ajax/libs/mustache.js/0.7.0/mustache.min',
 		underscore: '//cdnjs.cloudflare.com' +

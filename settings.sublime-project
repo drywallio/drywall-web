@@ -4,10 +4,18 @@
 		{
 			"path": ".",
 			"folder_exclude_patterns": [
-				"www/intermediate",
-				"www/publish",
-				"www/node_modules"
+				"intermediate",
+				"publish",
+				"node_modules"
+			],
+			"file_exclude_patterns": [
+				"*.sublime-workspace"
 			]
 		}
-	]
+	],
+	"settings": {
+		"default_line_ending": "unix",
+		"trim_trailing_white_space_on_save": true,
+		"translate_spaces_to_tabs": true
+	}
 }

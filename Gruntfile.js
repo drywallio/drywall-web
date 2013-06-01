@@ -28,7 +28,8 @@ module.exports = function (grunt) {
 
 		clean: {
 			staging: ['<%= staging %>/'],
-			production: ['<%= production %>/']
+			production: ['<%= production %>/'],
+			tests: ['tests/ghost/temp']
 		},
 
 		copy: {
@@ -203,8 +204,8 @@ module.exports = function (grunt) {
 					mainConfigFile: '<%= staging %>/js/loader.js',
 					out: '<%= staging %>/js/loader.js',
 					name: 'loader',
-					optimize: 'uglify2',
-					generateSourceMaps: true,
+					optimize: 'uglify',
+					// generateSourceMaps: true,
 					preserveLicenseComments: false
 				}
 			}
@@ -238,7 +239,8 @@ module.exports = function (grunt) {
 					}
 				}, grunt.file.readJSON('.jshintrc')),
 				src: [
-					'<%= source %>/js/**/*.js'
+					'<%= source %>/js/**/*.js',
+					'!<%= source %>/js/libs/**/*.js'
 				]
 			}
 		},
@@ -261,6 +263,18 @@ module.exports = function (grunt) {
 					base: '<%= production %>',
 					port: 9002
 				}
+			},
+			options: {
+				middleware: function (connect, options) {
+					return [
+						connect.static(options.base),
+						function (req, res) {
+							var path = options.base + '/index.html';
+							var file = grunt.file.read(path);
+							res.end(file);
+						}
+					];
+				}
 			}
 		},
 
@@ -277,11 +291,15 @@ module.exports = function (grunt) {
 			options: {
 				args: {
 					baseUrl: 'http://localhost:' +
-						'<%= connect.staging.options.port %>/'
+						'<%= connect.staging.options.port %>/',
+					'cookies-file': './tests/ghost/temp/cookies.txt',
+					'disk-cache': false,
+					'ignore-ssl-errors': true,
+					'local-storage': './tests/ghost/temp/storage'
 				},
 				direct: false,
 				logLevel: 'error',
-				printCommand: false,
+				printCommand: true,
 				printFilePaths: true
 			}
 		},
@@ -342,6 +360,7 @@ module.exports = function (grunt) {
 	]);
 
 	grunt.registerTask('test', [
+		'clean:tests',
 		'jshint',
 		'nodeunit',
 		'stage',

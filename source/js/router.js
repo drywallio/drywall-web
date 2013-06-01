@@ -1,7 +1,7 @@
 define([
 	'jquery', 'underscore', 'backbone', 'app'
 ], function (
-	$, _, Backbone, app,
+	$, _, Backbone, app
 ) {
 	return Backbone.Router.extend({
 

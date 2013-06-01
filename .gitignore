@@ -1,3 +1,16 @@
+# Grunt
+intermediate
+publish
+
+# NPM
+node_modules
+
+# Jekyll
+_site
+
+# Stylus
+*.css
+
 # Numerous always-ignore extensions
 *.diff
 *.err
