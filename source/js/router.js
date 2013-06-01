@@ -1,7 +1,9 @@
 define([
-	'jquery', 'underscore', 'backbone', 'app'
+	'jquery', 'underscore', 'backbone', 'app',
+	'modules/Layouts'
 ], function (
-	$, _, Backbone, app
+	$, _, Backbone, app,
+	Layouts
 ) {
 	return Backbone.Router.extend({
 
@@ -11,9 +13,14 @@ define([
 		},
 
 		landing: function () {
+			app.useLayout(Layouts.Views.Landing, {
+			}).setViews({
+			}).render();
 		},
 
 		404: function () {
+			app.useLayout(Layouts.Views['404'], {
+			}).render();
 		}
 
 	});

@@ -18,8 +18,8 @@ define([
 		constants: constants,
 
 		api: function (path, fields) {
-			var apiBasePath = 'http://localhost:2403/';
-			return url(apiBasePath + path, fields);
+			var apiBasePath = 'http://api.drywall.cf.sg/';
+			return url(apiBasePath + path, _.clone(fields));
 		},
 
 		useLayout: function (layout, options) {

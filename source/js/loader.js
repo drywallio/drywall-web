@@ -13,7 +13,7 @@ require.config({
 		jquery: '//cdnjs.cloudflare.com' +
 			'/ajax/libs/jquery/1.9.1/jquery.min',
 		'backbone.layoutmanager': 'https://rawgithub.com/tbranyen/' +
-			'backbone.layoutmanager/0.8.7/backbone.layoutmanager',
+			'backbone.layoutmanager/0.8.8/backbone.layoutmanager',
 		mustache: '//cdnjs.cloudflare.com' +
 			'/ajax/libs/mustache.js/0.7.0/mustache.min',
 		underscore: '//cdnjs.cloudflare.com' +

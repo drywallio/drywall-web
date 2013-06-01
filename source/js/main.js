@@ -4,8 +4,7 @@ define(
 	'app',
 	'router',
 	'templates.built',
-	'facebook',
-	'modules/Session/Facebook',
+	'modules/Session/API',
 	'helpers/currency'
 ],
 function (
@@ -13,11 +12,9 @@ function (
 	app,
 	Router,
 	templatesBuilt,
-	FB,
 	Session,
 	currency
 ) {
-
 	var JST = window.JST = _.extend(window.JST || {}, templatesBuilt);
 
 	Backbone.Layout.configure({
@@ -41,7 +38,11 @@ function (
 	Handlebars.registerHelper('$', currency);
 
 	app.router = new Router();
+
 	app.session = new Session();
+	app.session.on('signOut', function () {
+		app.router.navigate('/', {trigger: true});
+	});
 
 	Backbone.history.start({
 		pushState: true,
@@ -71,46 +72,10 @@ function (
 		if (isInternalLink(href, root) && !holdingModifierKey(event)) {
 			event.preventDefault();
 			Backbone.history.navigate(href.slice(root.length), true);
-			$(window).scrollTop(0);
 		}
 	});
 
-	$(document).on('click', 'a.disabled	', function (event) {
+	$(document).on('click', 'a.disabled, a[href="#"]', function (event) {
 		event.preventDefault();
 	});
-
-	/*
-	var targetUrl = location.href.substr(location.href.indexOf('/', 8));
-
-	app.session
-		.on('signIn', function () {
-			app.stream.go();
-			var url = app.api + 'profile/';
-			$.get(url).success(function (response) {
-				_.extend(response, {dummy: true});
-				app.session.save(response);
-				Backbone.history.navigate('/dashboard', true);
-			});
-		})
-		.on('signOut', function () {
-			app.stream.pause();
-			Backbone.history.navigate(app.root, true);
-		});
-
-	FB.init({
-		appId: '219268451429695',
-		channelUrl: 'https://www.redmart.com/channel.html',
-		status: false,
-		cookie: true,
-		xfbml: false
-	});
-
-	if (app.session.id) {
-		app.stream.go();
-		if (targetUrl === app.root) {
-			history.replaceState(null, '', '/dashboard');
-		}
-	}
-	*/
-
 });
