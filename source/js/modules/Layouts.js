@@ -11,12 +11,28 @@ function ($, _, Backbone, app,
 	Views.Base = Backbone.View.extend({
 		template: 'layouts/base',
 		initialize: function (options) {
+			window.scrollTo(0, 0);
+		}
+	});
+
+	Views.Nav = Backbone.View.extend({
+		initialize: function (options) {
 			this.setViews({
-				'header': new Header.Views.Account({
+				'header .account': new Header.Views.Account({
+				}),
+				'header .breadcrumbs': new Header.Views.Breadcrumbs({
 				})
 			});
 			window.scrollTo(0, 0);
 		}
+	});
+
+	Views.Organization = Views.Nav.extend({
+		template: 'layouts/wall'
+	});
+
+	Views.Wall = Views.Nav.extend({
+		template: 'layouts/wall'
 	});
 
 	Views.Landing = Views.Base.extend({

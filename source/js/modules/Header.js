@@ -16,6 +16,17 @@ define(['jquery', 'underscore', 'backbone', 'app'
 		}
 	});
 
+	Views.Breadcrumbs = Backbone.View.extend({
+		template: 'header/breadcrumbs',
+		initialize: function () {
+		},
+		events: {
+		},
+		serialize: function () {
+			return {};
+		}
+	});
+
 	return {
 		Models: Models,
 		Collections: Collections,

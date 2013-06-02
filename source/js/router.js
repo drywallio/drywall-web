@@ -10,6 +10,8 @@ define([
 		routes: {
 			'': 'landing',
 			'login/github/redirect/': 'github',
+			':organization': 'organization',
+			':organization/:repository': 'wall',
 			'*path': '404'
 		},
 
@@ -22,6 +24,18 @@ define([
 		github: function () {
 			console.log('GITHUB CALLBACK!');
 			app.useLayout(Layouts.Views.Github, {
+			}).setViews({
+			}).render();
+		},
+
+		organization: function () {
+			app.useLayout(Layouts.Views.Organization, {
+			}).setViews({
+			}).render();
+		},
+
+		wall: function () {
+			app.useLayout(Layouts.Views.Wall, {
 			}).setViews({
 			}).render();
 		},
