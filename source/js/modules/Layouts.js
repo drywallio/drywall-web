@@ -9,13 +9,12 @@ function ($, _, Backbone, app,
 	var Views = {};
 
 	Views.Base = Backbone.View.extend({
-		template: 'layouts/base',
 		initialize: function (options) {
 			window.scrollTo(0, 0);
 		}
 	});
 
-	Views.Nav = Backbone.View.extend({
+	Views.Nav = Views.Base.extend({
 		initialize: function (options) {
 			this.setViews({
 				'header .account': new Header.Views.Account({
