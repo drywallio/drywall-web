@@ -20,7 +20,28 @@ function ($, _, Backbone, app,
 	});
 
 	Views.Landing = Views.Base.extend({
-		template: 'layouts/landing'
+		template: 'layouts/landing',
+		events: {
+			'submit form.signin': 'signin'
+		},
+		signin: function (event) {
+			event.preventDefault();
+			this.$el.addClass('working');
+			app.session.signIn();
+		}
+	});
+
+	Views.Github = Views.Base.extend({
+		template: 'layouts/github',
+		events: {
+			'click button.cancel': 'cancel'
+		},
+		cancel: function () {
+			app.session.signOut();
+		},
+		afterRender: function () {
+			console.log('AFTER RENDER GITHUB');
+		}
 	});
 
 	Views['404'] = Views.Base.extend({

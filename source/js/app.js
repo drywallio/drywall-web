@@ -17,9 +17,13 @@ define([
 
 		constants: constants,
 
-		api: function (path, fields) {
-			var apiBasePath = 'http://api.drywall.cf.sg/';
-			return url(apiBasePath + path, _.clone(fields));
+		api: function (endpoint, fields) {
+			var apiBasePath = 'http://api.drywall.cf.sg';
+			var hasSlash = /\/$/.test(apiBasePath) || /^\//.test(endpoint);
+			if (!hasSlash) {
+				apiBasePath += '/';
+			}
+			return url(apiBasePath + endpoint, _.clone(fields));
 		},
 
 		useLayout: function (layout, options) {

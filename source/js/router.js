@@ -9,11 +9,19 @@ define([
 
 		routes: {
 			'': 'landing',
+			'login/github/redirect/': 'github',
 			'*path': '404'
 		},
 
 		landing: function () {
 			app.useLayout(Layouts.Views.Landing, {
+			}).setViews({
+			}).render();
+		},
+
+		github: function () {
+			console.log('GITHUB CALLBACK!');
+			app.useLayout(Layouts.Views.Github, {
 			}).setViews({
 			}).render();
 		},
