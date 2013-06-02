@@ -18,7 +18,7 @@ define([
 		constants: constants,
 
 		api: function (endpoint, fields) {
-			var apiBasePath = 'http://api.drywall.cf.sg';
+			var apiBasePath = 'http://drywall.cf.sg/api';
 			var hasSlash = /\/$/.test(apiBasePath) || /^\//.test(endpoint);
 			if (!hasSlash) {
 				apiBasePath += '/';
