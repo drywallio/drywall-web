@@ -65,12 +65,27 @@ module.exports = function (grunt) {
 		},
 
 		stylus: {
-			options: {
-				compress: true
+			source: {
+				options: {
+					compress: false,
+					import: [
+						'nib'
+					]
+				},
+				files: {
+					'<%= source %>/styles/app.css': '<%= source %>/styles/app.styl'
+				}
 			},
-			file: {
-				src: '<%= staging %>/styles/app.styl',
-				dest: '<%= staging %>/styles/app.css'
+			staging: {
+				options: {
+					compress: true,
+					import: [
+						'nib'
+					]
+				},
+				files: {
+					'<%= staging %>/styles/app.css': '<%= staging %>/styles/app.styl'
+				}
 			}
 		},
 
@@ -337,7 +352,7 @@ module.exports = function (grunt) {
 		'imagemin',
 		'rev:assets',
 		'usemin:templates',
-		'stylus',
+		'stylus:staging',
 		'cssmin',
 		'usemin:css',
 		'rev:css',
