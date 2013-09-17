@@ -11,7 +11,7 @@ define([
 			'': 'landing',
 			'login/github/redirect/': 'github',
 			':organization': 'organization',
-			':organization/:repository': 'wall',
+			':organization/:repository': 'repository',
 			'*path': '404'
 		},
 
@@ -34,7 +34,7 @@ define([
 			}).render();
 		},
 
-		wall: function () {
+		repository: function () {
 			app.useLayout(Layouts.Views.Wall, {
 			}).setViews({
 			}).render();

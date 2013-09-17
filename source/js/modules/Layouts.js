@@ -15,14 +15,10 @@ function ($, _, Backbone, app,
 	});
 
 	Views.Nav = Views.Base.extend({
-		initialize: function (options) {
+		beforeRender: function (options) {
 			this.setViews({
-				'header .account': new Header.Views.Account({
-				}),
-				'header .breadcrumbs': new Header.Views.Breadcrumbs({
-				})
+				'header': new Header.Views.Primary()
 			});
-			window.scrollTo(0, 0);
 		}
 	});
 
