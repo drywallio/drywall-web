@@ -24,7 +24,7 @@ casper.waitForSelector('#app > *.layout:not(.loading)');
 
 casper.then(function () {
 	this.test.assertTitle(
-		'Drywall',
+		'DryWall',
 		'Make sure the title is set'
 	);
 	this.test.assertExists(
