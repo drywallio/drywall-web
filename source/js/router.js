@@ -35,7 +35,7 @@ define([
 		},
 
 		repository: function () {
-			app.useLayout(Layouts.Views.Wall, {
+			app.useLayout(Layouts.Views.Repository, {
 			}).setViews({
 			}).render();
 		},

@@ -1,8 +1,8 @@
 define(['jquery', 'underscore', 'backbone', 'app',
-	'modules/Header'
+	'modules/Navigation'
 ],
 function ($, _, Backbone, app,
-	Header
+	Navigation
 ) {
 	var Models = {};
 	var Collections = {};
@@ -17,17 +17,17 @@ function ($, _, Backbone, app,
 	Views.Nav = Views.Base.extend({
 		beforeRender: function (options) {
 			this.setViews({
-				'header': new Header.Views.Primary()
+				'header': new Navigation.Views.Primary()
 			});
 		}
 	});
 
 	Views.Organization = Views.Nav.extend({
-		template: 'layouts/wall'
+		template: 'layouts/organization'
 	});
 
-	Views.Wall = Views.Nav.extend({
-		template: 'layouts/wall'
+	Views.Repository = Views.Nav.extend({
+		template: 'layouts/repository'
 	});
 
 	Views.Landing = Views.Base.extend({
