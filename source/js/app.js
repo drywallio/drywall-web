@@ -11,19 +11,27 @@ define([
 ) {
 	var app = _.extend({
 
+		apiBasePath: 'http://drywall.cf.sg/api',
+
 		el: '#app',
 
 		root: '/',
 
 		constants: constants,
 
-		api: function (endpoint, fields) {
-			var apiBasePath = 'http://drywall.cf.sg/api';
-			var hasSlash = /\/$/.test(apiBasePath) || /^\//.test(endpoint);
+		api: function (endpoint, fields, data) {
+			var path = this.apiBasePath;
+
+			var hasSlash = /\/$/.test(path) || /^\//.test(endpoint);
 			if (!hasSlash) {
-				apiBasePath += '/';
+				path += '/';
 			}
-			return url(apiBasePath + endpoint, _.clone(fields));
+
+			path += endpoint;
+
+			return url(path, _.clone(fields), _.defaults({
+				format: 'json'
+			}, data));
 		},
 
 		useLayout: function (layout, options) {
@@ -46,11 +54,10 @@ define([
 			) {
 				var Constructor = layout;
 				if (this.layout) {
-					this.layout.removeView();
+					this.layout.remove();
 				}
-				this.layout = new Constructor(_.extend({
-					el: app.el
-				}, options));
+				this.layout = new Constructor(options);
+				$(app.el).empty().append(this.layout.el);
 			}
 
 			return this.layout;

@@ -22,8 +22,8 @@ function (
 		manage: true,
 		prefix: '/templates/',
 		fetch: function (path) {
-			var prefix = Backbone.Layout.prototype.getAllOptions().prefix,
-				bare = path.substr(prefix.length);
+			var prefix = Backbone.Layout.prototype.getAllOptions().prefix;
+			var bare = path.substr(prefix.length);
 
 			if (JST[bare]) { return JST[bare]; }
 
@@ -71,7 +71,9 @@ function (
 			};
 		if (isInternalLink(href, root) && !holdingModifierKey(event)) {
 			event.preventDefault();
-			Backbone.history.navigate(href.slice(root.length), true);
+			Backbone.history.navigate(href.slice(root.length), {
+				trigger: true
+			});
 		}
 	});
 

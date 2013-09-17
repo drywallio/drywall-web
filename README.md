@@ -98,6 +98,7 @@ Assets such as images and fonts are revisioned by renaming them based on a file 
 - Run `npm test` to sanity check the code.
 - Open <http://drywall.localhost/> (production) or <http://dev.drywall.localhost/> (development)
 - Run `grunt dev` to automatically rebuild the app on any changes to the code, styles, or assets.
+- Run `grunt stylus:source` to generate only the CSS in the source directory. This is useful when developing on the `dev.` subdomain.
 
 ## Dependencies
 
