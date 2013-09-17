@@ -73,7 +73,8 @@ module.exports = function (grunt) {
 					]
 				},
 				files: {
-					'<%= source %>/styles/app.css': '<%= source %>/styles/app.styl'
+					'<%= source %>/styles/app.css':
+					'<%= source %>/styles/app.styl'
 				}
 			},
 			staging: {
@@ -84,7 +85,8 @@ module.exports = function (grunt) {
 					]
 				},
 				files: {
-					'<%= staging %>/styles/app.css': '<%= staging %>/styles/app.styl'
+					'<%= staging %>/styles/app.css':
+					'<%= staging %>/styles/app.styl'
 				}
 			}
 		},
