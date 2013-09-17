@@ -6,6 +6,17 @@ define(['jquery', 'underscore', 'backbone', 'app'
 
 	Views.Primary = Backbone.View.extend({
 		template: 'navigation/primary',
+		events: {
+			'mouseenter': function (event) {
+				var chooser = new Views.Chooser({
+				});
+				this.setView('.chooser', chooser);
+				chooser.render();
+			},
+			'mouseleave': function (event) {
+				this.removeView('.chooser');
+			}
+		},
 		beforeRender: function () {
 			this.setViews({
 				'.account': new Views.Account({
@@ -21,8 +32,6 @@ define(['jquery', 'underscore', 'backbone', 'app'
 		initialize: function () {
 			this.listenTo(app.session, 'change', this.render);
 		},
-		events: {
-		},
 		serialize: function () {
 			return app.session.toJSON();
 		}
@@ -32,11 +41,13 @@ define(['jquery', 'underscore', 'backbone', 'app'
 		template: 'navigation/breadcrumbs',
 		initialize: function () {
 		},
-		events: {
-		},
 		serialize: function () {
 			return {};
 		}
+	});
+
+	Views.Chooser = Backbone.View.extend({
+		template: 'navigation/chooser'
 	});
 
 	return {
