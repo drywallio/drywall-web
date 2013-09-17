@@ -5,7 +5,7 @@ define(['jquery', 'underscore', 'backbone', 'app'
 	var Views = {};
 
 	Views.Primary = Backbone.View.extend({
-		template: 'header/primary',
+		template: 'navigation/primary',
 		beforeRender: function () {
 			this.setViews({
 				'.account': new Views.Account({
@@ -17,7 +17,7 @@ define(['jquery', 'underscore', 'backbone', 'app'
 	});
 
 	Views.Account = Backbone.View.extend({
-		template: 'header/account',
+		template: 'navigation/account',
 		initialize: function () {
 			this.listenTo(app.session, 'change', this.render);
 		},
@@ -29,7 +29,7 @@ define(['jquery', 'underscore', 'backbone', 'app'
 	});
 
 	Views.Breadcrumbs = Backbone.View.extend({
-		template: 'header/breadcrumbs',
+		template: 'navigation/breadcrumbs',
 		initialize: function () {
 		},
 		events: {
