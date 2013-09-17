@@ -4,6 +4,18 @@ define(['jquery', 'underscore', 'backbone', 'app'
 	var Collections = {};
 	var Views = {};
 
+	Views.Primary = Backbone.View.extend({
+		template: 'header/primary',
+		beforeRender: function () {
+			this.setViews({
+				'.account': new Views.Account({
+				}),
+				'.breadcrumbs': new Views.Breadcrumbs({
+				})
+			});
+		}
+	});
+
 	Views.Account = Backbone.View.extend({
 		template: 'header/account',
 		initialize: function () {
