@@ -8,13 +8,16 @@ define(['jquery', 'underscore', 'backbone', 'app'
 		template: 'navigation/primary',
 		events: {
 			'mouseenter': function (event) {
-				var chooser = new Views.Chooser({
-				});
-				this.setView('.chooser', chooser);
-				chooser.render();
+				if (!this.getView('.chooser')) {
+					var chooser = new Views.Chooser({
+					});
+					this.setView('.chooser', chooser);
+					chooser.render();
+					console.log('chooser draw');
+				}
 			},
 			'mouseleave': function (event) {
-				this.removeView('.chooser');
+				// this.removeView('.chooser');
 			}
 		},
 		beforeRender: function () {
