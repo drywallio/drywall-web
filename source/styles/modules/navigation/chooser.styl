@@ -67,13 +67,50 @@
 		flex 1
 		background-color #2c2c2c
 		border-left 1px solid #000
+		padding 0 30px 30px 0
 
 		> li
-			font-weight 100
-			color #666
+			width 212px
+			height 116px
+			box-shadow 0 5px 3px 0 rgba(5, 6, 6, 0.5)
+			display inline-block
+			vertical-align top
+			margin 30px 0 0 30px
 
-			> label
-				font-size 18px
+			> a
+				text-decoration none
+				display inline-block
+				width 100%
+				height 100%
+				font-weight 100
+				color #666
+				background-color #fff
+				cursor pointer
 
-			> span
-				font-size 12px
+				&:hover
+					box-shadow inset 0 -5px 0 0 #87e7e6
+
+				> img
+					width 100%
+					height 60px
+
+				> label
+					margin 5px 10px 0 8px
+					font-size 18px
+					display block
+					cursor pointer
+
+				> span
+					margin 0 0 0 8px
+					font-size 12px
+					display block
+
+			&.add
+
+				> button
+					background center no-repeat url('/img/icn-add.png'), #444
+					width 100%
+					height 100%
+					border-width 0
+					border-top 1px solid #121212
+					font-size 0
