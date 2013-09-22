@@ -13,11 +13,10 @@ define(['jquery', 'underscore', 'backbone', 'app'
 					});
 					this.setView('.chooser', chooser);
 					chooser.render();
-					console.log('chooser draw');
 				}
 			},
 			'mouseleave': function (event) {
-				// this.removeView('.chooser');
+				this.removeView('.chooser');
 			}
 		},
 		beforeRender: function () {
