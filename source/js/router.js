@@ -1,9 +1,11 @@
 define([
 	'jquery', 'underscore', 'backbone', 'app',
-	'modules/Layouts'
+	'modules/Layouts',
+	'modules/Wall'
 ], function (
 	$, _, Backbone, app,
-	Layouts
+	Layouts,
+	Wall
 ) {
 	return Backbone.Router.extend({
 
@@ -34,10 +36,18 @@ define([
 			}).render();
 		},
 
-		repository: function () {
+		repository: function (organization, repository) {
+			var stickies = new Wall.Collections.Stickies([], {
+				organization: organization,
+				repository: repository
+			});
 			app.useLayout(Layouts.Views.Repository, {
 			}).setViews({
+				'article': new Wall.Views.Draggable({
+					collection: stickies
+				})
 			}).render();
+			stickies.fetch();
 		},
 
 		404: function () {
