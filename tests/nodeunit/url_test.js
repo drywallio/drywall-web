@@ -34,7 +34,7 @@ exports['URL string builder'] = {
 		var path = '//example.com/items/{ID}',
 			params = {ID: 123},
 			options = {slug: /\{([A-Z]+)\}/g},
-			output = this.url(path, params, options);
+			output = this.url(path, params, null, options);
 
 		test.equals(output, '//example.com/items/123');
 		test.done();
@@ -44,7 +44,7 @@ exports['URL string builder'] = {
 		var path = '//example.com/items/:sort',
 			params = {sort: ['height', 'price', 'rating']},
 			options = {separator: '_'},
-			output = this.url(path, params, options);
+			output = this.url(path, params, null, options);
 
 		test.equals(output, '//example.com/items/height_price_rating');
 		test.done();
@@ -79,6 +79,33 @@ exports['URL string builder'] = {
 			output = this.url(path, params);
 
 		test.equals(output, '//example.com/%E0%B2%A0_%E0%B2%A0');
+		test.done();
+	},
+
+	'query string': function (test) {
+		var path = '//example.com/',
+			data = {foo: 'bar'},
+			output = this.url(path, null, data);
+
+		test.equals(output, '//example.com/?foo=bar');
+		test.done();
+	},
+
+	'escaping query parameter': function (test) {
+		var path = '//example.com/',
+			data = {hi: 'me & you'},
+			output = this.url(path, null, data);
+
+		test.equals(output, '//example.com/?hi=me%20%26%20you');
+		test.done();
+	},
+
+	'multiple query parameters': function (test) {
+		var path = '//example.com/',
+			data = {foo: 'bar', count: 123},
+			output = this.url(path, null, data);
+
+		test.equals(output, '//example.com/?foo=bar&count=123');
 		test.done();
 	}
 

@@ -331,18 +331,24 @@ module.exports = function (grunt) {
 		},
 
 		watch: {
-			dev: {
+			js: {
 				files: [
 					'Gruntfile.js',
 					'package.json',
-					'<%= source %>/index.html',
-					'<%= source %>/robots.txt',
-					'<%= source %>/js/**',
-					'<%= source %>/styles/**',
-					'<%= source %>/img/**',
-					'<%= source %>/templates/**'
+					'<%= source %>/js/**/*.js'
 				],
-				tasks: ['test', 'publish']
+				tasks: [
+					'jshint',
+					'nodeunit'
+				]
+			},
+			css: {
+				files: [
+					'<%= source %>/styles/**/*.styl'
+				],
+				tasks: [
+					'stylus:source'
+				]
 			}
 		}
 
@@ -383,12 +389,6 @@ module.exports = function (grunt) {
 		'stage',
 		'connect:staging',
 		'ghost'
-	]);
-
-	grunt.registerTask('dev', [
-		'test',
-		'publish',
-		'watch'
 	]);
 
 };
