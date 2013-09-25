@@ -37,7 +37,45 @@ define([
 		},
 
 		repository: function (organization, repository) {
-			var stickies = new Wall.Collections.Stickies([], {
+			var rand = function () {
+				return Math.round(Math.random() * 30);
+			};
+			var stickies = new Wall.Collections.Stickies([{
+				title: 'Hello world',
+				x: 26 * rand(),
+				y: 26 * rand(),
+				color: '#15c2d2'
+			}, {
+				title: 'How are you doing?',
+				x: 26 * rand(),
+				y: 26 * rand(),
+				color: '#4ccef8'
+			}, {
+				title: 'Not another stickie!',
+				x: 26 * rand(),
+				y: 26 * rand(),
+				color: '#deb4e3'
+			}, {
+				title: 'You shall not pass',
+				x: 26 * rand(),
+				y: 26 * rand(),
+				color: '#f4a22e'
+			}, {
+				title: 'Chocolate and bananas for code monkeys',
+				x: 26 * rand(),
+				y: 26 * rand(),
+				color: '#ffca45'
+			}, {
+				title: 'Vroom Vroom',
+				x: 26 * rand(),
+				y: 26 * rand(),
+				color: '#e7524e'
+			}, {
+				title: 'Shake it baby!',
+				x: 26 * rand(),
+				y: 26 * rand(),
+				color: '#be6ac8'
+			}], {
 				organization: organization,
 				repository: repository
 			});

@@ -1,5 +1,5 @@
 define(['jquery', 'underscore', 'backbone', 'app',
-	'draggable'
+	'Draggable'
 ],
 function ($, _, Backbone, app,
 	Draggable
@@ -45,19 +45,50 @@ function ($, _, Backbone, app,
 			}));
 		},
 		afterRender: function () {
+			var gridWidth = 26;
+			var gridHeight = 26;
+			var snapX = function (endValue) {
+				var minX = this.minX || 0;
+				var maxX = this.maxX || 1E10;
+				var cell = Math.round(endValue / gridWidth) * gridWidth;
+				var target = Math.max(minX, Math.min(maxX, cell));
+				// console.log('minX', minX, 'maxX', maxX, 'target', target);
+				return target;
+			};
+			var snapY = function (endValue) {
+				var minY = this.minY || 0;
+				var maxY = this.maxY || 1E10;
+				var cell = Math.round(endValue / gridHeight) * gridHeight;
+				var target = Math.max(minY, Math.min(maxY, cell));
+				// console.log('minY', minY, 'maxY', maxY, 'target', target);
+				return target;
+			};
 			if (this.collection.length > 0) {
 				Draggable.create('.stickie', {
 					type: 'x,y',
-					bounds: this.$el,
-					edgeResistance: 0.5,
-					throwProps: true
+					bounds: {
+						top: 48,
+						left: 0
+						// width: 0,
+						// height: 0
+					},
+					maxDuration: 0.1,
+					edgeResistance: 0.75,
+					throwProps: true,
+					snap: {
+						x: snapX,
+						y: snapY
+					}
 				});
 			}
 		}
 	});
 
 	Views.Stickie = Backbone.View.extend({
-		template: 'wall/stickie'
+		template: 'wall/stickie',
+		serialize: function () {
+			return this.model.toJSON();
+		}
 	});
 
 	return {
