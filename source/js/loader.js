@@ -19,7 +19,12 @@ require.config({
 			'/ajax/libs/mustache.js/0.7.0/mustache.min',
 		underscore: '//cdnjs.cloudflare.com' +
 			'/ajax/libs/underscore.js/1.4.4/underscore-min',
-		draggable: 'libs/gsap/utils/Draggable'
+		Draggable: '//cdnjs.cloudflare.com' +
+			'/ajax/libs/gsap/1.10.3/utils/Draggable.min',
+		TweenLite: '//cdnjs.cloudflare.com' +
+			'/ajax/libs/gsap/1.10.3/TweenLite.min',
+		CSSPlugin: '//cdnjs.cloudflare.com' +
+			'/ajax/libs/gsap/1.10.3/plugins/CSSPlugin.min'
 	},
 
 	shim: {
@@ -27,11 +32,11 @@ require.config({
 			deps: ['underscore', 'jquery'],
 			exports: 'Backbone'
 		},
-		draggable: {
+		Draggable: {
 			deps: [
-				'libs/gsap/plugins/CSSPlugin',
-				// 'libs/gsap/plugins/ThrowPropsPlugin',
-				'libs/gsap/TweenLite'
+				'CSSPlugin',
+				'libs/gsap/plugins/ThrowPropsPlugin',
+				'TweenLite'
 			],
 			exports: 'Draggable'
 		},
