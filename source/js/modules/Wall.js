@@ -72,7 +72,7 @@ function ($, _, Backbone, app,
 						// width: 0,
 						// height: 0
 					},
-					maxDuration: 0.1,
+					maxDuration: 0.5,
 					edgeResistance: 0.75,
 					throwProps: true,
 					snap: {
