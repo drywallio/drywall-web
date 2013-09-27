@@ -58,11 +58,11 @@ function ($, _, Backbone, app,
 		template: 'wall/draggable',
 		initialize: function (options) {
 			this.options = options;
-			this.listenTo(this.collection, 'sync', this.render);
+			// this.listenTo(this.collection, 'sync', this.render);
 			this.listenTo(this.collection, 'change', this.updateGrid);
 		},
 		beforeRender: function () {
-			this.getViews('.stickie').each(function(stickie) {
+			this.getViews('.stickie').each(function (stickie) {
 				stickie.remove();
 			});
 			this.insertViews({
@@ -75,13 +75,6 @@ function ($, _, Backbone, app,
 		},
 		afterRender: function () {
 			this.updateGrid();
-			Draggable.create(this.$el, {
-				trigger: this.$el.find('.grid'),
-				type: 'x,y',
-				maxDuration: 0.5,
-				edgeResistance: 0.75,
-				throwProps: true
-			});
 		},
 		updateGrid: function () {
 			var box = this.collection.bounds();
@@ -89,6 +82,13 @@ function ($, _, Backbone, app,
 			var top = box.top - stickieHeight;
 			var width = stickieWidth + box.width + stickieWidth;
 			var height = stickieHeight + box.height + stickieHeight;
+
+			if (this.draggable) {
+				_.each(this.draggable, function (draggable) {
+					draggable.disable();
+				});
+			}
+
 			this.$el.find('.grid').css({
 				width: width,
 				height: height,
@@ -97,6 +97,46 @@ function ($, _, Backbone, app,
 					top + 'px, ' +
 					'0px' +
 				')'
+			});
+
+			var voidPadding = 200;
+
+			// this.$el.find('.void').css({
+			// 	width: this.$el.parent().width()
+			// 		+ voidPadding + voidPadding,
+			// 	height: this.$el.parent().height()
+			// 		+ voidPadding + voidPadding
+			// });
+
+			this.draggable = Draggable.create(this.$el, {
+				trigger: this.$el.find('.grid'),
+				type: 'x,y',
+				maxDuration: 0.5,
+				edgeResistance: 1,
+				throwProps: true,
+				// bounds: this.$el.find('.void')
+				bounds: {
+					top: 500,
+					left: 500,
+					width: 3000,
+					height: 3000
+				}
+				// bounds: {
+				// 	left: Math.min(-1 * voidPadding,
+				// 		this.$el.parent().position().left
+				// 			 - (width - this.$el.parent().width())
+				// 			 - voidPadding
+				// 	),
+				// 	top: Math.min(-1 * voidPadding,
+				// 		this.$el.parent().position().top
+				// 			- (height - this.$el.parent().height())
+				// 			- voidPadding
+				// 	),
+				// 	width: this.$el.parent().width()
+				// 		+ voidPadding + voidPadding,
+				// 	height: this.$el.parent().height()
+				// 		+ voidPadding + voidPadding
+				// }
 			});
 		}
 	});
@@ -133,6 +173,13 @@ function ($, _, Backbone, app,
 		},
 		afterRender: function () {
 			var that = this;
+			this.$el.css({
+				transform: 'translate3d(' +
+					this.model.get('x') + 'px, ' +
+					this.model.get('y') + 'px, ' +
+					'0px' +
+				')'
+			});
 			Draggable.create(this.$el, {
 				type: 'x,y',
 				bounds: this.$el.parent().siblings('.grid'),
