@@ -37,43 +37,46 @@ define([
 		},
 
 		repository: function (organization, repository) {
-			var rand = function () {
-				return Math.round(Math.random() * 30);
+			var rand = function (max) {
+				var grid = 26;
+				return Math.round(Math.random() * max / grid) * grid;
 			};
+			var randX = _.partial(rand, document.body.clientWidth - 320);
+			var randY = _.partial(rand, document.body.clientHeight - 320);
 			var stickies = new Wall.Collections.Stickies([{
 				title: 'Hello world',
-				x: 26 * rand(),
-				y: 26 * rand(),
+				x: randX(),
+				y: randY(),
 				color: '#15c2d2'
 			}, {
 				title: 'How are you doing?',
-				x: 26 * rand(),
-				y: 26 * rand(),
+				x: randX(),
+				y: randY(),
 				color: '#4ccef8'
 			}, {
 				title: 'Not another stickie!',
-				x: 26 * rand(),
-				y: 26 * rand(),
+				x: randX(),
+				y: randY(),
 				color: '#deb4e3'
 			}, {
 				title: 'You shall not pass',
-				x: 26 * rand(),
-				y: 26 * rand(),
+				x: randX(),
+				y: randY(),
 				color: '#f4a22e'
 			}, {
 				title: 'Chocolate and bananas for code monkeys',
-				x: 26 * rand(),
-				y: 26 * rand(),
+				x: randX(),
+				y: randY(),
 				color: '#ffca45'
 			}, {
 				title: 'Vroom Vroom',
-				x: 26 * rand(),
-				y: 26 * rand(),
+				x: randX(),
+				y: randY(),
 				color: '#e7524e'
 			}, {
 				title: 'Shake it baby!',
-				x: 26 * rand(),
-				y: 26 * rand(),
+				x: randX(),
+				y: randY(),
 				color: '#be6ac8'
 			}], {
 				organization: organization,

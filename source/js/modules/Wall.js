@@ -25,6 +25,24 @@ function ($, _, Backbone, app,
 				'repository',
 				'organization'
 			));
+		},
+		bounds: function () {
+			console.log(this.map(function (stickie) {
+				return [
+					stickie.get('x'),
+					stickie.get('y')
+				];
+			}));
+			return {
+				top: 0,
+				left: 0,
+				width: this.max(function (stickie) {
+					return stickie.get('x');
+				}).get('x'),
+				height: this.max(function (stickie) {
+					return stickie.get('y');
+				}).get('y')
+			};
 		}
 	});
 
@@ -33,18 +51,51 @@ function ($, _, Backbone, app,
 		initialize: function (options) {
 			this.options = options;
 			this.listenTo(this.collection, 'sync', this.render);
+			this.listenTo(this.collection, 'change', this._fitGrid);
 		},
 		beforeRender: function () {
 			this.getViews('.stickie').each(function(stickie) {
 				stickie.remove();
 			});
-			this.insertViews(this.collection.map(function (stickie) {
-				return new Views.Stickie({
-					model: stickie
-				});
-			}));
+			console.log('bounds', this.collection.bounds());
+			this.insertViews({
+				'.stickies': this.collection.map(function (stickie) {
+					return new Views.Stickie({
+						model: stickie
+					});
+				})
+			});
 		},
 		afterRender: function () {
+			Draggable.create(this.$el, {
+				trigger: this.$el.find('.grid'),
+				type: 'x,y',
+				maxDuration: 0.5,
+				edgeResistance: 0.75,
+				throwProps: true
+			});
+		},
+		_fitGrid: function () {
+			console.log('bounds', this.collection.bounds());
+		}
+	});
+
+	Views.Stickie = Backbone.View.extend({
+		template: 'wall/stickie',
+		initialize: function () {
+			this.listenTo(this.model, 'change', this.updateCoordinates);
+		},
+		serialize: function () {
+			return this.model.toJSON();
+		},
+		updateCoordinates: function () {
+			var x = this.model.get('x');
+			var y = this.model.get('y');
+			this.$el.find('.coordinates .x').html(x);
+			this.$el.find('.coordinates .y').html(y);
+		},
+		afterRender: function () {
+			var that = this;
 			var gridWidth = 26;
 			var gridHeight = 26;
 			var snapX = function (endValue) {
@@ -63,31 +114,29 @@ function ($, _, Backbone, app,
 				// console.log('minY', minY, 'maxY', maxY, 'target', target);
 				return target;
 			};
-			if (this.collection.length > 0) {
-				Draggable.create('.stickie', {
-					type: 'x,y',
-					bounds: {
-						top: 48,
-						left: 0
-						// width: 0,
-						// height: 0
-					},
-					maxDuration: 0.5,
-					edgeResistance: 0.75,
-					throwProps: true,
-					snap: {
-						x: snapX,
-						y: snapY
-					}
-				});
-			}
-		}
-	});
-
-	Views.Stickie = Backbone.View.extend({
-		template: 'wall/stickie',
-		serialize: function () {
-			return this.model.toJSON();
+			Draggable.create(this.$el, {
+				type: 'x,y',
+				bounds: {
+					top: 48,
+					left: 0
+					// width: 0,
+					// height: 0
+				},
+				maxDuration: 0.5,
+				edgeResistance: 0.75,
+				throwProps: true,
+				snap: {
+					x: snapX,
+					y: snapY
+				},
+				onDragEnd: function () {
+					// console.log("drag ended", this.endX, this.x);
+					that.model.set({
+						x: this.x,
+						y: this.y
+					});
+				}
+			});
 		}
 	});
 
