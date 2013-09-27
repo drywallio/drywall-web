@@ -14,6 +14,12 @@ function ($, _, Backbone, app,
 		}
 	});
 
+	var stickieWidth = 311;
+	var stickieHeight = 311;
+
+	var gridWidth = 26;
+	var gridHeight = 26;
+
 	Collections.Stickies = Backbone.Collection.extend({
 		model: Models.Stickie,
 		initialize: function (models, options) {
@@ -27,22 +33,24 @@ function ($, _, Backbone, app,
 			));
 		},
 		bounds: function () {
-			console.log(this.map(function (stickie) {
-				return [
-					stickie.get('x'),
-					stickie.get('y')
-				];
-			}));
-			return {
-				top: 0,
-				left: 0,
-				width: this.max(function (stickie) {
-					return stickie.get('x');
-				}).get('x'),
-				height: this.max(function (stickie) {
-					return stickie.get('y');
-				}).get('y')
+			var x = this.map(function (stickie) {
+				return stickie.get('x');
+			});
+			var y = this.map(function (stickie) {
+				return stickie.get('y');
+			});
+
+			var box = {
+				left: _.min(x),
+				right: _.max(x) + stickieWidth,
+				top: _.min(y),
+				bottom: _.max(y) + stickieHeight
 			};
+
+			return _.extend(box, {
+				width: box.right - box.left,
+				height: box.bottom - box.top
+			});
 		}
 	});
 
@@ -51,13 +59,12 @@ function ($, _, Backbone, app,
 		initialize: function (options) {
 			this.options = options;
 			this.listenTo(this.collection, 'sync', this.render);
-			this.listenTo(this.collection, 'change', this._fitGrid);
+			this.listenTo(this.collection, 'change', this.updateGrid);
 		},
 		beforeRender: function () {
 			this.getViews('.stickie').each(function(stickie) {
 				stickie.remove();
 			});
-			console.log('bounds', this.collection.bounds());
 			this.insertViews({
 				'.stickies': this.collection.map(function (stickie) {
 					return new Views.Stickie({
@@ -67,6 +74,7 @@ function ($, _, Backbone, app,
 			});
 		},
 		afterRender: function () {
+			this.updateGrid();
 			Draggable.create(this.$el, {
 				trigger: this.$el.find('.grid'),
 				type: 'x,y',
@@ -75,10 +83,39 @@ function ($, _, Backbone, app,
 				throwProps: true
 			});
 		},
-		_fitGrid: function () {
-			console.log('bounds', this.collection.bounds());
+		updateGrid: function () {
+			var box = this.collection.bounds();
+			var left = box.left - stickieWidth;
+			var top = box.top - stickieHeight;
+			var width = stickieWidth + box.width + stickieWidth;
+			var height = stickieHeight + box.height + stickieHeight;
+			this.$el.find('.grid').css({
+				width: width,
+				height: height,
+				transform: 'translate3d(' +
+					left + 'px, ' +
+					top + 'px, ' +
+					'0px' +
+				')'
+			});
 		}
 	});
+
+	var snapX = function (endValue) {
+		var minX = this.minX || 0;
+		var maxX = this.maxX || 1E10;
+		var cell = Math.round(endValue / gridWidth) * gridWidth;
+		var target = Math.max(minX, Math.min(maxX, cell));
+		return target;
+	};
+
+	var snapY = function (endValue) {
+		var minY = this.minY || 0;
+		var maxY = this.maxY || 1E10;
+		var cell = Math.round(endValue / gridHeight) * gridHeight;
+		var target = Math.max(minY, Math.min(maxY, cell));
+		return target;
+	};
 
 	Views.Stickie = Backbone.View.extend({
 		template: 'wall/stickie',
@@ -96,32 +133,15 @@ function ($, _, Backbone, app,
 		},
 		afterRender: function () {
 			var that = this;
-			var gridWidth = 26;
-			var gridHeight = 26;
-			var snapX = function (endValue) {
-				var minX = this.minX || 0;
-				var maxX = this.maxX || 1E10;
-				var cell = Math.round(endValue / gridWidth) * gridWidth;
-				var target = Math.max(minX, Math.min(maxX, cell));
-				// console.log('minX', minX, 'maxX', maxX, 'target', target);
-				return target;
-			};
-			var snapY = function (endValue) {
-				var minY = this.minY || 0;
-				var maxY = this.maxY || 1E10;
-				var cell = Math.round(endValue / gridHeight) * gridHeight;
-				var target = Math.max(minY, Math.min(maxY, cell));
-				// console.log('minY', minY, 'maxY', maxY, 'target', target);
-				return target;
-			};
 			Draggable.create(this.$el, {
 				type: 'x,y',
-				bounds: {
-					top: 48,
-					left: 0
+				bounds: this.$el.parent().siblings('.grid'),
+				// bounds: {
+					// top: 48,
+					// left: 0
 					// width: 0,
 					// height: 0
-				},
+				// },
 				maxDuration: 0.5,
 				edgeResistance: 0.75,
 				throwProps: true,
@@ -130,7 +150,6 @@ function ($, _, Backbone, app,
 					y: snapY
 				},
 				onDragEnd: function () {
-					// console.log("drag ended", this.endX, this.x);
 					that.model.set({
 						x: this.x,
 						y: this.y
