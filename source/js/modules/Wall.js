@@ -99,44 +99,52 @@ function ($, _, Backbone, app,
 				')'
 			});
 
-			var voidPadding = 200;
+			var voidPadding = 20;
 
-			// this.$el.find('.void').css({
-			// 	width: this.$el.parent().width()
-			// 		+ voidPadding + voidPadding,
-			// 	height: this.$el.parent().height()
-			// 		+ voidPadding + voidPadding
-			// });
-
+			/*jshint laxbreak:true, laxcomma:true */
 			this.draggable = Draggable.create(this.$el, {
 				trigger: this.$el.find('.grid'),
 				type: 'x,y',
 				maxDuration: 0.5,
-				edgeResistance: 1,
+				edgeResistance: 0.5,
 				throwProps: true,
-				// bounds: this.$el.find('.void')
 				bounds: {
-					top: 500,
-					left: 500,
-					width: 3000,
-					height: 3000
+					top:
+						// grid to draggable offset
+						- top
+						// container on the page offset
+						+ this.$el.parent().position().top
+						// margin to the screen
+						- voidPadding
+						// grid overflowing the viewport
+						- (height - this.$el.parent().height())
+					,
+					left:
+						// grid to draggable offset
+						- left
+						// container on the page offset
+						+ this.$el.parent().position().left
+						// margin to the screen
+						- voidPadding
+						// grid overflowing the viewport
+						- (width - this.$el.parent().width())
+					,
+					width:
+						// GSAP has a weird bug so we use width
+						// instead of the calculated movement area
+						// + (width - this.$el.parent().width())
+						+ width
+						// margin to the screen
+						+ (voidPadding * 2)
+					,
+					height:
+						// GSAP does it correctly for height
+						// so we use the calculated movement area
+						+ (height - this.$el.parent().height())
+						// + height
+						// margin to the screen
+						+ voidPadding * 2
 				}
-				// bounds: {
-				// 	left: Math.min(-1 * voidPadding,
-				// 		this.$el.parent().position().left
-				// 			 - (width - this.$el.parent().width())
-				// 			 - voidPadding
-				// 	),
-				// 	top: Math.min(-1 * voidPadding,
-				// 		this.$el.parent().position().top
-				// 			- (height - this.$el.parent().height())
-				// 			- voidPadding
-				// 	),
-				// 	width: this.$el.parent().width()
-				// 		+ voidPadding + voidPadding,
-				// 	height: this.$el.parent().height()
-				// 		+ voidPadding + voidPadding
-				// }
 			});
 		}
 	});
