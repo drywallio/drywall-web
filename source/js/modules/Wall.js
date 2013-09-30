@@ -14,8 +14,8 @@ function ($, _, Backbone, app,
 		}
 	});
 
-	var stickieWidth = 311;
-	var stickieHeight = 311;
+	var stickieWidth = 312;
+	var stickieHeight = 312;
 
 	var gridWidth = 26;
 	var gridHeight = 26;
