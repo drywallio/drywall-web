@@ -58,11 +58,11 @@ function ($, _, Backbone, app,
 		template: 'wall/draggable',
 		initialize: function (options) {
 			this.options = options;
-			this.listenTo(this.collection, 'sync', this.render);
+			// this.listenTo(this.collection, 'sync', this.render);
 			this.listenTo(this.collection, 'change', this.updateGrid);
 		},
 		beforeRender: function () {
-			this.getViews('.stickie').each(function(stickie) {
+			this.getViews('.stickie').each(function (stickie) {
 				stickie.remove();
 			});
 			this.insertViews({
@@ -75,13 +75,6 @@ function ($, _, Backbone, app,
 		},
 		afterRender: function () {
 			this.updateGrid();
-			Draggable.create(this.$el, {
-				trigger: this.$el.find('.grid'),
-				type: 'x,y',
-				maxDuration: 0.5,
-				edgeResistance: 0.75,
-				throwProps: true
-			});
 		},
 		updateGrid: function () {
 			var box = this.collection.bounds();
@@ -89,6 +82,13 @@ function ($, _, Backbone, app,
 			var top = box.top - stickieHeight;
 			var width = stickieWidth + box.width + stickieWidth;
 			var height = stickieHeight + box.height + stickieHeight;
+
+			if (this.draggable) {
+				_.each(this.draggable, function (draggable) {
+					draggable.disable();
+				});
+			}
+
 			this.$el.find('.grid').css({
 				width: width,
 				height: height,
@@ -97,6 +97,54 @@ function ($, _, Backbone, app,
 					top + 'px, ' +
 					'0px' +
 				')'
+			});
+
+			var voidPadding = 20;
+
+			/*jshint laxbreak:true, laxcomma:true */
+			this.draggable = Draggable.create(this.$el, {
+				trigger: this.$el.find('.grid'),
+				type: 'x,y',
+				maxDuration: 0.5,
+				edgeResistance: 0.5,
+				throwProps: true,
+				bounds: {
+					top:
+						// grid to draggable offset
+						- top
+						// container on the page offset
+						+ this.$el.parent().position().top
+						// margin to the screen
+						- voidPadding
+						// grid overflowing the viewport
+						- (height - this.$el.parent().height())
+					,
+					left:
+						// grid to draggable offset
+						- left
+						// container on the page offset
+						+ this.$el.parent().position().left
+						// margin to the screen
+						- voidPadding
+						// grid overflowing the viewport
+						- (width - this.$el.parent().width())
+					,
+					width:
+						// GSAP has a weird bug so we use width
+						// instead of the calculated movement area
+						// + (width - this.$el.parent().width())
+						+ width
+						// margin to the screen
+						+ (voidPadding * 2)
+					,
+					height:
+						// GSAP does it correctly for height
+						// so we use the calculated movement area
+						+ (height - this.$el.parent().height())
+						// + height
+						// margin to the screen
+						+ voidPadding * 2
+				}
 			});
 		}
 	});
@@ -133,6 +181,13 @@ function ($, _, Backbone, app,
 		},
 		afterRender: function () {
 			var that = this;
+			this.$el.css({
+				transform: 'translate3d(' +
+					this.model.get('x') + 'px, ' +
+					this.model.get('y') + 'px, ' +
+					'0px' +
+				')'
+			});
 			Draggable.create(this.$el, {
 				type: 'x,y',
 				bounds: this.$el.parent().siblings('.grid'),
