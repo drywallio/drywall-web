@@ -37,10 +37,12 @@
 		"grunt-contrib-stylus": "0.8.0",
 		"grunt-contrib-watch": "0.3.1",
 		"grunt-ghost": "1.0.10",
+		"grunt-open": "0.2.2",
 		"grunt-rev": "0.1.0",
 		"grunt-usemin": "0.1.11",
 		"backbone": "*",
 		"handlebars": "1.0.11",
+		"load-grunt-config": "git://github.com/cbas/load-grunt-config.git",
 		"requirejs": "*",
 		"underscore": "*"
 	},
