@@ -13,6 +13,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-stylus');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-ghost');
+	grunt.loadNpmTasks('grunt-open');
 	grunt.loadNpmTasks('grunt-rev');
 	grunt.loadNpmTasks('grunt-usemin');
 
@@ -330,6 +331,21 @@ module.exports = function (grunt) {
 			}
 		},
 
+		open: {
+			development: {
+				path: 'http://localhost:' +
+					'<%= connect.development.options.port %>/'
+			},
+			staging: {
+				path: 'http://localhost:' +
+					'<%= connect.staging.options.port %>/'
+			},
+			production: {
+				path: 'http://localhost:' +
+					'<%= connect.production.options.port %>/'
+			}
+		},
+
 		watch: {
 			js: {
 				files: [
@@ -389,6 +405,19 @@ module.exports = function (grunt) {
 		'stage',
 		'connect:staging',
 		'ghost'
+	]);
+
+	grunt.registerTask('dev', [
+		'stylus:source',
+		'connect:development',
+		'open:development',
+		'watch'
+	]);
+
+	grunt.registerTask('prod', [
+		'default',
+		'open:production',
+		'connect:production:keepalive'
 	]);
 
 };
