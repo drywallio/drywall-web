@@ -59,6 +59,15 @@ exports['URL string builder'] = {
 		test.done();
 	},
 
+	'multiple fields': function (test) {
+		var path = '//example.com/:name/in/:where',
+			params = {name: 'Alice', where: 'Wonderland'},
+			output = this.url(path, params);
+
+		test.equals(output, '//example.com/Alice/in/Wonderland');
+		test.done();
+	},
+
 	'parameter callback': function (test) {
 		var path = '//example.com/:person',
 			callback = function (slug, person) {
