@@ -6,15 +6,19 @@ module.exports = function (grunt) {
 			}, grunt.file.readJSON('.jshintrc')),
 			src: [
 				'package.json',
-				'Gruntfile.js'
+				'Gruntfile.js',
+				'grunt/**/*.js'
 			]
 		},
 		tests: {
 			options: grunt.util._.merge({
-				node: true
+				node: true,
+				globals: {
+					casper: true
+				}
 			}, grunt.file.readJSON('.jshintrc')),
 			src: [
-				'tests/*_test.js'
+				'tests/**/*_test.js'
 			]
 		},
 		app: {
