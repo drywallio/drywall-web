@@ -1,8 +1,8 @@
 define(['underscore', 'libs/url'], function (_, url) {
 
-	return function (apiBasePath) {
+	return function (apiBasePath, globalParameters) {
 
-		return function (endpoint, fields, data) {
+		return function (endpoint, fields, parameters) {
 			var path = apiBasePath;
 
 			var hasSlash = /\/$/.test(path) || /^\//.test(endpoint);
@@ -12,9 +12,11 @@ define(['underscore', 'libs/url'], function (_, url) {
 
 			path += endpoint;
 
-			return url(path, _.clone(fields), _.defaults({
-				format: 'json'
-			}, data));
+			return url(
+				path,
+				_.clone(fields),
+				_.defaults(globalParameters || {}, parameters)
+			);
 		};
 
 	};

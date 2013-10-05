@@ -19,7 +19,10 @@ define([
 
 		constants: constants,
 
-		api: api('http://drywall.cf.sg/api'),
+		api: api(
+			'http://drywall.cf.sg/api',
+			{ format: 'json' }
+		),
 
 		useLayout: function (layout, options) {
 			options = options || {};
