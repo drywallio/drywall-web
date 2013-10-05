@@ -1,6 +1,5 @@
 casper.start(casper.cli.get('baseUrl'));
 
-
 casper.on('page.error', function (msg, trace) {
 	this.test.fail(msg);
 });
@@ -16,7 +15,9 @@ casper.on('resource.received', function (resource) {
 		resource.status >= 400
 	) {
 		// this.echo('HTTP ' + resource.status + ': ' + resource.url);
-		this.test.fail('Broken resource [' + resource.status + '] ' + resource.url);
+		this.test.fail(
+			'Broken resource [' + resource.status + '] ' + resource.url
+		);
 	}
 });
 
