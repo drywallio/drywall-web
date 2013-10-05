@@ -42,7 +42,7 @@
 		"grunt-usemin": "0.1.11",
 		"backbone": "*",
 		"handlebars": "1.0.11",
-		"load-grunt-config": "git://github.com/cbas/load-grunt-config.git",
+		"load-grunt-config": "0.5.0",
 		"requirejs": "*",
 		"underscore": "*"
 	},

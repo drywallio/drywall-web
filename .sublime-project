@@ -9,7 +9,7 @@
 				"node_modules"
 			],
 			"file_exclude_patterns": [
-				"*.sublime-workspace",
+				".sublime-workspace",
 				"app.css"
 			]
 		}

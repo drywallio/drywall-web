@@ -2,16 +2,16 @@ define([
 	'jquery', 'underscore', 'backbone',
 	'backbone.layoutmanager',
 	'libs/url',
+	'libs/api',
 	'constants'
 ], function (
 	$, _, Backbone,
 	LayoutManager,
 	url,
+	api,
 	constants
 ) {
 	var app = _.extend({
-
-		apiBasePath: 'http://drywall.cf.sg/api',
 
 		el: '#app',
 
@@ -19,20 +19,10 @@ define([
 
 		constants: constants,
 
-		api: function (endpoint, fields, data) {
-			var path = this.apiBasePath;
-
-			var hasSlash = /\/$/.test(path) || /^\//.test(endpoint);
-			if (!hasSlash) {
-				path += '/';
-			}
-
-			path += endpoint;
-
-			return url(path, _.clone(fields), _.defaults({
-				format: 'json'
-			}, data));
-		},
+		api: api(
+			'http://drywall.cf.sg/api',
+			{ format: 'json' }
+		),
 
 		useLayout: function (layout, options) {
 			options = options || {};

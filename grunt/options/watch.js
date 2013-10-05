@@ -3,7 +3,8 @@ module.exports = {
 		files: [
 			'Gruntfile.js',
 			'package.json',
-			'<%= source %>/js/**/*.js'
+			'<%= source %>/js/**/*.js',
+			'tests/**/*.js'
 		],
 		tasks: [
 			'jshint',
