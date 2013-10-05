@@ -5,9 +5,11 @@ function (_, app, Session) {
 		signIn: function () {
 			var origin = location.origin ||
 					(location.protocol + '//' + location.host);
-			location.href = app.api('login/github/', {
+			var target = app.api('login/github/', {
 				redirect_uri: origin + '/login/github/redirect/'
 			});
+			console.log(target);
+			location.href = target;
 		}
 	});
 });
