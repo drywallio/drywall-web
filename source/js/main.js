@@ -1,6 +1,6 @@
 define(
 [
-	'jquery', 'underscore', 'handlebars', 'backbone',
+	'jquery', 'underscore', 'libs/handlebars.helpers', 'backbone',
 	'app',
 	'router',
 	'templates.built',
@@ -34,8 +34,6 @@ function (
 			}, 'text');
 		}
 	});
-
-	Handlebars.registerHelper('$', currency);
 
 	app.router = new Router();
 
