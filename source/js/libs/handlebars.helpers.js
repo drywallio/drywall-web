@@ -1,14 +1,14 @@
 define([
-	'handlebars',
-	'helpers/currency',
-	'helpers/encodeURIComponent'
+  'handlebars',
+  'helpers/currency',
+  'helpers/encodeURIComponent'
 ], function (
-	Handlebars,
-	currency,
-	encodeURIComponent_helper
+  Handlebars,
+  currency,
+  encodeURIComponent_helper
 ) {
-	Handlebars.registerHelper('$', currency);
-	Handlebars.registerHelper('encodeURIComponent', encodeURIComponent_helper);
+  Handlebars.registerHelper('$', currency);
+  Handlebars.registerHelper('encodeURIComponent', encodeURIComponent_helper);
 
-	return Handlebars;
+  return Handlebars;
 });

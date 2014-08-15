@@ -60,6 +60,7 @@ dwsync.xml
 *.rbc
 
 # Folders to ignore
+.git
 .hg
 .svn
 .CVS
