@@ -24,7 +24,7 @@
     "backbone": "*",
     "bower": "*",
     "grunt": "0.4.1",
-    "grunt-bower-task": "0.3.4",
+    "grunt-bower-task": "0.4.0",
     "grunt-casper": "0.3.8",
     "grunt-cli": "0.1.11",
     "grunt-contrib-clean": "0.4.0",
