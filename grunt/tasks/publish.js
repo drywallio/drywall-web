@@ -1,6 +1,6 @@
 module.exports = function (grunt) {
-	grunt.registerTask('publish', [
-		'clean:production',
-		'copy:production'
-	]);
+  grunt.registerTask('publish', [
+    'clean:production',
+    'copy:production'
+  ]);
 };

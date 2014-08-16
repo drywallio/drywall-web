@@ -1,11 +1,13 @@
-# Drywall Web
+# DryWall Web
+
+[ ![Codeship Status for cofounders/drywall-web](https://codeship.io/projects/53dc4160-0466-0132-04bb-1a827ae27d2a/status)](https://codeship.io/projects/30643)
 
 ## The Build
 
 1. Install [Node.js & NPM](http://nodejs.org/)
 1. Install [Grunt.js](https://github.com/gruntjs/grunt/wiki/Getting-started)
 1. Run `npm install` to fetch all dependencies.
-1. Run `grunt` to build a production version of the app.
+1. Run `npm start` to build a production version of the app.
 
 ## Running the App
 
@@ -16,7 +18,7 @@
 
 #### Production
 
-1. Run `grunt prod`
+1. Run `npm start`
 1. Open <http://localhost:9002/>
 
 ## Tests
@@ -53,3 +55,5 @@
 [Nginx](server/apache/server.conf)
 
 [Apache2](server/apache/server.conf)
+
+[Heroku](server/heroku/instructions.md)
