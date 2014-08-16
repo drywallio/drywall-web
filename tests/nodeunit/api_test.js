@@ -3,7 +3,10 @@
 var requirejs = require('requirejs');
 
 requirejs.config({
-  baseUrl: __dirname + '/../../source/js'
+  baseUrl: __dirname + '/../../source/js',
+  paths: {
+    'urlbuilder': '../bower_components/urlbuilder/urlbuilder'
+  }
 });
 
 exports['API string builder'] = {

@@ -1,14 +1,17 @@
 define([
   'handlebars',
-  'helpers/currency',
-  'helpers/encodeURIComponent'
+  'handlebars-helpers-pack/currency',
+  'handlebars-helpers-pack/encodeURIComponent',
+  'handlebars-helpers-pack/json'
 ], function (
   Handlebars,
-  currency,
-  encodeURIComponent_helper
+  currency_helper,
+  encodeURIComponent_helper,
+  json_helper
 ) {
-  Handlebars.registerHelper('$', currency);
+  Handlebars.registerHelper('$', currency_helper);
   Handlebars.registerHelper('encodeURIComponent', encodeURIComponent_helper);
+  Handlebars.registerHelper('json', json_helper);
 
   return Handlebars;
 });

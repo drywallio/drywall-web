@@ -1,0 +1,14 @@
+{
+  "name": "drywall-web",
+  "dependencies": {
+    "backbone-loading": "*",
+    "handlebars-helpers-pack": "*",
+    "urlbuilder": "*",
+    "doctit": "*",
+    "auth0.js": "*",
+    "backbone.analytics": "*",
+    "googletagmanager": "*",
+    "es6-shim": "*",
+    "backbone-session": "*"
+  }
+}

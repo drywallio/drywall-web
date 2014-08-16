@@ -10,7 +10,8 @@ module.exports = {
         'js/**',
         'styles/**',
         'img/**',
-        'templates/**'
+        'templates/**',
+        'bower_components/**'
       ]
     }]
   },
@@ -24,7 +25,7 @@ module.exports = {
         'robots.txt',
         'js/*.loader.js',
         'styles/*.app.css',
-        'img/**/*.{jpg,jpeg,gif,png,ico,webp}'
+        'img/**/*.{jpg,jpeg,gif,png,ico,webp,svg}'
       ]
     }]
   }

@@ -1,27 +1,39 @@
 define(
 [
+  'es6-shim',
   'jquery', 'underscore', 'libs/handlebars.helpers', 'backbone',
   'app',
   'router',
   'templates.built',
-  'modules/Session/API',
-  'helpers/currency'
+  'session',
+  'googletagmanager',
+  'fastclick',
+  'backbone-loading'
 ],
 function (
+  es6,
   $, _, Handlebars, Backbone,
   app,
   Router,
   templatesBuilt,
   Session,
-  currency
+  googletagmanager,
+  FastClick,
+  bbLoading
 ) {
+  if (typeof Function.prototype.bind === 'undefined') {
+    Function.prototype.bind = function (that) {
+      return _.bind(this, that);
+    };
+  }
+
   var JST = window.JST = _.extend(window.JST || {}, templatesBuilt);
 
   Backbone.Layout.configure({
     el: false,
     manage: true,
     prefix: '/templates/',
-    fetch: function (path) {
+    fetchTemplate: function (path) {
       var prefix = Backbone.Layout.prototype.getAllOptions().prefix;
       var bare = path.substr(prefix.length);
 
@@ -35,24 +47,44 @@ function (
     }
   });
 
+  $(function() {
+    FastClick.attach(document.body);
+  });
+
+  app.title.sitename = document.title;
+  app.title.message = '';
+
   app.router = new Router();
 
-  app.session = new Session();
+  app.session = new Session(null, {
+    domain: app.env.auth0.domain,
+    clientID: app.env.auth0.clientID,
+    callbackURL: document.location.protocol+ '//' +
+      document.location.host + '/authentication'
+  });
   app.session.on('signOut', function () {
     app.router.navigate('/', {trigger: true});
   });
-
-  Backbone.history.start({
-    pushState: true,
-    root: app.root
-  });
-
-  $(document).ajaxError(function (event, request, settings, exception) {
-    if (+request.status === 403 && settings.url.indexOf(app.api) !== -1) {
-      // app.session.signOut();
-      console.log('AJAX Error', exception);
+  app.session.fetch()
+  .then(app.session.getAuthStatus.bind(app.session))
+  .then(function () {
+    window.history.replaceState(undefined, '', '/dashboard');
+  })
+  .catch(function (err) {
+    if (location.pathname !== '/') {
+      app.session.signOut();
     }
+  })
+  .then(function () {
+    setTimeout(function () {
+      Backbone.history.start({
+        pushState: true,
+        root: app.root
+      });
+    }, 0);
   });
+
+  googletagmanager(app.env.googletagmanager.id);
 
   $(document).on('click', 'a:not([data-bypass])', function (event) {
     var href = $(this).prop('href'),
@@ -75,7 +107,7 @@ function (
     }
   });
 
-  $(document).on('click', 'a.disabled, a[href="#"]', function (event) {
+  $(document).on('click', 'a[href="#"]', function (event) {
     event.preventDefault();
   });
 });

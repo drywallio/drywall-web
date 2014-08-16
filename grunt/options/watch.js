@@ -8,6 +8,7 @@ module.exports = {
     ],
     tasks: [
       'jshint',
+      'lintspaces',
       'nodeunit'
     ]
   },

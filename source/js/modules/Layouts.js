@@ -1,7 +1,9 @@
-define(['jquery', 'underscore', 'backbone', 'app',
+define([
+  'jquery', 'underscore', 'backbone', 'app',
   'modules/Navigation'
 ],
-function ($, _, Backbone, app,
+function (
+  $, _, Backbone, app,
   Navigation
 ) {
   var Models = {};
@@ -64,5 +66,4 @@ function ($, _, Backbone, app,
     Collections: Collections,
     Views: Views
   };
-
 });

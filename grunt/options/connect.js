@@ -15,10 +15,11 @@ module.exports = function (grunt) {
     production: {
       options: {
         base: '<%= production %>',
-        port: 9002
+        port: process.env.PORT || 9002
       }
     },
     options: {
+      hostname: '*',
       middleware: function (connect, options) {
         return [
           connect.static(options.base),

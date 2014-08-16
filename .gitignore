@@ -2,8 +2,9 @@
 intermediate
 publish
 
-# NPM
+# Javascript
 node_modules
+source/bower_components
 
 # Jekyll
 _site

@@ -1,10 +1,15 @@
 module.exports = {
+  options: {
+    use: [
+      require('normalize')
+    ],
+    import: [
+      'nib'
+    ]
+  },
   source: {
     options: {
-      compress: false,
-      import: [
-        'nib'
-      ]
+      compress: false
     },
     files: {
       '<%= source %>/styles/app.css':
@@ -13,10 +18,7 @@ module.exports = {
   },
   staging: {
     options: {
-      compress: true,
-      import: [
-        'nib'
-      ]
+      compress: true
     },
     files: {
       '<%= staging %>/styles/app.css':
