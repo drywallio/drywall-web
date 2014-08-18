@@ -24,8 +24,8 @@ function (
     }
   });
 
-  Views.Organization = Views.Nav.extend({
-    template: 'layouts/organization'
+  Views.Owner = Views.Nav.extend({
+    template: 'layouts/owner'
   });
 
   Views.Repository = Views.Nav.extend({
@@ -40,20 +40,10 @@ function (
     signin: function (event) {
       event.preventDefault();
       this.$el.addClass('working');
-      app.session.signIn();
-    }
-  });
-
-  Views.Github = Views.Base.extend({
-    template: 'layouts/github',
-    events: {
-      'click button.cancel': 'cancel'
-    },
-    cancel: function () {
-      app.session.signOut();
-    },
-    afterRender: function () {
-      console.log('AFTER RENDER GITHUB');
+      app.session.signIn({
+        connection: 'github',
+        state: '/cofounders/drywall-web'
+      });
     }
   });
 

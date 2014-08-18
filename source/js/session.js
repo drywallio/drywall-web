@@ -58,7 +58,6 @@ function (
         that.auth0.login(
           options,
           function (err, profile, id_token, access_token, state) {
-            console.log('called signin promise');
             if (err) {
               reject();
             } else {

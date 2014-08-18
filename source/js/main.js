@@ -60,15 +60,12 @@ function (
     domain: app.env.auth0.domain,
     clientID: app.env.auth0.clientID,
     callbackURL: document.location.protocol+ '//' +
-      document.location.host + '/authentication'
-  });
-  app.session.on('signOut', function () {
-    app.router.navigate('/', {trigger: true});
+      document.location.host +
+      '/authentication'
   });
   app.session.fetch()
-  .then(app.session.getAuthStatus.bind(app.session))
   .then(function () {
-    window.history.replaceState(undefined, '', '/dashboard');
+    return app.session.getAuthStatus();
   })
   .catch(function (err) {
     if (location.pathname !== '/') {
@@ -76,12 +73,10 @@ function (
     }
   })
   .then(function () {
-    setTimeout(function () {
-      Backbone.history.start({
-        pushState: true,
-        root: app.root
-      });
-    }, 0);
+    Backbone.history.start({
+      pushState: true,
+      root: app.root
+    });
   });
 
   googletagmanager(app.env.googletagmanager.id);

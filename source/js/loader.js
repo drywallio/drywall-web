@@ -18,6 +18,7 @@ require.config({
     'fastclick': '//cdnjs.cloudflare.com/ajax/libs/fastclick/0.6.7/fastclick.min',
     'es6-shim': '../bower_components/es6-shim/es6-shim',
     'backbone-session': '../bower_components/backbone-session/backbone-session',
+    'queryString': '../bower_components/query-string/query-string',
     'Draggable': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/utils/Draggable.min',
     'TweenLite': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/TweenLite.min',
     'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/plugins/CSSPlugin.min'

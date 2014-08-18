@@ -1,65 +1,29 @@
-define(['jquery', 'underscore', 'backbone', 'app',
+define([
+  'jquery', 'underscore', 'backbone', 'app',
+  'constants',
   'Draggable'
 ],
-function ($, _, Backbone, app,
+function (
+  $, _, Backbone, app,
+  constants,
   Draggable
 ) {
   var Models = {};
   var Collections = {};
   var Views = {};
 
-  Models.Stickie = Backbone.Model.extend({
-    url: function () {
-      return app.api('stickies/:id', this);
-    }
-  });
+  var stickieWidth = constants.STICKIE.WIDTH;
+  var stickieHeight = constants.STICKIE.HEIGHT;
 
-  var stickieWidth = 312;
-  var stickieHeight = 312;
-
-  var gridWidth = 26;
-  var gridHeight = 26;
-
-  Collections.Stickies = Backbone.Collection.extend({
-    model: Models.Stickie,
-    initialize: function (models, options) {
-      this.options = options || {};
-    },
-    url: function () {
-      return app.api('stickies/', null, _.pick(
-        this.options,
-        'repository',
-        'organization'
-      ));
-    },
-    bounds: function () {
-      var x = this.map(function (stickie) {
-        return stickie.get('x');
-      });
-      var y = this.map(function (stickie) {
-        return stickie.get('y');
-      });
-
-      var box = {
-        left: _.min(x),
-        right: _.max(x) + stickieWidth,
-        top: _.min(y),
-        bottom: _.max(y) + stickieHeight
-      };
-
-      return _.extend(box, {
-        width: box.right - box.left,
-        height: box.bottom - box.top
-      });
-    }
-  });
+  var gridWidth = constants.GRID.WIDTH;
+  var gridHeight = constants.GRID.HEIGHT;
 
   Views.Draggable = Backbone.View.extend({
     template: 'wall/draggable',
     initialize: function (options) {
       this.options = options;
       // this.listenTo(this.collection, 'sync', this.render);
-      this.listenTo(this.collection, 'change', this.updateGrid);
+      // this.listenTo(this.collection, 'change', this.updateGrid);
     },
     beforeRender: function () {
       this.getViews('.stickie').each(function (stickie) {
