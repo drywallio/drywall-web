@@ -56,13 +56,11 @@ function (
 
   app.router = new Router();
 
-  app.session = new Session(null, {
-    domain: app.env.auth0.domain,
-    clientID: app.env.auth0.clientID,
+  app.session = new Session(null, _.extend(app.env.auth0, {
     callbackURL: document.location.protocol+ '//' +
       document.location.host +
       '/authentication'
-  });
+  }));
   app.session.fetch()
   .then(function () {
     return app.session.getAuthStatus();

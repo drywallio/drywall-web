@@ -6,15 +6,12 @@ function (
 ) {
   var saveProfile = function (err, profile, id_token, access_token, state) {
     var auth0Attributes = {};
-
     if (id_token !== undefined) {
       auth0Attributes.id_token = id_token;
     }
-
     if(access_token !== undefined) {
       auth0Attributes.access_token = access_token;
     }
-
     this.save(_.extend(profile, auth0Attributes));
   };
 
