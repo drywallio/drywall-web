@@ -3,15 +3,15 @@ define([
   'queryString',
   'modules/Layouts',
   'modules/Wall',
-  'modules/GitHub',
-  'modules/Stickies'
+  'modules/Coordinates',
+  'modules/GitHub'
 ], function (
   $, _, Backbone, app,
   queryString,
   Layouts,
   Wall,
-  GitHub,
-  Stickies
+  Coordinates,
+  GitHub
 ) {
   return Backbone.Router.extend({
 
@@ -89,23 +89,30 @@ define([
       //   organization: organization,
       //   repository: repository
       // });
+      var coordinates = new Coordinates.Collections.Coordinates(null, {
+        owner: owner,
+        repository: repository
+      });
       var issues = new GitHub.Collections.Issues(null, {
         owner: owner,
         repository: repository
       });
-      var stickies = new Stickies.Collections.Stickies(null, {
+      var stickies = new Wall.Collections.Stickies(null, {
         owner: owner,
-        repository: repository
+        repository: repository,
+        coordinates: coordinates,
+        issues: issues
       });
       app.useLayout(Layouts.Views.Repository, {
       }).setViews({
         'article': new Wall.Views.Draggable({
           issues: issues,
+          coordinates: coordinates,
           stickies: stickies
         })
       }).render();
+      coordinates.fetch();
       issues.fetch();
-      stickies.fetch();
     },
 
     404: function () {

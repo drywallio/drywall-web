@@ -18,19 +18,69 @@ function (
   var gridWidth = constants.GRID.WIDTH;
   var gridHeight = constants.GRID.HEIGHT;
 
+  Models.Stickie = Backbone.Model.extend({
+    url: function () {
+      return app.api('stickies/:id', this);
+    }
+  });
+
+  Collections.Stickies = Backbone.Collection.extend({
+    model: Models.Stickie,
+    initialize: function (models, options) {
+      this.options = options || {};
+      this.listenTo(
+        options.issues,
+        'add change sync',
+        this._changeIssues
+      );
+      this.listenTo(
+        options.coordinates,
+        'add change sync',
+        this._changeCoordinates
+      );
+    },
+    _changeIssues: function () {
+      console.log('_changeIssues');
+    },
+    _changeCoordinates: function () {
+      console.log('_changeCoordinates', arguments);
+    },
+    bounds: function () {
+      var x = this.map(function (stickie) {
+        return stickie.get('x');
+      });
+      var y = this.map(function (stickie) {
+        return stickie.get('y');
+      });
+
+      var box = {
+        left: _.min(x),
+        right: _.max(x) + stickieWidth,
+        top: _.min(y),
+        bottom: _.max(y) + stickieHeight
+      };
+
+      return _.extend(box, {
+        width: box.right - box.left,
+        height: box.bottom - box.top
+      });
+    }
+  });
+
   Views.Draggable = Backbone.View.extend({
     template: 'wall/draggable',
     initialize: function (options) {
       this.options = options;
       // this.listenTo(this.collection, 'sync', this.render);
       // this.listenTo(this.collection, 'change', this.updateGrid);
+      this.listenTo(options.stickies, 'change', this.updateGrid);
     },
     beforeRender: function () {
       this.getViews('.stickie').each(function (stickie) {
         stickie.remove();
       });
       this.insertViews({
-        '.stickies': this.collection.map(function (stickie) {
+        '.stickies': this.options.stickies.map(function (stickie) {
           return new Views.Stickie({
             model: stickie
           });
@@ -41,7 +91,7 @@ function (
       this.updateGrid();
     },
     updateGrid: function () {
-      var box = this.collection.bounds();
+      var box = this.options.stickies.bounds();
       var left = box.left - stickieWidth;
       var top = box.top - stickieHeight;
       var width = stickieWidth + box.width + stickieWidth;

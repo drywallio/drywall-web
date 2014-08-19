@@ -27,7 +27,7 @@ define(['underscore'], function (_) {
     predicate: function () { return true; },
     type: 'development',
     api: {
-      base: 'http://localhost:3000'
+      base: 'http://drywall-api-staging.herokuapp.com'
     },
     googletagmanager: {
       id: ''
