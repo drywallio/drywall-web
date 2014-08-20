@@ -22,7 +22,6 @@ function (
         var identity = _(identities).findWhere({connection: 'github'}) || {};
         var access_token = identity.access_token;
         if (access_token) {
-          console.log('GitHub sync! token:', access_token);
           xhr.setRequestHeader('Authorization', 'token ' + access_token);
         }
       },
@@ -30,7 +29,6 @@ function (
     return Backbone.sync(method, model, extendedOptions);
   };
   var ghInitialize = function (models, options) {
-    console.log('GitHub initialize');
     this.options = options || {};
   };
 

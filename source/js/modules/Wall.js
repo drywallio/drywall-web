@@ -30,20 +30,32 @@ function (
       this.options = options || {};
       this.listenTo(
         options.issues,
-        'add change sync',
-        this._changeIssues
+        'add change',
+        this._mergeIssuesCoordinates
       );
       this.listenTo(
         options.coordinates,
-        'add change sync',
-        this._changeCoordinates
+        'add change',
+        this._mergeIssuesCoordinates
       );
     },
-    _changeIssues: function () {
-      console.log('_changeIssues');
-    },
-    _changeCoordinates: function () {
-      console.log('_changeCoordinates', arguments);
+    _mergeIssuesCoordinates: function (model) {
+      var match = {number: model.get('number')};
+      var issue = this.options.issues.findWhere(match);
+      var coordinate = this.options.coordinates.findWhere(match);
+      var stickie = this.findWhere(match);
+      if (issue && coordinate) {
+        var data = _.extend(issue.toJSON(), coordinate.toJSON());
+        if (!stickie) {
+          stickie = new this.model(data);
+          this.add(stickie);
+        } else {
+          stickie.set(data);
+        }
+      }
+      else if (stickie) {
+        this.remove(stickie);
+      }
     },
     bounds: function () {
       var x = this.map(function (stickie) {
@@ -71,23 +83,18 @@ function (
     template: 'wall/draggable',
     initialize: function (options) {
       this.options = options;
-      // this.listenTo(this.collection, 'sync', this.render);
-      // this.listenTo(this.collection, 'change', this.updateGrid);
       this.listenTo(options.stickies, 'change', this.updateGrid);
+      this.listenTo(options.stickies, 'add', this.addStickie);
     },
-    beforeRender: function () {
-      this.getViews('.stickie').each(function (stickie) {
-        stickie.remove();
+    addStickie: function (stickie) {
+      var coordinate = this.options.coordinates
+        .findWhere(stickie.pick('number'));
+      var stickieView = new Views.Stickie({
+        model: stickie,
+        coordinate: coordinate
       });
-      this.insertViews({
-        '.stickies': this.options.stickies.map(function (stickie) {
-          return new Views.Stickie({
-            model: stickie
-          });
-        })
-      });
-    },
-    afterRender: function () {
+      this.insertView('.stickies', stickieView);
+      stickieView.render();
       this.updateGrid();
     },
     updateGrid: function () {
@@ -181,11 +188,17 @@ function (
 
   Views.Stickie = Backbone.View.extend({
     template: 'wall/stickie',
-    initialize: function () {
+    initialize: function (options) {
+      this.options = options || {};
       this.listenTo(this.model, 'change', this.updateCoordinates);
     },
     serialize: function () {
-      return this.model.toJSON();
+      var labels = this.model.get('labels') || [];
+      var first = _.find(labels, function (label) { return !!label.color; });
+      var color = (first ? '#' + first.color : 'lemonchiffon');
+      return _.extend(this.model.pick('x', 'y', 'title'), {
+        color: color
+      });
     },
     updateCoordinates: function () {
       var x = this.model.get('x');
@@ -205,12 +218,6 @@ function (
       Draggable.create(this.$el, {
         type: 'x,y',
         bounds: this.$el.parent().siblings('.grid'),
-        // bounds: {
-          // top: 48,
-          // left: 0
-          // width: 0,
-          // height: 0
-        // },
         maxDuration: 0.5,
         edgeResistance: 0.75,
         throwProps: true,
@@ -219,10 +226,12 @@ function (
           y: snapY
         },
         onDragEnd: function () {
-          that.model.set({
+          var position = {
             x: this.x,
             y: this.y
-          });
+          };
+          that.model.set(position);
+          that.options.coordinate.save(position);
         }
       });
     }

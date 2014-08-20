@@ -30,7 +30,7 @@ function (
 
         model.once('request', function (model, xhr, options) {
           xhr.fail(function (xhr, textStatus) {
-            if (textStatus !== 'timeout' && xhr.status !== 0) {
+            if (xhr.status === 401) {
               that.signOut();
             }
           });
