@@ -35,7 +35,10 @@ define(['jquery', 'underscore', 'backbone', 'app'
       this.listenTo(app.session, 'change', this.render);
     },
     serialize: function () {
-      return app.session.toJSON();
+      return _.pick(app.session.toJSON(),
+        'gravatar_id',
+        'name'
+      );
     }
   });
 
