@@ -8,12 +8,6 @@ function (
   var Collections = {};
   var Views = {};
 
-  var GitHub = {
-    Models: Models,
-    Collections: Collections,
-    Views: Views
-  };
-
   var ghSync = function (method, model, options) {
     var extendedOptions = _.extend({
       beforeSend: function (xhr) {
@@ -50,5 +44,9 @@ function (
     }
   });
 
-  return GitHub;
+  return {
+    Models: Models,
+    Collections: Collections,
+    Views: Views
+  };
 });
