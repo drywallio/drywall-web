@@ -6,7 +6,8 @@
 
 1. Install [Node.js & NPM](http://nodejs.org/)
 1. Install [Grunt.js](https://github.com/gruntjs/grunt/wiki/Getting-started)
-1. Run `npm install` to fetch all dependencies.
+1. Run `npm install` to fetch all dependencies from npm.
+1. Run `bower install` to fetch all dependencies from bower.
 1. Run `npm start` to build a production version of the app.
 
 ## Running the App
