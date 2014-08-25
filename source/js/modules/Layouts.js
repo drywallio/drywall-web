@@ -42,7 +42,7 @@ function (
       this.$el.addClass('working');
       app.session.signIn({
         connection: 'github',
-        connection_scope: ['repo'],
+        connection_scope: app.env.auth0.scopes,
         state: '/cofounders/drywall-web'
       });
     }

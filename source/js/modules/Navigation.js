@@ -35,10 +35,22 @@ define(['jquery', 'underscore', 'backbone', 'app'
       this.listenTo(app.session, 'change', this.render);
     },
     serialize: function () {
-      return _.pick(app.session.toJSON(),
-        'gravatar_id',
-        'name'
-      );
+      return app.session.toJSON();
+    },
+    events: {
+      'click .signout': function () {
+        app.session.signOut()
+        .then(function () {
+          app.router.navigate('/', {trigger: true});
+        });
+      },
+      'click .signin': function () {
+        app.session.signIn({
+          connection: 'github',
+          connection_scope: app.env.auth0.scopes,
+          state: Backbone.history.fragment
+        });
+      }
     }
   });
 

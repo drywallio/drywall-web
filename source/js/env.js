@@ -37,6 +37,7 @@ define(['underscore'], function (_) {
   .omit('predicate')
   .defaults({
     auth0: {
+      scopes: ['repo'],
       domain: 'drywall.auth0.com',
       clientID: 'aoGE4SXQR2Rg0oPxEycSrIPK9hbD8HQd'
     }
