@@ -27,12 +27,20 @@ function (
   };
 
   var ghCollection = Backbone.Collection.extend({
-    sync: ghSync,
-    initialize: ghInitialize
+    initialize: ghInitialize,
+    sync: ghSync
   });
   var ghModel = Backbone.Model.extend({
-    sync: ghSync,
-    initialize: ghInitialize
+    initialize: ghInitialize,
+    sync: ghSync
+  });
+
+  Models.Repo = ghModel.extend({
+    url: function () {
+      return 'https://api.github.com/repos/' +
+        this.options.owner + '/' +
+        this.options.repository;
+    }
   });
 
   Collections.Issues = ghCollection.extend({

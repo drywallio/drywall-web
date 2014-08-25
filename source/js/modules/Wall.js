@@ -21,18 +21,20 @@ function (
   Collections.Stickies = Backbone.Collection.extend({
     initialize: function (models, options) {
       this.options = options || {};
+      options.issues.each(this._merge, this);
+      options.coordinates.each(this._merge, this);
       this.listenTo(
         options.issues,
-        'add change',
-        this._mergeIssuesCoordinates
+        'add remove change',
+        this._merge
       );
       this.listenTo(
         options.coordinates,
-        'add change',
-        this._mergeIssuesCoordinates
+        'add remove change',
+        this._merge
       );
     },
-    _mergeIssuesCoordinates: function (model) {
+    _merge: function (model) {
       var match = {number: model.get('number')};
       var issue = this.options.issues.findWhere(match);
       var coordinate = this.options.coordinates.findWhere(match);
@@ -72,30 +74,31 @@ function (
     }
   });
 
-  Views.Notice = Backbone.View.extend({
-    template: 'wall/notice',
-    initialize: function (options) {
-      this.options = options;
-    }
-  });
-
   Views.Draggable = Backbone.View.extend({
     template: 'wall/draggable',
     initialize: function (options) {
       this.options = options;
-      this.listenTo(options.stickies, 'change', this.updateGrid);
+      this.listenTo(options.stickies, 'add change remove', this.updateGrid);
       this.listenTo(options.stickies, 'add', this.addStickie);
+      // this.listenTo(options.stickies, 'change', this.changeStickie);
+      // this.listenTo(options.stickies, 'remove', this.removeStickie);
+    },
+    afterRender: function () {
+      this.options.stickies.each(function (stickie) {
+        this.addStickie(stickie);
+      }, this);
+      this.updateGrid();
     },
     addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
       var stickieView = new Views.Stickie({
         model: stickie,
-        coordinate: coordinate
+        coordinate: coordinate,
+        repo: this.options.repo
       });
       this.insertView('.stickies', stickieView);
       stickieView.render();
-      this.updateGrid();
     },
     updateGrid: function () {
       var gridPadding = Math.floor(stickieWidth);
@@ -217,25 +220,28 @@ function (
           '0px' +
         ')'
       });
-      Draggable.create(this.$el, {
-        type: 'x,y',
-        bounds: this.$el.parent().siblings('.grid'),
-        maxDuration: 0.5,
-        edgeResistance: 0.75,
-        throwProps: true,
-        snap: {
-          x: snapX,
-          y: snapY
-        },
-        onDragEnd: function () {
-          var position = {
-            x: this.x,
-            y: this.y
-          };
-          that.model.set(position);
-          that.options.coordinate.save(position);
-        }
-      });
+      var permissions = this.options.repo.get('permissions') || {};
+      if (permissions.push) {
+        Draggable.create(this.$el, {
+          type: 'x,y',
+          bounds: this.$el.parent().siblings('.grid'),
+          maxDuration: 0.5,
+          edgeResistance: 0.75,
+          throwProps: true,
+          snap: {
+            x: snapX,
+            y: snapY
+          },
+          onDragEnd: function () {
+            var position = {
+              x: this.x,
+              y: this.y
+            };
+            that.model.set(position);
+            that.options.coordinate.save(position);
+          }
+        });
+      }
     }
   });
 

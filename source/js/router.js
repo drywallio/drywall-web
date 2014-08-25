@@ -2,25 +2,19 @@ define([
   'jquery', 'underscore', 'backbone', 'app',
   'queryString',
   'modules/Layouts',
-  'modules/Wall',
-  'modules/Coordinates',
   'modules/GitHub'
 ], function (
   $, _, Backbone, app,
   queryString,
   Layouts,
-  Wall,
-  Coordinates,
   GitHub
 ) {
   return Backbone.Router.extend({
-
     routes: {
       '': 'landing',
       'authentication': 'authentication',
-      ':owner': 'owner',
       ':owner/:repository': 'repository',
-      '*path': '404'
+      '*path': 'error'
     },
 
     landing: function () {
@@ -37,48 +31,16 @@ define([
       });
     },
 
-    owner: function () {
-      app.useLayout(Layouts.Views.Owner, {
-      }).setViews({
-      }).render();
-    },
-
     repository: function (owner, repository) {
-      var coordinates = new Coordinates.Collections.Coordinates(null, {
+      app.useLayout(Layouts.Views.Preload, {
         owner: owner,
         repository: repository
-      });
-      var issues = new GitHub.Collections.Issues(null, {
-        owner: owner,
-        repository: repository
-      });
-      var stickies = new Wall.Collections.Stickies(null, {
-        coordinates: coordinates,
-        issues: issues,
-        owner: owner,
-        repository: repository
-      });
-      app.useLayout(Layouts.Views.Repository, {
-      }).setViews({
-        'article .notice': new Wall.Views.Notice({
-          issues: issues,
-          coordinates: coordinates,
-          stickies: stickies
-        }),
-        'article .void': new Wall.Views.Draggable({
-          issues: issues,
-          coordinates: coordinates,
-          stickies: stickies
-        })
       }).render();
-      coordinates.fetch();
-      issues.fetch();
     },
 
-    404: function () {
-      app.useLayout(Layouts.Views['404'], {
+    error: function () {
+      app.useLayout(Layouts.Views.Error, {
       }).render();
     }
-
   });
 });
