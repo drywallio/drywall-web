@@ -6,25 +6,25 @@ define(['jquery', 'underscore', 'backbone', 'app'
 
   Views.Primary = Backbone.View.extend({
     template: 'navigation/primary',
-    events: {
-      'mouseenter': function (event) {
-        if (!this.getView('.chooser')) {
-          var chooser = new Views.Chooser({
-          });
-          this.setView('.chooser', chooser);
-          chooser.render();
-        }
-      },
-      'mouseleave': function (event) {
-        this.removeView('.chooser');
-      }
-    },
+    // events: {
+    //   'mouseenter': function (event) {
+    //     if (!this.getView('.chooser')) {
+    //       var chooser = new Views.Chooser({
+    //       });
+    //       this.setView('.chooser', chooser);
+    //       chooser.render();
+    //     }
+    //   },
+    //   'mouseleave': function (event) {
+    //     this.removeView('.chooser');
+    //   }
+    // },
     beforeRender: function () {
       this.setViews({
         '.account': new Views.Account({
         }),
-        '.breadcrumbs': new Views.Breadcrumbs({
-        })
+        // '.breadcrumbs': new Views.Breadcrumbs({
+        // })
       });
     }
   });
