@@ -1,8 +1,8 @@
 define([
-  'jquery', 'underscore', 'backbone', 'auth0', 'backbone-session'
+  'jquery', 'underscore', 'backbone', 'app', 'auth0', 'backbone-session'
 ],
 function (
-  $, _, Backbone, Auth0, Session
+  $, _, Backbone, app, Auth0, Session
 ) {
   var saveProfile = function (err, profile, id_token, access_token, state) {
     var auth0Attributes = {};
@@ -15,30 +15,51 @@ function (
     this.save(_.extend(profile, auth0Attributes));
   };
 
-  return Session.extend({
-    initialize: function (attributes, options) {
-      var that = this;
-
-      var backboneSync = Backbone.sync;
-      Backbone.sync = function (method, model, options) {
-
-        if (that.has('id_token')) {
-          options.headers = _.extend(options.headers || {}, {
-            'Authorization': 'Bearer ' + that.get('id_token')
-          });
+  var sync = function (method, model, options) {
+    if (app.session.has('id_token')) {
+      options.headers = _.extend(options.headers || {}, {
+        'Authorization': 'Bearer ' + app.session.get('id_token')
+      });
+    }
+    model.once('request', function (model, xhr, options) {
+      xhr.fail(function (xhr, textStatus) {
+        if (xhr.status === 401) {
+          app.session.signOut();
         }
+      });
+    });
+    var identities = app.session.get('identities') || [];
+    var identity = _(identities).findWhere({connection: 'github'}) || {};
+    var access_token = identity.access_token;
+    if (access_token) {
+      if (method === 'read') {
+        // Adds token as query param in GET request
+        options.data = _.defaults({
+          access_token: access_token
+        }, options.data || {});
 
-        model.once('request', function (model, xhr, options) {
-          xhr.fail(function (xhr, textStatus) {
-            if (xhr.status === 401) {
-              that.signOut();
-            }
-          });
-        });
+      } else {
+        // JSON in other requests as payload
+        options.attrs = _.defaults({
+          access_token: access_token
+        }, model.toJSON(options), options.attrs || {});
+      }
+    }
+    return Backbone.sync.call(this, method, model, options);
+  };
 
-        return backboneSync.call(this, method, model, options);
-      };
+  var sessionModel = Backbone.Model.extend({
+    sync: sync
+  });
+  var sessionCollection = Backbone.Collection.extend({
+    sync: sync,
+    model: sessionModel
+  });
 
+  return Session.extend({
+    Model: sessionModel,
+    Collection: sessionCollection,
+    initialize: function (attributes, options) {
       this.auth0 = new Auth0(_.defaults(options, {
         // domain: 'xxxxxxxx.auth0.com',
         // clientID: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
@@ -46,7 +67,6 @@ function (
         //   document.location.host + '/xxxxxxxxxxxxxxxx',
         callbackOnLocationHash: true
       }));
-
       return Session.prototype.initialize.apply(this, arguments);
     },
     signIn: function (options) {

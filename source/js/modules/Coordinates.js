@@ -1,14 +1,16 @@
 define([
-  'jquery', 'underscore', 'backbone', 'app'
+  'jquery', 'underscore', 'backbone', 'app',
+  'session'
 ],
 function (
-  $, _, Backbone, app
+  $, _, Backbone, app,
+  session
 ) {
   var Models = {};
   var Collections = {};
   var Views = {};
 
-  Collections.Coordinates = Backbone.Collection.extend({
+  Collections.Coordinates = session.prototype.Collection.extend({
     initialize: function (models, options) {
       this.options = options || {};
     },

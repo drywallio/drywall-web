@@ -18,14 +18,7 @@ function (
   var gridWidth = constants.GRID.WIDTH;
   var gridHeight = constants.GRID.HEIGHT;
 
-  Models.Stickie = Backbone.Model.extend({
-    url: function () {
-      return app.api('stickies/:id', this);
-    }
-  });
-
   Collections.Stickies = Backbone.Collection.extend({
-    model: Models.Stickie,
     initialize: function (models, options) {
       this.options = options || {};
       this.listenTo(
