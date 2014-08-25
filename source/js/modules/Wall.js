@@ -72,6 +72,13 @@ function (
     }
   });
 
+  Views.Notice = Backbone.View.extend({
+    template: 'wall/notice',
+    initialize: function (options) {
+      this.options = options;
+    }
+  });
+
   Views.Draggable = Backbone.View.extend({
     template: 'wall/draggable',
     initialize: function (options) {
@@ -91,11 +98,13 @@ function (
       this.updateGrid();
     },
     updateGrid: function () {
+      var gridPadding = Math.floor(stickieWidth);
+      var voidPadding = Math.floor(gridPadding / 10);
       var box = this.options.stickies.bounds();
-      var left = box.left - stickieWidth;
-      var top = box.top - stickieHeight;
-      var width = stickieWidth + box.width + stickieWidth;
-      var height = stickieHeight + box.height + stickieHeight;
+      var left = box.left - gridPadding;
+      var top = box.top - gridPadding;
+      var width = gridPadding + box.width + gridPadding;
+      var height = gridPadding + box.height + gridPadding;
 
       if (this.draggable) {
         _.each(this.draggable, function (draggable) {
@@ -113,52 +122,52 @@ function (
         ')'
       });
 
-      var voidPadding = 20;
-
       /*jshint laxbreak:true, laxcomma:true */
+      var bounds = {
+        top:
+          // grid to draggable offset
+          - top
+          // container on the page offset
+          + this.$el.parent().offset().top
+          // margin to the screen
+          - voidPadding
+          // grid overflowing the viewport
+          - (height - this.$el.parent().height())
+        ,
+        left:
+          // grid to draggable offset
+          - left
+          // container on the page offset
+          + this.$el.parent().offset().left
+          // margin to the screen
+          - voidPadding
+          // grid overflowing the viewport
+          - (width - this.$el.parent().width())
+        ,
+        width:
+          // GSAP has a weird bug so we use width
+          // instead of the calculated movement area
+          // + (width - this.$el.parent().width())
+          + width
+          // margin to the screen
+          + (voidPadding * 2)
+        ,
+        height:
+          // GSAP does it correctly for height
+          // so we use the calculated movement area
+          + (height - this.$el.parent().height())
+          // + height
+          // margin to the screen
+          + voidPadding * 2
+      };
+
       this.draggable = Draggable.create(this.$el, {
         trigger: this.$el.find('.grid'),
         type: 'x,y',
         maxDuration: 0.5,
         edgeResistance: 0.5,
         throwProps: true,
-        bounds: {
-          top:
-            // grid to draggable offset
-            - top
-            // container on the page offset
-            + this.$el.parent().position().top
-            // margin to the screen
-            - voidPadding
-            // grid overflowing the viewport
-            - (height - this.$el.parent().height())
-          ,
-          left:
-            // grid to draggable offset
-            - left
-            // container on the page offset
-            + this.$el.parent().position().left
-            // margin to the screen
-            - voidPadding
-            // grid overflowing the viewport
-            - (width - this.$el.parent().width())
-          ,
-          width:
-            // GSAP has a weird bug so we use width
-            // instead of the calculated movement area
-            // + (width - this.$el.parent().width())
-            + width
-            // margin to the screen
-            + (voidPadding * 2)
-          ,
-          height:
-            // GSAP does it correctly for height
-            // so we use the calculated movement area
-            + (height - this.$el.parent().height())
-            // + height
-            // margin to the screen
-            + voidPadding * 2
-        }
+        bounds: bounds
       });
     }
   });

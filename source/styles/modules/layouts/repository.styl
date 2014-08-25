@@ -1,2 +1,22 @@
 #app > .layouts.repository
-  //
+
+  .viewport
+    min-height 100%
+    display flex
+    flex-flow column nowrap
+    position relative
+    background-color black
+
+    .notice
+      z-index 2
+
+    .void
+      z-index 1
+      height 100%
+      flex-grow 1
+      overflow hidden
+      position absolute
+      top 0
+      left 0
+      bottom 0
+      right 0

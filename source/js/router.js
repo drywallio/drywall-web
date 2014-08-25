@@ -60,7 +60,12 @@ define([
       });
       app.useLayout(Layouts.Views.Repository, {
       }).setViews({
-        'article': new Wall.Views.Draggable({
+        'article .notice': new Wall.Views.Notice({
+          issues: issues,
+          coordinates: coordinates,
+          stickies: stickies
+        }),
+        'article .void': new Wall.Views.Draggable({
           issues: issues,
           coordinates: coordinates,
           stickies: stickies
