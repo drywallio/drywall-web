@@ -164,7 +164,7 @@ function (
           + voidPadding * 2
       };
 
-      this.draggable = Draggable.create(this.$el, {
+      this.draggable = Draggable.create(this.$el.find('.anchor'), {
         trigger: this.$el.find('.grid'),
         type: 'x,y',
         maxDuration: 0.5,

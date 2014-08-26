@@ -38,25 +38,26 @@ function (
         owner: this.options.owner,
         repository: this.options.repository
       };
-      this.coordinates = new Coordinates.Collections.Coordinates(null, path);
-      this.issues = new GitHub.Collections.Issues(null, path);
-      this.repo = new GitHub.Models.Repo(null, path);
-      Promise.all([
-        this.coordinates.fetch(),
-        this.issues.fetch(),
-        this.repo.fetch()
-      ])
-      .then(function () {
+      var coordinates = new Coordinates.Collections.Coordinates(null, path);
+      var issues = new GitHub.Collections.Issues(null, path);
+      var repo = new GitHub.Models.Repo(null, path);
+      Promise.all(
+        [coordinates, issues, repo]
+          .map(function (collection) {
+            return collection.fetch();
+          })
+      )
+      .then(function (data) {
         app.useLayout(Views.Repository, {
         }).setViews({
-          'article .void': new Wall.Views.Draggable({
-            coordinates: this.coordinates,
-            issues: this.issues,
-            repo: this.repo,
+          'article': new Wall.Views.Draggable({
+            coordinates: coordinates,
+            issues: issues,
+            repo: repo,
             stickies: new Wall.Collections.Stickies(null, {
-              coordinates: this.coordinates,
-              issues: this.issues,
-              repo: this.repo,
+              coordinates: coordinates,
+              issues: issues,
+              repo: repo,
               owner: this.options.owner,
               repository: this.options.repository
             })
@@ -64,6 +65,7 @@ function (
         }).render();
       }.bind(this))
       .catch(function (err) {
+        console.warn(err);
         var handler = err.status === 402 ? 'Pricing' : 'Error';
         app.useLayout(Views[handler], {
         }).render();

@@ -1,13 +1,17 @@
 .wall.draggable
-  position relative
+  background-color black
+  flex auto
 
-  > .grid
+  .anchor
+    position relative
+
+  .grid
     background-color #ffa
     position absolute
     background url('/img/bg-grid.png')
     transition all 0.2s ease-in-out
 
-  > .stickies
+  .stickies
     list-style-type none
     overflow visible
     padding 0
