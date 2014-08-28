@@ -12,6 +12,7 @@ define([
   return Backbone.Router.extend({
     routes: {
       '': 'landing',
+      'pricing': 'pricing',
       'authentication': 'authentication',
       ':owner/:repository': 'repository',
       '*path': 'error'
@@ -19,6 +20,12 @@ define([
 
     landing: function () {
       app.useLayout(Layouts.Views.Landing, {
+      }).setViews({
+      }).render();
+    },
+
+    pricing: function () {
+      app.useLayout(Layouts.Views.Pricing, {
       }).setViews({
       }).render();
     },

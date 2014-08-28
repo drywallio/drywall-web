@@ -1,2 +1,79 @@
 #app > .layouts.pricing
-  //
+  background url('/img/bg-grid.png')
+
+  > article
+    box-sizing border-box
+    width 100%
+    max-width 960px
+    margin 50px 5%
+    padding 20px 5%
+    background white
+    border 1px solid #AAA
+    box-shadow 0 2px 4px 0 rgba(0, 0, 0, 0.5)
+    text-align center
+
+    > h1
+      margin 20px 0
+    > .intro
+      margin 20px 0
+      font-size 18px
+      font-weight 100
+
+    > table
+      margin 40px 0
+      width 100%
+      > tbody
+        > tr
+          &:nth-child(odd)
+            background rgba(170, 170, 170, 0.1)
+          > th
+            font-weight 700
+          > td
+            > .quantity
+              display block
+              margin 10px 0 5px 0
+              line-height 1
+              font-weight 700
+              font-size 48px
+              font-family 'Roboto Slab', serif
+            > .unit
+              display block
+              margin 0 0 10px 0
+              font-size 14px
+            > .free
+              color #926AA8
+              font-size 24px
+              font-weight 700
+            &.monthly
+              > button
+                background-color #926AA8
+            &.yearly
+              > button
+                background-color #74448E
+            > button
+              border-style none
+              border-radius 3px
+              padding 12px 24px
+              > .total
+                display block
+                font-family 'Roboto Slab', serif
+                font-weight 400
+                color white
+                line-height 1
+              > .rate,
+              > .savings
+                display block
+                font-size 12px
+                line-height 1
+                margin 5px 0 0 0
+              > .rate
+                color white
+              > .savings
+                color #BC9ECC
+
+    > .contact
+      font-size 14px
+      > a
+        color #74448E
+        text-decoration none
+        font-weight 700
