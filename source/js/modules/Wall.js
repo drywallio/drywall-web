@@ -84,6 +84,10 @@ function (
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
     },
     afterRender: function () {
+      this.insertView('aside', new Views.Controls({
+        zoomInput: this.$el,
+        zoomTarget: this.$el.find('.zoom')
+      })).render();
       this.options.stickies.each(function (stickie) {
         this.addStickie(stickie);
       }, this);
@@ -172,6 +176,56 @@ function (
         throwProps: true,
         bounds: bounds
       });
+    }
+  });
+
+  Views.Controls = Backbone.View.extend({
+    template: 'wall/controls',
+    initialize: function (options) {
+      this.options = options || {};
+      this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
+    },
+    events: {
+      'input .scale': 'setScale'
+    },
+    cleanup: function () {
+      this.options.zoomInput.off('wheel');
+    },
+    onWheelZoom: function (event) {
+      var evt = event.originalEvent;
+      if (evt.button || evt.buttons ||
+        evt.altKey || evt.ctrlKey || evt.shiftKey || evt.metaKey
+      ) {
+        return;
+      }
+      if (evt.deltaY < 0) {
+        this.zoomInStep();
+      } else if (evt.deltaY > 0) {
+        this.zoomOutStep();
+      }
+    },
+    zoomInStep: _.debounce(function () {
+      var direction = 1;
+      this.stepScale(direction);
+    }, 200, true),
+    zoomOutStep: _.debounce(function () {
+      var direction = -1;
+      this.stepScale(direction);
+    }, 200, true),
+    stepScale: function (direction) {
+      var $scale = this.$el.find('.scale');
+      var value = parseFloat($scale.val(), 10);
+      var step = parseFloat($scale.attr('step'), 10) * direction;
+      var min = parseFloat($scale.attr('min'), 10);
+      var max = parseFloat($scale.attr('max'), 10);
+      var capped = Math.min(max, Math.max(min, value + step));
+      $scale.val(capped);
+      $scale.trigger('change').trigger('input');
+    },
+    setScale: function (event) {
+      var $scale = this.$el.find('.scale');
+      var value = parseFloat($scale.val(), 10);
+      this.options.zoomTarget.css('transform', 'scale(' + value + ')');
     }
   });
 
