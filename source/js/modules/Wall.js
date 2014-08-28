@@ -204,14 +204,14 @@ function (
         this.zoomOutStep();
       }
     },
-    zoomInStep: _.debounce(function () {
+    zoomInStep: _.throttle(function () {
       var direction = 1;
       this.stepScale(direction);
-    }, 200, true),
-    zoomOutStep: _.debounce(function () {
+    }, 200, {trailing: false}),
+    zoomOutStep: _.throttle(function () {
       var direction = -1;
       this.stepScale(direction);
-    }, 200, true),
+    }, 200, {trailing: false}),
     stepScale: function (direction) {
       var $scale = this.$el.find('.scale');
       var value = parseFloat($scale.val(), 10);
