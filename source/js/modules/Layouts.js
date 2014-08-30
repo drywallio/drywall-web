@@ -94,6 +94,7 @@ function (
   });
 
   Views.Pricing = Views.Nav.extend({
+    title: 'Plans & Pricing',
     template: 'layouts/pricing'
   });
 
