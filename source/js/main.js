@@ -77,6 +77,9 @@ function (
       pushState: true,
       root: app.root
     });
+  })
+  .catch(function (err) {
+    console.error(err);
   });
 
   googletagmanager(app.env.googletagmanager.id);

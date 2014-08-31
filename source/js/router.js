@@ -1,11 +1,13 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
   'queryString',
+  'modules/Billing',
   'modules/Layouts',
   'modules/GitHub'
 ], function (
   $, _, Backbone, app,
   queryString,
+  Billing,
   Layouts,
   GitHub
 ) {
@@ -25,9 +27,24 @@ define([
     },
 
     pricing: function () {
+      var owners = app.session.has('id_token') ?
+        new Billing.Collections.Orgs([{
+          owner: app.session.get('nickname')
+        }, {
+          owner: 'cofounders',
+          paidBy: 'cbas',
+          plan: 1
+        }]) : null;
       app.useLayout(Layouts.Views.Pricing, {
       }).setViews({
+        'article': new Billing.Views.Plans({
+          owners: owners,
+          owner: 'cofounders'//app.session.get('nickname')
+        })
       }).render();
+      if (owners) {
+        owners.fetch();
+      }
     },
 
     authentication: function () {
