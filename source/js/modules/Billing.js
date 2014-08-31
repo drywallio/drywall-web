@@ -29,14 +29,14 @@ function (
   var tiers = 'Micro Mini Medium Monster'
     .split(' ')
     .map(function (name, index, list) {
-      var seq = 4 + (2 * index);
+      var seq = 2 * (2 + index);
       var quantity = fibonacci(seq);
       var monthly = {};
       monthly.plan = index + 1;
-      monthly.rate = 6 - index;
+      monthly.rate = 6 - (index / 1);
       monthly.total = monthly.rate * quantity;
       var yearly = {};
-      yearly.plan = monthly.plan + 4;
+      yearly.plan = monthly.plan + list.length;
       yearly.total = monthly.total * 10;
       yearly.savings = monthly.total * 2;
       return {
