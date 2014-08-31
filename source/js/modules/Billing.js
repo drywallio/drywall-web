@@ -10,6 +10,18 @@ function (
   var Collections = {};
   var Views = {};
 
+  Models.Payment = session.prototype.Model.extend({
+    initialize: function (models, options) {
+      this.options = options || {};
+    },
+    url: function () {
+      return app.api(
+        '/billing/:user/create',
+        _.pick(this.options, 'user')
+      );
+    }
+  });
+
   Collections.Orgs = session.prototype.Collection.extend({
     initialize: function (models, options) {
       this.options = options || {};
@@ -56,16 +68,19 @@ function (
       }
     },
     events: {
-      'input select.owner': function (event) {
-        this.options.owner = $(event.target).val();
-        this.render();
-      }
+      'input select.owner': 'toggleRepo',
+      'click button[data-plan]': 'choosePlan'
     },
     serialize: function () {
       var owners = this.options.owners ?
         this.options.owners.toJSON() : [];
       var choice = this.options.owner ?
         _.findWhere(owners, {owner: this.options.owner}) || {} : {};
+      // choice = {
+      //   plan: 3,
+      //   owner: 'cofounders',
+      //   paidBy: 'cbas'
+      // };
       return {
         unpaid: !!choice.owner && !choice.plan,
         downgrade: !!choice.owner && !!choice.plan,
@@ -89,6 +104,27 @@ function (
           });
         })
       };
+    },
+    toggleRepo: function (event) {
+      this.options.owner = $(event.target).val();
+      this.render();
+    },
+    choosePlan: function (event) {
+      var plan = $(event.target).closest('button').data('plan');
+      var payment = new Models.Payment(null, {
+        user: app.session.get('nickname')
+      }).save({
+        owner: this.options.owner,
+        plan: plan,
+        returnUrl: document.location.protocol+ '//' +
+          document.location.host +
+          '/pricing',
+        cancelUrl: document.location.protocol+ '//' +
+          document.location.host +
+          '/pricing'
+      }).then(function (response) {
+        location.assign(response.url);
+      });
     }
   });
 

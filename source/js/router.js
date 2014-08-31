@@ -34,8 +34,8 @@ define([
       app.useLayout(Layouts.Views.Pricing, {
       }).setViews({
         'article': new Billing.Views.Plans({
-          owners: owners,
-          owner: app.session.get('nickname')
+          // owner: app.session.get('nickname'),
+          owners: owners
         })
       }).render();
       if (owners) {
