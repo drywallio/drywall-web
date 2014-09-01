@@ -61,6 +61,9 @@
           {{/if}}
             <span class="total">{{$ total}} per month</span>
             <span class="rate">= {{$ rate}} per user</span>
+            {{#if active}}
+            <span class="next-billing-cycle">Next billing date {{date ../../../nextBillingDate}}</span>
+            {{/if}}
           </button>
         </td>
         {{/with}}
@@ -73,6 +76,9 @@
           {{/if}}
             <span class="total">{{$ total}} per year</span>
             <span class="savings">save {{$ savings}}</span>
+            {{#if active}}
+            <span class="next-billing-cycle">Next billing date {{date ../../../nextBillingDate}}</span>
+            {{/if}}
           </button>
         </td>
         {{/with}}

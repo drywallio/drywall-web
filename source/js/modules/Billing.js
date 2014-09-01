@@ -71,7 +71,7 @@ function (
       }
     },
     events: {
-      'input select.owner': 'toggleRepo',
+      'change select.owner': 'toggleRepo',
       'click button[data-plan]': 'choosePlan'
     },
     serialize: function () {
@@ -86,9 +86,10 @@ function (
         {};
       var interactive = owners.length > 0;
       return {
+        interactive: interactive,
         unpaid: interactive && !choice.plan && !choice.paidBy,
         downgrade: interactive && !!choice.plan,
-        interactive: interactive,
+        nextBillingDate: choice.nextBillingDate,
         owners: owners
           .map(function (org) {
             org.active = choice.owner &&
