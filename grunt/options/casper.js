@@ -6,7 +6,7 @@ module.exports = {
       '--disk-cache=false',
       '--local-storage=./tests/ghost/temp/storage'
     ],
-    engine: 'slimerjs',
+    // engine: 'slimerjs',
     logLevel: 'debug',
     verbose: true,
     test: true
@@ -16,11 +16,11 @@ module.exports = {
     options: {
       engine: 'phantomjs'
     }
-  },
-  slimerjs: {
-    src: ['tests/casper/**/*_test.js'],
-    options: {
-      engine: 'slimerjs'
-    }
+  // },
+  // slimerjs: {
+  //   src: ['tests/casper/**/*_test.js'],
+  //   options: {
+  //     engine: 'slimerjs'
+  //   }
   }
 };
