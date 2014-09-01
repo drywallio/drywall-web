@@ -35,13 +35,14 @@ function (
       if (method === 'read') {
         // Adds token as query param in GET request
         options.data = _.defaults({
-          access_token: access_token
+          access_token: access_token,
+          user: app.session.get('nickname')
         }, options.data || {});
-
       } else {
         // JSON in other requests as payload
         options.attrs = _.defaults({
-          access_token: access_token
+          access_token: access_token,
+          user: app.session.get('nickname')
         }, model.toJSON(options), options.attrs || {});
       }
     }
