@@ -31,6 +31,9 @@ function (
         '/billing/:user/list',
         _.pick(this.options, 'user')
       );
+    },
+    comparator: function (model) {
+      return model.get('owner').toLowerCase();
     }
   });
 
