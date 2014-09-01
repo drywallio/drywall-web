@@ -15,6 +15,7 @@ define([
     routes: {
       '': 'landing',
       'pricing': 'pricing',
+      'pricing/:owner': 'pricing',
       'authentication': 'authentication',
       ':owner/:repository': 'repository',
       '*path': 'error'
@@ -26,7 +27,7 @@ define([
       }).render();
     },
 
-    pricing: function () {
+    pricing: function (owner) {
       var owners = app.session.has('id_token') ?
         new Billing.Collections.Orgs(null, {
           user: app.session.get('nickname')
@@ -34,7 +35,7 @@ define([
       app.useLayout(Layouts.Views.Pricing, {
       }).setViews({
         'article': new Billing.Views.Plans({
-          // owner: app.session.get('nickname'),
+          owner: owner,
           owners: owners
         })
       }).render();

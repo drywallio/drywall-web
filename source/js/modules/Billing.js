@@ -74,17 +74,18 @@ function (
     serialize: function () {
       var owners = this.options.owners ?
         this.options.owners.toJSON() : [];
-      var choice = this.options.owner ?
-        _.findWhere(owners, {owner: this.options.owner}) || {} : {};
-      // choice = {
-      //   plan: 3,
-      //   owner: 'cofounders',
-      //   paidBy: 'cbas'
-      // };
+      var choice = this.options.owner &&
+        _.findWhere(owners, {owner: this.options.owner}) ||
+        _.findWhere(owners, {paidBy: app.session.get('nickname')}) ||
+        _.find(owners, function (owner) { return !!owner.paidBy; }) ||
+        _.findWhere(owners, {owner: app.session.get('nickname')}) ||
+        owners[0] ||
+        {};
+      var interactive = owners.length > 0;
       return {
-        unpaid: !!choice.owner && !choice.plan,
-        downgrade: !!choice.owner && !!choice.plan,
-        interactive: !!choice.owner,
+        unpaid: interactive && !choice.plan && !choice.paidBy,
+        downgrade: interactive && !!choice.plan,
+        interactive: interactive,
         owners: owners
           .map(function (org) {
             org.active = choice.owner &&
@@ -110,18 +111,19 @@ function (
       this.render();
     },
     choosePlan: function (event) {
+      var owner = this.$el.find('select.owner').val();
       var plan = $(event.target).closest('button').data('plan');
       var payment = new Models.Payment(null, {
         user: app.session.get('nickname')
       }).save({
-        owner: this.options.owner,
+        owner: owner,
         plan: plan,
         returnUrl: document.location.protocol+ '//' +
           document.location.host +
-          '/pricing',
+          '/pricing/' + owner,
         cancelUrl: document.location.protocol+ '//' +
           document.location.host +
-          '/pricing'
+          '/pricing/' + owner
       }).then(function (response) {
         location.assign(response.url);
       });
