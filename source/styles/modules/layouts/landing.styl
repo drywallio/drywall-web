@@ -2,52 +2,68 @@
   min-height 100%
   background url('/img/bg-grid.png')
 
-  > header
+  > .pitch
     text-align center
-    padding 0 0 30px 0
-    font-size 24px
-
+    background-color white
+    width 100%
+    box-sizing border-box
+    padding 40px 10px 60px 10px
+    margin 50px auto
     > h1
-      font-size 80px
-      padding 100px 0 0 0
+      font-size 72px
       margin 0
-      font-family 'Roboto Slab', serif
-
-      > i
-        font-weight 300
-        font-style normal
-        text-transform capitalize
-
-      > b
-        font-weight 700
-        text-transform lowercase
-
-    > p
-      margin 10px 20px 0 20px
-
+      > .logotype
+        font-family 'Roboto Slab', serif
+        > i
+          font-weight 300
+          font-style normal
+          text-transform capitalize
+        > b
+          font-weight 700
+          text-transform lowercase
+    > .tagline
+      color #333333
+      font-weight 400
+      font-size 28px
+      margin 10px 0 0 0
+    > ul
+      text-align left
+      display inline-block
+      padding 0 0 0 20px
+      margin 0
+      > li
+        color #444444
+        margin 15px 0
+        > a
+          color #5A2876
     > form
-      margin 50px 0 0 0
-      padding 0 40px
-
-      > button
+      margin 20px 0 0 0
+      padding 0 20px
+      > .github
+        background-image url('/img/github.svg')
+        background-size 60px
+        background-position 10px center
+        background-repeat no-repeat
         width 100%
         max-width 320px
-        height 80px
+        height 63px
+        box-sizing border-box
+        background-color #74448E
+        border-color #5A2876
+        border-style solid
+        border-width 0 0 3px 0
         border-radius 5px
-        box-shadow 2px 2px white
-        background linear-gradient(top, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.05)), white
-        border 1px solid #dddddd
-        padding 0 0 0 0
-        font-size 24px
-
-        &:hover
-          background linear-gradient(top, rgba(255, 255, 255, 0.10), rgba(0, 0, 0, 0.10)), white
-
-        &:active
+        padding 0 0 0 80px
+        text-align left
+        > .action
+          display block
           color white
-          background linear-gradient(top, #555, #aaa)
-
-        &.github
-
+          font-family 'Roboto Slab', serif
+          font-size 18px
+          font-weight 400
           > b
-            font-weight 700
+            font-weight 400
+        > .description
+          display block
+          color #BC9ECC
+          font-size 12px
