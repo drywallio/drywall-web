@@ -77,7 +77,7 @@ function (
     template: 'layouts/repository'
   });
 
-  Views.Landing = Views.Base.extend({
+  Views.Landing = Views.Nav.extend({
     template: 'layouts/landing',
     events: {
       'submit form.signin': 'signin'

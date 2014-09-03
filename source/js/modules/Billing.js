@@ -10,13 +10,25 @@ function (
   var Collections = {};
   var Views = {};
 
-  Models.Payment = session.prototype.Model.extend({
+  Models.Create = session.prototype.Model.extend({
     initialize: function (models, options) {
       this.options = options || {};
     },
     url: function () {
       return app.api(
         '/billing/:user/create',
+        _.pick(this.options, 'user')
+      );
+    }
+  });
+
+  Models.Cancel = session.prototype.Model.extend({
+    initialize: function (models, options) {
+      this.options = options || {};
+    },
+    url: function () {
+      return app.api(
+        '/billing/:user/cancel',
         _.pick(this.options, 'user')
       );
     }
@@ -115,22 +127,33 @@ function (
       this.render();
     },
     choosePlan: function (event) {
+      var that = this;
       var owner = this.$el.find('select.owner').val();
       var plan = $(event.target).closest('button').data('plan');
-      var payment = new Models.Payment(null, {
-        user: app.session.get('nickname')
-      }).save({
-        owner: owner,
-        plan: plan,
-        returnUrl: document.location.protocol+ '//' +
-          document.location.host +
-          '/pricing/' + owner,
-        cancelUrl: document.location.protocol+ '//' +
-          document.location.host +
-          '/pricing/' + owner
-      }).then(function (response) {
-        location.assign(response.url);
-      });
+      if (plan === 0) {
+        new Models.Cancel(null, {
+          user: app.session.get('nickname')
+        }).save({
+          owner: owner
+        }).then(function (response) {
+          that.options.owners.fetch();
+        });
+      } else if (!isNaN(plan)) {
+        new Models.Create(null, {
+          user: app.session.get('nickname')
+        }).save({
+          owner: owner,
+          plan: plan,
+          returnUrl: document.location.protocol+ '//' +
+            document.location.host +
+            '/pricing/' + owner,
+          cancelUrl: document.location.protocol+ '//' +
+            document.location.host +
+            '/pricing/' + owner
+        }).then(function (response) {
+          location.assign(response.url);
+        });
+      }
     }
   });
 
