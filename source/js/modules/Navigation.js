@@ -45,11 +45,9 @@ define(['jquery', 'underscore', 'backbone', 'app'
         });
       },
       'click .signin': function () {
-        app.session.signIn({
-          connection: 'github',
-          connection_scope: app.env.auth0.scopes,
+        app.session.signIn(_.extend(app.env.auth0.signIn, {
           state: Backbone.history.fragment
-        });
+        }));
       }
     }
   });

@@ -94,11 +94,9 @@ function (
     signin: function (event) {
       event.preventDefault();
       this.$el.addClass('working');
-      app.session.signIn({
-        connection: 'github',
-        connection_scope: app.env.auth0.scopes,
+      app.session.signIn(_.extend(app.env.auth0.signIn, {
         state: '/cofounders/drywall-web'
-      });
+      }));
     }
   });
 
