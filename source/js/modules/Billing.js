@@ -22,15 +22,6 @@ function (
     },
     comparator: function (model) {
       return model.get('owner').toLowerCase();
-    },
-    parse: function (response) {
-      var owner = _.findWhere(response, {
-        owner: app.session.get('user_id')
-      });
-      if (owner) {
-        owner.owner = app.session.get('nickname');
-      }
-      return response;
     }
   });
 
