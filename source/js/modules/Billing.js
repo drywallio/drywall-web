@@ -10,42 +10,27 @@ function (
   var Collections = {};
   var Views = {};
 
-  Models.Create = session.prototype.Model.extend({
-    initialize: function (models, options) {
-      this.options = options || {};
-    },
+  Models.Billings = session.prototype.Model.extend({
     url: function () {
-      return app.api(
-        '/billing/:user/create',
-        _.pick(this.options, 'user')
-      );
+      return app.api('/billings');
     }
   });
 
-  Models.Cancel = session.prototype.Model.extend({
-    initialize: function (models, options) {
-      this.options = options || {};
-    },
+  Collections.Billings = session.prototype.Collection.extend({
     url: function () {
-      return app.api(
-        '/billing/:user/cancel',
-        _.pick(this.options, 'user')
-      );
-    }
-  });
-
-  Collections.Orgs = session.prototype.Collection.extend({
-    initialize: function (models, options) {
-      this.options = options || {};
-    },
-    url: function () {
-      return app.api(
-        '/billing/:user/list',
-        _.pick(this.options, 'user')
-      );
+      return app.api('/billings');
     },
     comparator: function (model) {
       return model.get('owner').toLowerCase();
+    },
+    parse: function (response) {
+      var owner = _.findWhere(response, {
+        owner: app.session.get('user_id')
+      });
+      if (owner) {
+        owner.owner = app.session.get('nickname');
+      }
+      return response;
     }
   });
 
@@ -130,30 +115,22 @@ function (
       var that = this;
       var owner = this.$el.find('select.owner').val();
       var plan = $(event.target).closest('button').data('plan');
-      if (plan === 0) {
-        new Models.Cancel(null, {
-          user: app.session.get('nickname')
-        }).save({
-          owner: owner
-        }).then(function (response) {
-          that.options.owners.fetch();
-        });
-      } else if (!isNaN(plan)) {
-        new Models.Create(null, {
-          user: app.session.get('nickname')
-        }).save({
-          owner: owner,
-          plan: plan,
-          returnUrl: document.location.protocol+ '//' +
-            document.location.host +
-            '/pricing/' + owner,
-          cancelUrl: document.location.protocol+ '//' +
-            document.location.host +
-            '/pricing/' + owner
-        }).then(function (response) {
+      new Models.Billings().save({
+        owner: owner,
+        plan: plan,
+        returnUrl: document.location.protocol+ '//' +
+          document.location.host +
+          '/pricing/' + owner,
+        cancelUrl: document.location.protocol+ '//' +
+          document.location.host +
+          '/pricing/' + owner
+      }).then(function (response) {
+        if (response.url) {
           location.assign(response.url);
-        });
-      }
+        } else {
+          that.options.owners.fetch();
+        }
+      });
     }
   });
 

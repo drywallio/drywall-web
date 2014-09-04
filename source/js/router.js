@@ -29,9 +29,7 @@ define([
 
     pricing: function (owner) {
       var owners = app.session.has('id_token') ?
-        new Billing.Collections.Orgs(null, {
-          user: app.session.get('nickname')
-        }) : null;
+        new Billing.Collections.Billings() : null;
       app.useLayout(Layouts.Views.Pricing, {
       }).setViews({
         'article': new Billing.Views.Plans({
