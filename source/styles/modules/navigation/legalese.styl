@@ -1,0 +1,50 @@
+.navigation.legalese
+  align-self flex-end
+  text-align center
+  padding 0 40px 20px 40px
+  box-sizing border-box
+  font-family 'Roboto Slab', serif
+  font-size 10px
+  > .logotype
+    color #926AA8
+    background-image url('/img/sticky.svg')
+    background-size contain
+    background-position center top
+    background-repeat no-repeat
+    height 30px
+    > i
+      text-transform uppercase
+      font-style normal
+      font-size 0
+      font-weight 300
+      display inline-block
+      &:first-letter
+        font-size 12px
+    > b
+      text-transform uppercase
+      font-style normal
+      font-size 0
+      font-weight 700
+      display inline-block
+      &:first-letter
+        font-size 12px
+  > .copyright
+    color #926AA8
+    margin 0
+  > .references
+    font-weight 700
+    margin 0
+    font-size 0
+    > a
+      font-size 10px
+      color #74448E
+      text-decoration none
+      &:not(:last-child)
+        &:after
+          content '|'
+          margin auto 5px
+          font-weight 300
+
+@media (max-width: 640px)
+  .navigation.legalese
+    align-self center

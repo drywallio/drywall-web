@@ -67,6 +67,10 @@ define(['jquery', 'underscore', 'backbone', 'app'
     template: 'navigation/chooser'
   });
 
+  Views.Legalese = Backbone.View.extend({
+    template: 'navigation/legalese'
+  });
+
   return {
     Models: Models,
     Collections: Collections,

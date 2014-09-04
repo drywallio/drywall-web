@@ -30,6 +30,15 @@ function (
     }
   });
 
+  Views.NavContent = Views.Nav.extend({
+    beforeRender: function (options) {
+      Views.Nav.prototype.beforeRender.apply(this, arguments);
+      this.setViews({
+        'footer': new Navigation.Views.Legalese()
+      });
+    }
+  });
+
   Views.Preload = Views.Nav.extend({
     template: 'layouts/preload',
     initialize: function (options) {
@@ -77,7 +86,7 @@ function (
     template: 'layouts/repository'
   });
 
-  Views.Landing = Views.Nav.extend({
+  Views.Landing = Views.NavContent.extend({
     template: 'layouts/landing',
     events: {
       'submit form.signin': 'signin'
@@ -93,12 +102,12 @@ function (
     }
   });
 
-  Views.Pricing = Views.Nav.extend({
+  Views.Pricing = Views.NavContent.extend({
     title: 'Plans & Pricing',
     template: 'layouts/pricing'
   });
 
-  Views.Error = Views.Nav.extend({
+  Views.Error = Views.NavContent.extend({
     template: 'layouts/error'
   });
 
