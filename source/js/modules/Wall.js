@@ -22,7 +22,6 @@ function (
     initialize: function (models, options) {
       this.options = options || {};
       options.issues.each(this._merge, this);
-      options.coordinates.each(this._merge, this);
       this.listenTo(
         options.issues,
         'add remove change',
@@ -39,17 +38,23 @@ function (
       var issue = this.options.issues.findWhere(match);
       var coordinate = this.options.coordinates.findWhere(match);
       var stickie = this.findWhere(match);
-      if (issue && coordinate) {
+
+      if (!coordinate) {
+        coordinate = new this.options.coordinates.model({
+          number: match.number,
+          x: (Math.random() * 1000) - 50,
+          y: (Math.random() * 100) + 200
+        });
+        this.options.coordinates.add(coordinate);
+      }
+
+      if (issue) {
         var data = _.extend(issue.toJSON(), coordinate.toJSON());
         if (!stickie) {
-          stickie = new this.model(data);
+          stickie = new this.model();
           this.add(stickie);
-        } else {
-          stickie.set(data);
         }
-      }
-      else if (stickie) {
-        this.remove(stickie);
+        stickie.set(data);
       }
     },
     bounds: function () {
