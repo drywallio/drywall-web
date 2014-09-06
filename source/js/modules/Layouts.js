@@ -1,5 +1,6 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
+  'modules/Billing',
   'modules/Coordinates',
   'modules/GitHub',
   'modules/Navigation',
@@ -7,6 +8,7 @@ define([
 ],
 function (
   $, _, Backbone, app,
+  Billing,
   Coordinates,
   GitHub,
   Navigation,
@@ -74,9 +76,8 @@ function (
         }).render();
       }.bind(this))
       .catch(function (err) {
-        console.warn(err);
-        var handler = err.status === 402 ? 'Pricing' : 'Error';
-        app.useLayout(Views[handler], {
+        app.useLayout(Views.Error, {
+          error: err
         }).render();
       });
     }
@@ -88,15 +89,11 @@ function (
 
   Views.Landing = Views.NavContent.extend({
     template: 'layouts/landing',
-    events: {
-      'submit form.signin': 'signin'
-    },
-    signin: function (event) {
-      event.preventDefault();
-      this.$el.addClass('working');
-      app.session.signIn(_.extend(app.env.auth0.signIn, {
-        state: '/cofounders/drywall-web'
-      }));
+    beforeRender: function () {
+      Views.NavContent.prototype.beforeRender.apply(this, arguments);
+      this.setViews({
+        '.sign-in': new Navigation.Views.SignIn()
+      });
     }
   });
 
@@ -106,7 +103,45 @@ function (
   });
 
   Views.Error = Views.NavContent.extend({
-    template: 'layouts/error'
+    template: 'layouts/error',
+    initialize: function (options) {
+      Views.NavContent.prototype.initialize.apply(this, arguments);
+    },
+    serialize: function () {
+      var error = this.options.error;
+      var code = error.status;
+      return {
+        showSignIn: !app.session.has('id_token'),
+        showPricing: code === 402,
+        code: code,
+        title: error.message || (
+          code === 402 ? 'Plan Upgrade Needed' :
+          code === 404 ? 'Wall not Found' :
+          'Oops!')
+      };
+    },
+    beforeRender: function () {
+      Views.NavContent.prototype.beforeRender.apply(this, arguments);
+      if (!app.session.has('id_token')) {
+        this.setViews({
+          '.sign-in': new Navigation.Views.SignIn()
+        });
+      }
+      if (this.options.error.status === 402) {
+        var owner = Backbone.history.fragment.substr(
+          0, Backbone.history.fragment.indexOf('/')
+        );
+        var owners = new Billing.Collections.Billings();
+        this.setViews({
+          '.pricing': new Billing.Views.Plans({
+            returnPath: Backbone.history.fragment,
+            owner: owner,
+            owners: owners
+          })
+        });
+        owners.fetch();
+      }
+    }
   });
 
   return {

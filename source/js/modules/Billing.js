@@ -106,15 +106,17 @@ function (
       var that = this;
       var owner = this.$el.find('select.owner').val();
       var plan = $(event.target).closest('button').data('plan');
+      var returnTo = document.location.protocol + '//' +
+        document.location.host + (
+          this.options.returnPath ?
+            ('/' + this.options.returnPath) :
+            ('/pricing/' + owner)
+        );
       new Models.Billings().save({
         owner: owner,
         plan: plan,
-        returnUrl: document.location.protocol+ '//' +
-          document.location.host +
-          '/pricing/' + owner,
-        cancelUrl: document.location.protocol+ '//' +
-          document.location.host +
-          '/pricing/' + owner
+        returnUrl: returnTo,
+        cancelUrl: returnTo
       }).then(function (response) {
         if (response.url) {
           location.assign(response.url);

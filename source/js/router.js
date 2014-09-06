@@ -58,7 +58,14 @@ define([
     },
 
     error: function () {
+      function HTTPError (status, message) {
+        this.status = status;
+        this.message = message;
+      }
+      HTTPError.prototype = new Error();
+      HTTPError.prototype.constructor = HTTPError;
       app.useLayout(Layouts.Views.Error, {
+        error: new HTTPError(404, 'Page not Found')
       }).render();
     }
   });

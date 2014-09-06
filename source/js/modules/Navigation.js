@@ -4,6 +4,19 @@ define(['jquery', 'underscore', 'backbone', 'app'
   var Collections = {};
   var Views = {};
 
+  Views.SignIn = Backbone.View.extend({
+    template: 'navigation/sign-in',
+    events: {
+      'submit': 'signIn'
+    },
+    signIn: function (event) {
+      event.preventDefault();
+      app.session.signIn(_.extend(app.env.auth0.signIn, {
+        state: '/cofounders/drywall-web'
+      }));
+    }
+  });
+
   Views.Primary = Backbone.View.extend({
     template: 'navigation/primary',
     // events: {
