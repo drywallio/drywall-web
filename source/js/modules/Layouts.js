@@ -27,7 +27,8 @@ function (
   Views.Nav = Views.Base.extend({
     beforeRender: function (options) {
       this.setViews({
-        'header': new Navigation.Views.Primary()
+        '> header': new Navigation.Views.Account(),
+        '> aside': new Navigation.Views.Primary()
       });
     }
   });
@@ -36,7 +37,7 @@ function (
     beforeRender: function (options) {
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        'footer': new Navigation.Views.Legalese()
+        '> footer': new Navigation.Views.Legalese()
       });
     }
   });
@@ -60,19 +61,11 @@ function (
       )
       .then(function (data) {
         app.useLayout(Views.Repository, {
-        }).setViews({
-          'article': new Wall.Views.Draggable({
-            coordinates: coordinates,
-            issues: issues,
-            repo: repo,
-            stickies: new Wall.Collections.Stickies(null, {
-              coordinates: coordinates,
-              issues: issues,
-              repo: repo,
-              owner: this.options.owner,
-              repository: this.options.repository
-            })
-          })
+          coordinates: coordinates,
+          issues: issues,
+          repo: repo,
+          owner: this.options.owner,
+          repository: this.options.repository
         }).render();
       }.bind(this))
       .catch(function (err) {
@@ -84,7 +77,21 @@ function (
   });
 
   Views.Repository = Views.Nav.extend({
-    template: 'layouts/repository'
+    template: 'layouts/repository',
+    beforeRender: function () {
+      Views.Nav.prototype.beforeRender.apply(this, arguments);
+      this.setViews({
+        '> .viewport': new Wall.Views.Draggable({
+          coordinates: this.options.coordinates,
+          issues: this.options.issues,
+          repo: this.options.repo,
+          stickies: new Wall.Collections.Stickies(null, _.pick(
+            this.options,
+            'coordinates', 'issues', 'repo', 'owner', 'repository'
+          ))
+        })
+      });
+    }
   });
 
   Views.Landing = Views.NavContent.extend({

@@ -18,28 +18,7 @@ define(['jquery', 'underscore', 'backbone', 'app'
   });
 
   Views.Primary = Backbone.View.extend({
-    template: 'navigation/primary',
-    // events: {
-    //   'mouseenter': function (event) {
-    //     if (!this.getView('.chooser')) {
-    //       var chooser = new Views.Chooser({
-    //       });
-    //       this.setView('.chooser', chooser);
-    //       chooser.render();
-    //     }
-    //   },
-    //   'mouseleave': function (event) {
-    //     this.removeView('.chooser');
-    //   }
-    // },
-    beforeRender: function () {
-      this.setViews({
-        '.account': new Views.Account({
-        }),
-        // '.breadcrumbs': new Views.Breadcrumbs({
-        // })
-      });
-    }
+    template: 'navigation/primary'
   });
 
   Views.Account = Backbone.View.extend({
@@ -72,10 +51,6 @@ define(['jquery', 'underscore', 'backbone', 'app'
     serialize: function () {
       return {};
     }
-  });
-
-  Views.Chooser = Backbone.View.extend({
-    template: 'navigation/chooser'
   });
 
   Views.Legalese = Backbone.View.extend({

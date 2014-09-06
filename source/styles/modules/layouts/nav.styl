@@ -3,16 +3,26 @@
   display flex
   flex-flow column nowrap
   align-items center
+  position relative
 
   > header
-    height 48px
-    flex-grow 0
+    position absolute
+    top 0
+    right 50px
+    z-index 1000000
 
   > article
     flex-grow 0
+
+  > aside
+    position absolute
+    top 0
+    right 0
+    z-index 1000000
 
   > footer
     flex-grow 0
     display flex
     width 100%
     justify-content flex-end
+    flex-direction column

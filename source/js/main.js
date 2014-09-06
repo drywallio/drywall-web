@@ -8,7 +8,8 @@ define(
   'session',
   'googletagmanager',
   'fastclick',
-  'backbone-loading'
+  'backbone-loading',
+  'modules/Layouts'
 ],
 function (
   es6,
@@ -19,7 +20,8 @@ function (
   Session,
   googletagmanager,
   FastClick,
-  bbLoading
+  bbLoading,
+  Layouts
 ) {
   if (typeof Function.prototype.bind === 'undefined') {
     Function.prototype.bind = function (that) {
@@ -80,6 +82,9 @@ function (
   })
   .catch(function (err) {
     console.error(err);
+    app.useLayout(Layouts.Views.Error, {
+      error: err
+    }).render();
   });
 
   googletagmanager(app.env.googletagmanager.id);
