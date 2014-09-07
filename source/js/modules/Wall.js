@@ -21,7 +21,10 @@ function (
   Collections.Stickies = Backbone.Collection.extend({
     initialize: function (models, options) {
       this.options = options || {};
-      options.issues.each(this._merge, this);
+      var untouchedIssues = [];
+      options.issues.reduce(this._layoutStickies, untouchedIssues, this);
+      this._layoutUntouchedIssues(untouchedIssues);
+
       this.listenTo(
         options.issues,
         'add remove change',
@@ -33,29 +36,35 @@ function (
         this._merge
       );
     },
-    _merge: function (model) {
-      var match = {number: model.get('number')};
-      var issue = this.options.issues.findWhere(match);
+    _layoutStickies: function(arr, issue) {
+      var match = issue.pick('number');
       var coordinate = this.options.coordinates.findWhere(match);
-      var stickie = this.findWhere(match);
 
-      if (!coordinate) {
-        coordinate = new this.options.coordinates.model({
-          number: match.number,
-          x: (Math.random() * 1000) - 50,
-          y: (Math.random() * 100) + 200
+      if (coordinate) {
+        this.addStickie(issue, coordinate);
+      } else {
+        arr.push(issue);
+      }
+      return arr;
+    },
+    _layoutUntouchedIssues: function (issues) {
+      var that = this;
+      var bounds = that.bounds();
+
+      issues.forEach(function (issue) {
+        var coordinate = new that.options.coordinates.model({
+          number: issue.get('number'),
+          x: (Math.random() * bounds.width / 2) + bounds.left,
+          y: (Math.random() * 200) + bounds.bottom + stickieWidth
         });
-        this.options.coordinates.add(coordinate);
-      }
-
-      if (issue) {
-        var data = _.extend(issue.toJSON(), coordinate.toJSON());
-        if (!stickie) {
-          stickie = new this.model();
-          this.add(stickie);
-        }
-        stickie.set(data);
-      }
+        that.options.coordinates.add(coordinate);
+        that.addStickie(issue, coordinate);
+      });
+    },
+    addStickie: function(issue, coordinate) {
+      var data = _.extend(issue.toJSON(), coordinate.toJSON());
+      var stickie = new this.model(data);
+      this.add(stickie);
     },
     bounds: function () {
       var x = this.map(function (stickie) {
@@ -64,6 +73,8 @@ function (
       var y = this.map(function (stickie) {
         return stickie.get('y');
       });
+      x = _.isEmpty(x) ? [0] : x;
+      y = _.isEmpty(y) ? [0] : y;
 
       var box = {
         left: _.min(x),
