@@ -20,6 +20,12 @@ function (
         }
       },
     }, options);
+    if (method === 'read') {
+      // Adds query param in GET request
+      extendedOptions.data = _.defaults({
+        per_page: 100,
+      }, extendedOptions.data || {});
+    }
     return Backbone.sync(method, model, extendedOptions);
   };
   var ghInitialize = function (models, options) {
