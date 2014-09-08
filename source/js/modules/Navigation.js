@@ -12,7 +12,9 @@ define(['jquery', 'underscore', 'backbone', 'app'
     signIn: function (event) {
       event.preventDefault();
       app.session.signIn(_.extend(app.env.auth0.signIn, {
-        state: '/cofounders/drywall-web'
+        state: Backbone.history.fragment === '' ?
+          '/cofounders/drywall-web' :
+          '/' + Backbone.history.fragment
       }));
     }
   });
