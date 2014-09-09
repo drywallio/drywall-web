@@ -12,3 +12,34 @@
     width 50px
     box-sizing border-box
     padding 0
+    position absolute
+    top 0
+    right 0
+    z-index 999999
+    transition transform 0.25s ease-in-out
+
+  > .menu
+    background-color #5A2876
+    position absolute
+    top 0
+    right 0
+    width 100vw
+    height 100vh
+    max-width 300px
+    z-index -99999
+
+#app.navigation-primary-reveal .navigation.primary
+  > button
+    transform translateX(calc(-100vw + 50px))
+    &:after
+      content ''
+      position absolute
+      top 0
+      right 0
+      width 100vw
+      height 100vh
+
+@media (min-width: 320px)
+  #app.navigation-primary-reveal .navigation.primary
+    > button
+      transform translateX(calc(-270px))

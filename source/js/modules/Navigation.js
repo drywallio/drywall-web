@@ -20,7 +20,12 @@ define(['jquery', 'underscore', 'backbone', 'app'
   });
 
   Views.Primary = Backbone.View.extend({
-    template: 'navigation/primary'
+    template: 'navigation/primary',
+    events: {
+      'click > button': function (event) {
+        $(app.el).toggleClass('navigation-primary-reveal');
+      }
+    }
   });
 
   Views.Account = Backbone.View.extend({

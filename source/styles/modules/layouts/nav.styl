@@ -13,12 +13,9 @@
 
   > article
     flex-grow 0
+    transition transform 0.25s ease-in-out
 
-  > aside
-    position absolute
-    top 0
-    right 0
-    z-index 1000000
+  // > aside
 
   > footer
     flex-grow 0
@@ -26,3 +23,12 @@
     width 100%
     justify-content flex-end
     flex-direction column
+
+#app.navigation-primary-reveal > .layouts.nav
+  > article
+    transform translateX(calc(-100vw + 50px))
+
+@media (min-width: 320px)
+  #app.navigation-primary-reveal > .layouts.nav
+    > article
+      transform translateX(calc(-270px))
