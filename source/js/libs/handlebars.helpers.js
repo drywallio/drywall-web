@@ -1,5 +1,5 @@
 define([
-  'handlebars',
+  'handlebars.runtime',
   'handlebars-helpers-pack/currency',
   'handlebars-helpers-pack/encodeURIComponent',
   'handlebars-helpers-pack/json',

@@ -1,7 +1,7 @@
 define(
 [
   'es6-shim',
-  'jquery', 'underscore', 'libs/handlebars.helpers', 'backbone',
+  'jquery', 'underscore', 'backbone',
   'app',
   'router',
   'templates.built',
@@ -13,7 +13,7 @@ define(
 ],
 function (
   es6,
-  $, _, Handlebars, Backbone,
+  $, _, Backbone,
   app,
   Router,
   templatesBuilt,
@@ -43,8 +43,12 @@ function (
 
       var done = this.async();
       $.get(path + '.html', function (response) {
-        JST[bare] = Handlebars.compile(response);
-        done(JST[bare]);
+        require(['handlebars.compiler'], function (Handlebars) {
+          if (!JST[bare]) {
+            JST[bare] = Handlebars.compile(response);
+          }
+          done(JST[bare]);
+        });
       }, 'text');
     }
   });
