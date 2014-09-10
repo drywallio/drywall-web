@@ -9,6 +9,7 @@
     "backbone.analytics": "*",
     "googletagmanager": "*",
     "es6-shim": "*",
-    "backbone-session": "*"
+    "backbone-session": "*",
+    "query-string": "~0.4.1"
   }
 }

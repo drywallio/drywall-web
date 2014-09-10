@@ -27,7 +27,7 @@ define(['underscore'], function (_) {
     predicate: function () { return true; },
     type: 'development',
     api: {
-      base: 'http://localhost:3000'
+      base: 'http://drywall-api-staging.herokuapp.com'
     },
     googletagmanager: {
       id: ''
@@ -37,6 +37,11 @@ define(['underscore'], function (_) {
   .omit('predicate')
   .defaults({
     auth0: {
+      signIn: {
+        connection: 'github',
+        connection_scope: ['repo'],
+        scope: 'openid nickname identities'
+      },
       domain: 'drywall.auth0.com',
       clientID: 'aoGE4SXQR2Rg0oPxEycSrIPK9hbD8HQd'
     }

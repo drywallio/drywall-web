@@ -1,10 +1,18 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
-  'modules/Navigation'
+  'modules/Billing',
+  'modules/Coordinates',
+  'modules/GitHub',
+  'modules/Navigation',
+  'modules/Wall'
 ],
 function (
   $, _, Backbone, app,
-  Navigation
+  Billing,
+  Coordinates,
+  GitHub,
+  Navigation,
+  Wall
 ) {
   var Models = {};
   var Collections = {};
@@ -19,46 +27,128 @@ function (
   Views.Nav = Views.Base.extend({
     beforeRender: function (options) {
       this.setViews({
-        'header': new Navigation.Views.Primary()
+        '> header': new Navigation.Views.Account(),
+        '> aside': new Navigation.Views.Primary()
       });
     }
   });
 
-  Views.Organization = Views.Nav.extend({
-    template: 'layouts/organization'
+  Views.NavContent = Views.Nav.extend({
+    beforeRender: function (options) {
+      Views.Nav.prototype.beforeRender.apply(this, arguments);
+      this.setViews({
+        '> footer': new Navigation.Views.Legalese()
+      });
+    }
+  });
+
+  Views.Preload = Views.Nav.extend({
+    template: 'layouts/preload',
+    initialize: function (options) {
+      Views.Nav.prototype.initialize.apply(this, arguments);
+      var path = {
+        owner: this.options.owner,
+        repository: this.options.repository
+      };
+      var coordinates = new Coordinates.Collections.Coordinates(null, path);
+      var issues = new GitHub.Collections.Issues(null, path);
+      var repo = new GitHub.Models.Repo(null, path);
+      Promise.all(
+        [coordinates, issues, repo]
+          .map(function (collection) {
+            return collection.fetch();
+          })
+      )
+      .then(function (data) {
+        app.useLayout(Views.Repository, {
+          coordinates: coordinates,
+          issues: issues,
+          repo: repo,
+          owner: this.options.owner,
+          repository: this.options.repository
+        }).render();
+      }.bind(this))
+      .catch(function (err) {
+        app.useLayout(Views.Error, {
+          error: err
+        }).render();
+      });
+    }
   });
 
   Views.Repository = Views.Nav.extend({
-    template: 'layouts/repository'
+    template: 'layouts/repository',
+    beforeRender: function () {
+      Views.Nav.prototype.beforeRender.apply(this, arguments);
+      this.setViews({
+        '> .viewport': new Wall.Views.Draggable({
+          coordinates: this.options.coordinates,
+          issues: this.options.issues,
+          repo: this.options.repo,
+          stickies: new Wall.Collections.Stickies(null, _.pick(
+            this.options,
+            'coordinates', 'issues', 'repo', 'owner', 'repository'
+          ))
+        })
+      });
+    }
   });
 
-  Views.Landing = Views.Base.extend({
+  Views.Landing = Views.NavContent.extend({
     template: 'layouts/landing',
-    events: {
-      'submit form.signin': 'signin'
-    },
-    signin: function (event) {
-      event.preventDefault();
-      this.$el.addClass('working');
-      app.session.signIn();
+    beforeRender: function () {
+      Views.NavContent.prototype.beforeRender.apply(this, arguments);
+      this.setViews({
+        '.sign-in': new Navigation.Views.SignIn()
+      });
     }
   });
 
-  Views.Github = Views.Base.extend({
-    template: 'layouts/github',
-    events: {
-      'click button.cancel': 'cancel'
-    },
-    cancel: function () {
-      app.session.signOut();
-    },
-    afterRender: function () {
-      console.log('AFTER RENDER GITHUB');
-    }
+  Views.Pricing = Views.NavContent.extend({
+    title: 'Plans & Pricing',
+    template: 'layouts/pricing'
   });
 
-  Views['404'] = Views.Base.extend({
-    template: 'layouts/404'
+  Views.Error = Views.NavContent.extend({
+    template: 'layouts/error',
+    initialize: function (options) {
+      Views.NavContent.prototype.initialize.apply(this, arguments);
+    },
+    serialize: function () {
+      var error = this.options.error;
+      var code = error.status;
+      return {
+        showSignIn: !app.session.has('id_token'),
+        showPricing: code === 402,
+        code: code,
+        title: error.message || (
+          code === 402 ? 'Plan Upgrade Needed' :
+          code === 404 ? 'Wall not Found' :
+          'Oops!')
+      };
+    },
+    beforeRender: function () {
+      Views.NavContent.prototype.beforeRender.apply(this, arguments);
+      if (!app.session.has('id_token')) {
+        this.setViews({
+          '.sign-in': new Navigation.Views.SignIn()
+        });
+      }
+      if (this.options.error.status === 402) {
+        var owner = Backbone.history.fragment.substr(
+          0, Backbone.history.fragment.indexOf('/')
+        );
+        var owners = new Billing.Collections.Billings();
+        this.setViews({
+          '.pricing': new Billing.Views.Plans({
+            returnPath: Backbone.history.fragment,
+            owner: owner,
+            owners: owners
+          })
+        });
+        owners.fetch();
+      }
+    }
   });
 
   return {

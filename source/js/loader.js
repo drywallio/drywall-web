@@ -7,7 +7,7 @@ require.config({
     'handlebars': '//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.4/handlebars.min',
     'jquery': '//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min',
     'backbone.layoutmanager': '//cdnjs.cloudflare.com/ajax/libs/backbone.layoutmanager/0.9.4/backbone.layoutmanager.min',
-    'underscore': '//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min',
+    'underscore': '//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min',
     'backbone-loading': '../bower_components/backbone-loading/backbone-loading',
     'urlbuilder': '../bower_components/urlbuilder/urlbuilder',
     'handlebars-helpers-pack': '../bower_components/handlebars-helpers-pack/helpers',
@@ -18,6 +18,7 @@ require.config({
     'fastclick': '//cdnjs.cloudflare.com/ajax/libs/fastclick/0.6.7/fastclick.min',
     'es6-shim': '../bower_components/es6-shim/es6-shim',
     'backbone-session': '../bower_components/backbone-session/backbone-session',
+    'queryString': '../bower_components/query-string/query-string',
     'Draggable': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/utils/Draggable.min',
     'TweenLite': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/TweenLite.min',
     'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/plugins/CSSPlugin.min'

@@ -1,47 +1,48 @@
 define([
-  'jquery', 'underscore', 'backbone', 'auth0', 'backbone-session'
+  'jquery', 'underscore', 'backbone', 'app', 'auth0', 'backbone-session'
 ],
 function (
-  $, _, Backbone, Auth0, Session
+  $, _, Backbone, app, Auth0, Session
 ) {
   var saveProfile = function (err, profile, id_token, access_token, state) {
     var auth0Attributes = {};
-
     if (id_token !== undefined) {
       auth0Attributes.id_token = id_token;
     }
-
     if(access_token !== undefined) {
       auth0Attributes.access_token = access_token;
     }
-
     this.save(_.extend(profile, auth0Attributes));
   };
 
-  return Session.extend({
-    initialize: function (attributes, options) {
-      var that = this;
-
-      var backboneSync = Backbone.sync;
-      Backbone.sync = function (method, model, options) {
-
-        if (that.has('id_token')) {
-          options.headers = _.extend(options.headers || {}, {
-            'Authorization': 'Bearer ' + that.get('id_token')
-          });
+  var sync = function (method, model, options) {
+    if (app.session.has('id_token')) {
+      options.headers = _.extend(options.headers || {}, {
+        'Authorization': 'Bearer ' + app.session.get('id_token')
+      });
+    }
+    model.once('request', function (model, xhr, options) {
+      xhr.fail(function (xhr, textStatus) {
+        if (xhr.status === 401) {
+          app.session.signOut();
         }
+      });
+    });
+    return Backbone.sync.call(this, method, model, options);
+  };
 
-        model.once('request', function (model, xhr, options) {
-          xhr.fail(function (xhr, textStatus) {
-            if (textStatus !== 'timeout' && xhr.status !== 0) {
-              that.signOut();
-            }
-          });
-        });
+  var sessionModel = Backbone.Model.extend({
+    sync: sync
+  });
+  var sessionCollection = Backbone.Collection.extend({
+    sync: sync,
+    model: sessionModel
+  });
 
-        return backboneSync.call(this, method, model, options);
-      };
-
+  return Session.extend({
+    Model: sessionModel,
+    Collection: sessionCollection,
+    initialize: function (attributes, options) {
       this.auth0 = new Auth0(_.defaults(options, {
         // domain: 'xxxxxxxx.auth0.com',
         // clientID: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
@@ -49,7 +50,6 @@ function (
         //   document.location.host + '/xxxxxxxxxxxxxxxx',
         callbackOnLocationHash: true
       }));
-
       return Session.prototype.initialize.apply(this, arguments);
     },
     signIn: function (options) {
@@ -58,7 +58,6 @@ function (
         that.auth0.login(
           options,
           function (err, profile, id_token, access_token, state) {
-            console.log('called signin promise');
             if (err) {
               reject();
             } else {

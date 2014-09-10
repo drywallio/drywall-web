@@ -1,0 +1,188 @@
+.billing.plans
+  box-sizing border-box
+  width 100%
+  max-width 960px
+  margin 0 auto
+  padding 20px 5%
+  background white
+  border 1px solid #AAA
+  box-shadow 0 2px 4px 0 rgba(0, 0, 0, 0.5)
+  text-align center
+
+  > h1
+    margin 20px 0
+    > label
+      position relative
+      &:after
+        color white
+        content ''
+        position absolute
+        right 3px
+        top 0
+        bottom 0
+        width 24px
+        background-image url('/img/chevron.svg')
+        background-repeat no-repeat
+        background-size contain
+        background-position center
+        pointer-events none
+      > select
+        appearance none
+        background-color #926AA8
+        padding 5px 35px 5px 10px
+        font-size 36px
+        color white
+        font-family 'Roboto Slab', serif
+        font-weight 700
+        border none
+  > .intro
+    margin 20px 0
+    font-size 18px
+
+  > table
+    margin 40px 0
+    width 100%
+    > tbody
+      > tr
+        &:nth-child(odd)
+          background rgba(170, 170, 170, 0.1)
+        &.active
+          background-color #EEE7F2
+          border 1px solid #926AA8
+          > td
+            margin-bottom 20px !important
+        > th
+          font-weight 700
+        > td
+          padding 0
+          > .quantity
+            display block
+            margin 10px 0 5px 0
+            line-height 1
+            font-weight 700
+            font-size 48px
+            font-family 'Roboto Slab', serif
+          > .unit
+            display block
+            margin 0 0 10px 0
+            font-size 14px
+          &.monthly
+            > button
+              background-color #926AA8
+          > button
+            height 60px
+            background-color #74448E
+            border-style none
+            border-radius 3px
+            padding 12px 24px
+            > .warning
+              display block
+              font-size 12px
+              color #BC9ECC
+              font-weight 400
+            > .downgrade,
+            > .free,
+            > .total
+              display block
+              font-family 'Roboto Slab', serif
+              font-weight 400
+              color white
+              line-height 1
+            > .rate,
+            > .savings
+              display block
+              font-size 12px
+              line-height 1
+              margin 5px 0 0 0
+              color #BC9ECC
+            > .next-billing-cycle
+              position absolute
+              top 100%
+              left 0
+              right 0
+              bottom -16px
+              font-size 12px
+              color #BC9ECC
+            &[disabled]
+              background-color transparent
+              > .free
+                color #926AA8
+              > .total
+                color #40125A
+              > .rate,
+              > .savings
+                color #926AA8
+          &.active
+            > button
+              position relative
+              background-color white
+              padding 12px 24px 12px 42px
+              > .free,
+              > .total
+                color #5A2876
+              > .rate
+                color #BC9ECC
+              &:before
+                border-top-left-radius 3px
+                border-top-right-radius 3px
+                font-family 'Roboto Slab', serif
+                font-size 12px
+                content 'Current'
+                background-color #18BB9C
+                color white
+                position absolute
+                left 0
+                bottom 0
+                height 1.5em
+                width 60px
+                transform rotate(-90deg) translateY(1.5em)
+                transform-origin bottom left
+
+  > .contact
+    font-size 14px
+    > a
+      color #74448E
+      text-decoration none
+      font-weight 700
+
+@media (max-width: 960px)
+  .billing.plans
+    padding 20px 0
+    > table
+      > tbody
+        > tr
+          text-align center
+          > th
+            transform rotate(-90deg)
+            max-width 3em
+            pointer-events none
+            text-align center
+            line-height 1
+          > td
+            display inline-block
+            > .quantity
+              display inline-block
+              width 56px
+              text-align right
+            > .unit
+              display inline-block
+              vertical-align: top
+              max-width 80px
+              text-align left
+              margin 15px 0 0 5px
+            > button
+              width 100%
+          > td:first-of-type
+            display block
+            text-align center
+          > td:not([colspan="2"]):nth-child(n+3)
+            width 100%
+            max-width 250px
+            margin 0 5px 10px 0
+          &:first-of-type
+            height 110px
+            > td[colspan='2']
+              text-align center
+              display block
+              max-width 250px
+              margin 0 auto 10px auto

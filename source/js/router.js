@@ -1,20 +1,24 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
+  'queryString',
+  'modules/Billing',
   'modules/Layouts',
-  'modules/Wall'
+  'modules/GitHub'
 ], function (
   $, _, Backbone, app,
+  queryString,
+  Billing,
   Layouts,
-  Wall
+  GitHub
 ) {
   return Backbone.Router.extend({
-
     routes: {
       '': 'landing',
-      'login/github/redirect/': 'github',
-      ':organization': 'organization',
-      ':organization/:repository': 'repository',
-      '*path': '404'
+      'pricing': 'pricing',
+      'pricing/:owner': 'pricing',
+      'authentication': 'authentication',
+      ':owner/:repository': 'repository',
+      '*path': 'error'
     },
 
     landing: function () {
@@ -23,78 +27,46 @@ define([
       }).render();
     },
 
-    github: function () {
-      console.log('GITHUB CALLBACK!');
-      app.useLayout(Layouts.Views.Github, {
+    pricing: function (owner) {
+      var owners = app.session.has('id_token') ?
+        new Billing.Collections.Billings() : null;
+      app.useLayout(Layouts.Views.Pricing, {
       }).setViews({
-      }).render();
-    },
-
-    organization: function () {
-      app.useLayout(Layouts.Views.Organization, {
-      }).setViews({
-      }).render();
-    },
-
-    repository: function (organization, repository) {
-      var rand = function (max) {
-        var grid = 26;
-        return Math.round(Math.random() * max / grid) * grid;
-      };
-      var randX = _.partial(rand, document.body.clientWidth - 320);
-      var randY = _.partial(rand, document.body.clientHeight - 320);
-      var stickies = new Wall.Collections.Stickies([{
-        title: 'Hello world',
-        x: randX(),
-        y: randY(),
-        color: '#15c2d2'
-      }, {
-        title: 'How are you doing?',
-        x: randX(),
-        y: randY(),
-        color: '#4ccef8'
-      }, {
-        title: 'Not another stickie!',
-        x: randX(),
-        y: randY(),
-        color: '#deb4e3'
-      }, {
-        title: 'You shall not pass',
-        x: randX(),
-        y: randY(),
-        color: '#f4a22e'
-      }, {
-        title: 'Chocolate and bananas for code monkeys',
-        x: randX(),
-        y: randY(),
-        color: '#ffca45'
-      }, {
-        title: 'Vroom Vroom',
-        x: randX(),
-        y: randY(),
-        color: '#e7524e'
-      }, {
-        title: 'Shake it baby!',
-        x: randX(),
-        y: randY(),
-        color: '#be6ac8'
-      }], {
-        organization: organization,
-        repository: repository
-      });
-      app.useLayout(Layouts.Views.Repository, {
-      }).setViews({
-        'article': new Wall.Views.Draggable({
-          collection: stickies
+        'article': new Billing.Views.Plans({
+          owner: owner,
+          owners: owners
         })
       }).render();
-      stickies.fetch();
+      if (owners) {
+        owners.fetch();
+      }
     },
 
-    404: function () {
-      app.useLayout(Layouts.Views['404'], {
+    authentication: function () {
+      var params = queryString.parse(location.search || location.hash);
+      app.router.navigate(params.state, {
+        replace: true,
+        trigger: true
+      });
+    },
+
+    repository: function (owner, repository) {
+      app.useLayout(Layouts.Views.Preload, {
+        owner: owner,
+        repository: repository
+      }).render();
+    },
+
+    error: function () {
+      function HTTPError (status, message) {
+        this.status = status;
+        this.message = message;
+      }
+      HTTPError.prototype = new Error();
+      HTTPError.prototype.constructor = HTTPError;
+      app.useLayout(Layouts.Views.Error, {
+        error: new HTTPError(404, 'Page not Found')
       }).render();
     }
-
   });
 });

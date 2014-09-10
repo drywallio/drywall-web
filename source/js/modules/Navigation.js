@@ -4,28 +4,27 @@ define(['jquery', 'underscore', 'backbone', 'app'
   var Collections = {};
   var Views = {};
 
+  Views.SignIn = Backbone.View.extend({
+    template: 'navigation/sign-in',
+    events: {
+      'submit': 'signIn'
+    },
+    signIn: function (event) {
+      event.preventDefault();
+      app.session.signIn(_.extend(app.env.auth0.signIn, {
+        state: Backbone.history.fragment === '' ?
+          '/cofounders/drywall-web' :
+          '/' + Backbone.history.fragment
+      }));
+    }
+  });
+
   Views.Primary = Backbone.View.extend({
     template: 'navigation/primary',
     events: {
-      'mouseenter': function (event) {
-        if (!this.getView('.chooser')) {
-          var chooser = new Views.Chooser({
-          });
-          this.setView('.chooser', chooser);
-          chooser.render();
-        }
-      },
-      'mouseleave': function (event) {
-        this.removeView('.chooser');
+      'click > button': function (event) {
+        $(app.el).toggleClass('navigation-primary-reveal');
       }
-    },
-    beforeRender: function () {
-      this.setViews({
-        '.account': new Views.Account({
-        }),
-        '.breadcrumbs': new Views.Breadcrumbs({
-        })
-      });
     }
   });
 
@@ -36,6 +35,19 @@ define(['jquery', 'underscore', 'backbone', 'app'
     },
     serialize: function () {
       return app.session.toJSON();
+    },
+    events: {
+      'click .signout': function () {
+        app.session.signOut()
+        .then(function () {
+          app.router.navigate('/', {trigger: true});
+        });
+      },
+      'click .signin': function () {
+        app.session.signIn(_.extend(app.env.auth0.signIn, {
+          state: Backbone.history.fragment
+        }));
+      }
     }
   });
 
@@ -48,8 +60,8 @@ define(['jquery', 'underscore', 'backbone', 'app'
     }
   });
 
-  Views.Chooser = Backbone.View.extend({
-    template: 'navigation/chooser'
+  Views.Legalese = Backbone.View.extend({
+    template: 'navigation/legalese'
   });
 
   return {

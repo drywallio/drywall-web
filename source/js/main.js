@@ -8,7 +8,8 @@ define(
   'session',
   'googletagmanager',
   'fastclick',
-  'backbone-loading'
+  'backbone-loading',
+  'modules/Layouts'
 ],
 function (
   es6,
@@ -19,7 +20,8 @@ function (
   Session,
   googletagmanager,
   FastClick,
-  bbLoading
+  bbLoading,
+  Layouts
 ) {
   if (typeof Function.prototype.bind === 'undefined') {
     Function.prototype.bind = function (that) {
@@ -60,15 +62,12 @@ function (
     domain: app.env.auth0.domain,
     clientID: app.env.auth0.clientID,
     callbackURL: document.location.protocol+ '//' +
-      document.location.host + '/authentication'
-  });
-  app.session.on('signOut', function () {
-    app.router.navigate('/', {trigger: true});
+      document.location.host +
+      '/authentication'
   });
   app.session.fetch()
-  .then(app.session.getAuthStatus.bind(app.session))
   .then(function () {
-    window.history.replaceState(undefined, '', '/dashboard');
+    return app.session.getAuthStatus();
   })
   .catch(function (err) {
     if (location.pathname !== '/') {
@@ -76,12 +75,16 @@ function (
     }
   })
   .then(function () {
-    setTimeout(function () {
-      Backbone.history.start({
-        pushState: true,
-        root: app.root
-      });
-    }, 0);
+    Backbone.history.start({
+      pushState: true,
+      root: app.root
+    });
+  })
+  .catch(function (err) {
+    console.error(err);
+    app.useLayout(Layouts.Views.Error, {
+      error: err
+    }).render();
   });
 
   googletagmanager(app.env.googletagmanager.id);

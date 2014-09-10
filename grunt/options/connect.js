@@ -22,7 +22,11 @@ module.exports = function (grunt) {
       hostname: '*',
       middleware: function (connect, options) {
         return [
-          connect.static(options.base),
+          connect.static(
+            Array.isArray(options.base) ?
+              options.base.slice(-1)[0] :
+              options.base
+          ),
           function (req, res) {
             var path = options.base + '/index.html';
             var file = grunt.file.read(path);

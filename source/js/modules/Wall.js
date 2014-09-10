@@ -1,36 +1,70 @@
-define(['jquery', 'underscore', 'backbone', 'app',
+define([
+  'jquery', 'underscore', 'backbone', 'app',
+  'constants',
   'Draggable'
 ],
-function ($, _, Backbone, app,
+function (
+  $, _, Backbone, app,
+  constants,
   Draggable
 ) {
   var Models = {};
   var Collections = {};
   var Views = {};
 
-  Models.Stickie = Backbone.Model.extend({
-    url: function () {
-      return app.api('stickies/:id', this);
-    }
-  });
+  var stickieWidth = constants.STICKIE.WIDTH;
+  var stickieHeight = constants.STICKIE.HEIGHT;
 
-  var stickieWidth = 312;
-  var stickieHeight = 312;
-
-  var gridWidth = 26;
-  var gridHeight = 26;
+  var gridWidth = constants.GRID.WIDTH;
+  var gridHeight = constants.GRID.HEIGHT;
 
   Collections.Stickies = Backbone.Collection.extend({
-    model: Models.Stickie,
     initialize: function (models, options) {
       this.options = options || {};
+      var untouchedIssues = [];
+      options.issues.reduce(this._layoutStickies, untouchedIssues, this);
+      this._layoutUntouchedIssues(untouchedIssues);
+
+      this.listenTo(
+        options.issues,
+        'add remove change',
+        this._merge
+      );
+      this.listenTo(
+        options.coordinates,
+        'add remove change',
+        this._merge
+      );
     },
-    url: function () {
-      return app.api('stickies/', null, _.pick(
-        this.options,
-        'repository',
-        'organization'
-      ));
+    _layoutStickies: function(arr, issue) {
+      var match = issue.pick('number');
+      var coordinate = this.options.coordinates.findWhere(match);
+
+      if (coordinate) {
+        this.addStickie(issue, coordinate);
+      } else {
+        arr.push(issue);
+      }
+      return arr;
+    },
+    _layoutUntouchedIssues: function (issues) {
+      var that = this;
+      var bounds = that.bounds();
+
+      issues.forEach(function (issue) {
+        var coordinate = new that.options.coordinates.model({
+          number: issue.get('number'),
+          x: (Math.random() * bounds.width / 2) + bounds.left,
+          y: (Math.random() * 200) + bounds.bottom + stickieWidth
+        });
+        that.options.coordinates.add(coordinate);
+        that.addStickie(issue, coordinate);
+      });
+    },
+    addStickie: function(issue, coordinate) {
+      var data = _.extend(issue.toJSON(), coordinate.toJSON());
+      var stickie = new this.model(data);
+      this.add(stickie);
     },
     bounds: function () {
       var x = this.map(function (stickie) {
@@ -39,6 +73,8 @@ function ($, _, Backbone, app,
       var y = this.map(function (stickie) {
         return stickie.get('y');
       });
+      x = _.isEmpty(x) ? [0] : x;
+      y = _.isEmpty(y) ? [0] : y;
 
       var box = {
         left: _.min(x),
@@ -58,30 +94,40 @@ function ($, _, Backbone, app,
     template: 'wall/draggable',
     initialize: function (options) {
       this.options = options;
-      // this.listenTo(this.collection, 'sync', this.render);
-      this.listenTo(this.collection, 'change', this.updateGrid);
-    },
-    beforeRender: function () {
-      this.getViews('.stickie').each(function (stickie) {
-        stickie.remove();
-      });
-      this.insertViews({
-        '.stickies': this.collection.map(function (stickie) {
-          return new Views.Stickie({
-            model: stickie
-          });
-        })
-      });
+      this.listenTo(options.stickies, 'add change remove', this.updateGrid);
+      this.listenTo(options.stickies, 'add', this.addStickie);
+      // this.listenTo(options.stickies, 'change', this.changeStickie);
+      // this.listenTo(options.stickies, 'remove', this.removeStickie);
     },
     afterRender: function () {
+      this.insertView('aside', new Views.Controls({
+        zoomInput: this.$el,
+        zoomTarget: this.$el.find('.zoom')
+      })).render();
+      this.options.stickies.each(function (stickie) {
+        this.addStickie(stickie);
+      }, this);
       this.updateGrid();
     },
+    addStickie: function (stickie) {
+      var coordinate = this.options.coordinates
+        .findWhere(stickie.pick('number'));
+      var stickieView = new Views.Stickie({
+        model: stickie,
+        coordinate: coordinate,
+        repo: this.options.repo
+      });
+      this.insertView('.stickies', stickieView);
+      stickieView.render();
+    },
     updateGrid: function () {
-      var box = this.collection.bounds();
-      var left = box.left - stickieWidth;
-      var top = box.top - stickieHeight;
-      var width = stickieWidth + box.width + stickieWidth;
-      var height = stickieHeight + box.height + stickieHeight;
+      var gridPadding = Math.floor(stickieWidth);
+      var voidPadding = Math.floor(gridPadding / 10);
+      var box = this.options.stickies.bounds();
+      var left = box.left - gridPadding;
+      var top = box.top - gridPadding;
+      var width = gridPadding + box.width + gridPadding;
+      var height = gridPadding + box.height + gridPadding;
 
       if (this.draggable) {
         _.each(this.draggable, function (draggable) {
@@ -99,53 +145,103 @@ function ($, _, Backbone, app,
         ')'
       });
 
-      var voidPadding = 20;
-
       /*jshint laxbreak:true, laxcomma:true */
-      this.draggable = Draggable.create(this.$el, {
+      var bounds = {
+        top:
+          // grid to draggable offset
+          - top
+          // container on the page offset
+          + this.$el.parent().offset().top
+          // margin to the screen
+          - voidPadding
+          // grid overflowing the viewport
+          - (height - this.$el.parent().height())
+        ,
+        left:
+          // grid to draggable offset
+          - left
+          // container on the page offset
+          + this.$el.parent().offset().left
+          // margin to the screen
+          - voidPadding
+          // grid overflowing the viewport
+          - (width - this.$el.parent().width())
+        ,
+        width:
+          // GSAP has a weird bug so we use width
+          // instead of the calculated movement area
+          // + (width - this.$el.parent().width())
+          + width
+          // margin to the screen
+          + (voidPadding * 2)
+        ,
+        height:
+          // GSAP does it correctly for height
+          // so we use the calculated movement area
+          + (height - this.$el.parent().height())
+          // + height
+          // margin to the screen
+          + voidPadding * 2
+      };
+
+      this.draggable = Draggable.create(this.$el.find('.anchor'), {
         trigger: this.$el.find('.grid'),
         type: 'x,y',
         maxDuration: 0.5,
         edgeResistance: 0.5,
         throwProps: true,
-        bounds: {
-          top:
-            // grid to draggable offset
-            - top
-            // container on the page offset
-            + this.$el.parent().position().top
-            // margin to the screen
-            - voidPadding
-            // grid overflowing the viewport
-            - (height - this.$el.parent().height())
-          ,
-          left:
-            // grid to draggable offset
-            - left
-            // container on the page offset
-            + this.$el.parent().position().left
-            // margin to the screen
-            - voidPadding
-            // grid overflowing the viewport
-            - (width - this.$el.parent().width())
-          ,
-          width:
-            // GSAP has a weird bug so we use width
-            // instead of the calculated movement area
-            // + (width - this.$el.parent().width())
-            + width
-            // margin to the screen
-            + (voidPadding * 2)
-          ,
-          height:
-            // GSAP does it correctly for height
-            // so we use the calculated movement area
-            + (height - this.$el.parent().height())
-            // + height
-            // margin to the screen
-            + voidPadding * 2
-        }
+        bounds: bounds
       });
+    }
+  });
+
+  Views.Controls = Backbone.View.extend({
+    template: 'wall/controls',
+    initialize: function (options) {
+      this.options = options || {};
+      this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
+    },
+    events: {
+      'input .scale': 'setScale'
+    },
+    cleanup: function () {
+      this.options.zoomInput.off('wheel');
+    },
+    onWheelZoom: function (event) {
+      var evt = event.originalEvent;
+      if (evt.button || evt.buttons ||
+        evt.altKey || evt.ctrlKey || evt.shiftKey || evt.metaKey
+      ) {
+        return;
+      }
+      if (evt.deltaY < 0) {
+        this.zoomInStep();
+      } else if (evt.deltaY > 0) {
+        this.zoomOutStep();
+      }
+    },
+    zoomInStep: _.throttle(function () {
+      var direction = 1;
+      this.stepScale(direction);
+    }, 200, {trailing: false}),
+    zoomOutStep: _.throttle(function () {
+      var direction = -1;
+      this.stepScale(direction);
+    }, 200, {trailing: false}),
+    stepScale: function (direction) {
+      var $scale = this.$el.find('.scale');
+      var value = parseFloat($scale.val(), 10);
+      var step = parseFloat($scale.attr('step'), 10) * direction;
+      var min = parseFloat($scale.attr('min'), 10);
+      var max = parseFloat($scale.attr('max'), 10);
+      var capped = Math.min(max, Math.max(min, value + step));
+      $scale.val(capped);
+      $scale.trigger('change').trigger('input');
+    },
+    setScale: function (event) {
+      var $scale = this.$el.find('.scale');
+      var value = parseFloat($scale.val(), 10);
+      this.options.zoomTarget.css('transform', 'scale(' + value + ')');
     }
   });
 
@@ -167,11 +263,17 @@ function ($, _, Backbone, app,
 
   Views.Stickie = Backbone.View.extend({
     template: 'wall/stickie',
-    initialize: function () {
+    initialize: function (options) {
+      this.options = options || {};
       this.listenTo(this.model, 'change', this.updateCoordinates);
     },
     serialize: function () {
-      return this.model.toJSON();
+      var labels = this.model.get('labels') || [];
+      var first = _.find(labels, function (label) { return !!label.color; });
+      var color = (first ? '#' + first.color : 'lemonchiffon');
+      return _.extend(this.model.pick('x', 'y', 'title'), {
+        color: color
+      });
     },
     updateCoordinates: function () {
       var x = this.model.get('x');
@@ -188,29 +290,28 @@ function ($, _, Backbone, app,
           '0px' +
         ')'
       });
-      Draggable.create(this.$el, {
-        type: 'x,y',
-        bounds: this.$el.parent().siblings('.grid'),
-        // bounds: {
-          // top: 48,
-          // left: 0
-          // width: 0,
-          // height: 0
-        // },
-        maxDuration: 0.5,
-        edgeResistance: 0.75,
-        throwProps: true,
-        snap: {
-          x: snapX,
-          y: snapY
-        },
-        onDragEnd: function () {
-          that.model.set({
-            x: this.x,
-            y: this.y
-          });
-        }
-      });
+      var permissions = this.options.repo.get('permissions') || {};
+      if (permissions.push) {
+        Draggable.create(this.$el, {
+          type: 'x,y',
+          bounds: this.$el.parent().siblings('.grid'),
+          maxDuration: 0.5,
+          edgeResistance: 0.75,
+          throwProps: true,
+          snap: {
+            x: snapX,
+            y: snapY
+          },
+          onDragEnd: function () {
+            var position = {
+              x: this.x,
+              y: this.y
+            };
+            that.model.set(position);
+            that.options.coordinate.save(position);
+          }
+        });
+      }
     }
   });
 

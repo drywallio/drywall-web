@@ -1,7 +1,12 @@
 <aside class="navigation account">
-  <a href="/dannylimanseta" class="user">
-    <img class="avatar" src="http://1.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=200&r=pg&d=mm" alt="Profile photo">
-    <span class="name">Danny Limanseta</span>
+  {{!--
+  <a href="/{{nickname}}" class="user">
+    <img class="avatar" src="http://gravatar.com/avatar/{{gravatar_id}}?s=30&r=pg&d=mm" alt="Profile photo">
+    <span class="name">{{name}}</span>
   </a>
-  <button class="logout">Log Out</button>
+  <button class="signout" type="button">Sign Out</button>
+  --}}
+  {{#unless id_token}}
+  <button class="signin" type="button">Sign In with <b>GitHub</b></button>
+  {{/unless}}
 </aside>
