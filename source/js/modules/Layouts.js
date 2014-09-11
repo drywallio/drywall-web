@@ -33,7 +33,7 @@ function (
     }
   });
 
-  Views.NavContent = Views.Nav.extend({
+  Views.Content = Views.Nav.extend({
     beforeRender: function (options) {
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
@@ -42,10 +42,10 @@ function (
     }
   });
 
-  Views.Preload = Views.Nav.extend({
+  Views.Preload = Views.Base.extend({
     template: 'layouts/preload',
     initialize: function (options) {
-      Views.Nav.prototype.initialize.apply(this, arguments);
+      Views.Base.prototype.initialize.apply(this, arguments);
       var path = {
         owner: this.options.owner,
         repository: this.options.repository
@@ -94,25 +94,25 @@ function (
     }
   });
 
-  Views.Landing = Views.NavContent.extend({
+  Views.Landing = Views.Content.extend({
     template: 'layouts/landing',
     beforeRender: function () {
-      Views.NavContent.prototype.beforeRender.apply(this, arguments);
+      Views.Content.prototype.beforeRender.apply(this, arguments);
       this.setViews({
         '.sign-in': new Navigation.Views.SignIn()
       });
     }
   });
 
-  Views.Pricing = Views.NavContent.extend({
+  Views.Pricing = Views.Content.extend({
     title: 'Plans & Pricing',
     template: 'layouts/pricing'
   });
 
-  Views.Error = Views.NavContent.extend({
+  Views.Error = Views.Content.extend({
     template: 'layouts/error',
     initialize: function (options) {
-      Views.NavContent.prototype.initialize.apply(this, arguments);
+      Views.Content.prototype.initialize.apply(this, arguments);
     },
     serialize: function () {
       var error = this.options.error;
@@ -128,7 +128,7 @@ function (
       };
     },
     beforeRender: function () {
-      Views.NavContent.prototype.beforeRender.apply(this, arguments);
+      Views.Content.prototype.beforeRender.apply(this, arguments);
       if (!app.session.has('id_token')) {
         this.setViews({
           '.sign-in': new Navigation.Views.SignIn()
