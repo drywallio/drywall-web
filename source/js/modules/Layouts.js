@@ -39,7 +39,7 @@ function (
   Views.Content = Views.Nav.extend({
     beforeRender: function (options) {
       Views.Nav.prototype.beforeRender.apply(this, arguments);
-      this.setViews({
+      this.insertViews({
         '> .main > footer': new Navigation.Views.Legalese()
       });
     }
