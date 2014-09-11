@@ -27,7 +27,10 @@ function (
   Views.Nav = Views.Base.extend({
     beforeRender: function (options) {
       this.setViews({
-        '> header': new Navigation.Views.Account(),
+        '> .main > header': [
+          new Navigation.Views.Toggle(),
+          new Navigation.Views.Account()
+        ],
         '> aside': new Navigation.Views.Primary()
       });
     }
@@ -37,7 +40,7 @@ function (
     beforeRender: function (options) {
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '> footer': new Navigation.Views.Legalese()
+        '> .main > footer': new Navigation.Views.Legalese()
       });
     }
   });
@@ -81,7 +84,7 @@ function (
     beforeRender: function () {
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '> .viewport': new Wall.Views.Draggable({
+        '> .main > .viewport': new Wall.Views.Draggable({
           coordinates: this.options.coordinates,
           issues: this.options.issues,
           repo: this.options.repo,
@@ -99,7 +102,7 @@ function (
     beforeRender: function () {
       Views.Content.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '.sign-in': new Navigation.Views.SignIn()
+        '> .main > article .sign-in': new Navigation.Views.SignIn()
       });
     }
   });
@@ -131,7 +134,7 @@ function (
       Views.Content.prototype.beforeRender.apply(this, arguments);
       if (!app.session.has('id_token')) {
         this.setViews({
-          '.sign-in': new Navigation.Views.SignIn()
+          '> .main > article .sign-in': new Navigation.Views.SignIn()
         });
       }
       if (this.options.error.status === 402) {
@@ -140,7 +143,7 @@ function (
         );
         var owners = new Billing.Collections.Billings();
         this.setViews({
-          '.pricing': new Billing.Views.Plans({
+          '> .main > article .pricing': new Billing.Views.Plans({
             returnPath: Backbone.history.fragment,
             owner: owner,
             owners: owners

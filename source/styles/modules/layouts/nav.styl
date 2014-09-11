@@ -1,36 +1,43 @@
 #app > .layouts.nav
   min-height 100%
   display flex
-  flex-flow column nowrap
+  flex-direction column
+  flex-wrap nowrap
   align-items center
   position relative
 
-  > header
-    position absolute
-    top 0
-    right 50px
-    z-index 1000000
+  > .main
+    transition transform 0.25s ease-in-out
 
-  > article
-    flex-grow 0
+    > header
+      position fixed
+      top 0
+      right 0
+      z-index 1000000
+      display inline-flex
+
+      > *
+        vertical-align top
+        &:last-child
+          border-radius 0 0 0 5px
+
+    > article
+      flex-grow 0
+
+    > footer
+      flex-grow 0
+      display flex
+      width 100%
+      justify-content flex-end
+      flex-direction column
 
   // > aside
 
-  > footer
-    flex-grow 0
-    display flex
-    width 100%
-    justify-content flex-end
-    flex-direction column
-
-  > *:not(aside)
-    transition transform 0.25s ease-in-out
-
 #app.navigation-primary-reveal > .layouts.nav
-  > *:not(aside)
+  > .main
     transform translateX(calc(-100vw + 50px))
 
 @media (min-width: 320px)
   #app.navigation-primary-reveal > .layouts.nav
-    > *:not(aside)
+    > .main
       transform translateX(calc(-270px))

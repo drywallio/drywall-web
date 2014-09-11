@@ -19,13 +19,18 @@ define(['jquery', 'underscore', 'backbone', 'app'
     }
   });
 
-  Views.Primary = Backbone.View.extend({
-    template: 'navigation/primary',
+  Views.Toggle = Backbone.View.extend({
+    template: 'navigation/toggle',
     events: {
-      'click > button': function (event) {
+      'click': function (event) {
+        event.stopImmediatePropagation();
         $(app.el).toggleClass('navigation-primary-reveal');
       }
     }
+  });
+
+  Views.Primary = Backbone.View.extend({
+    template: 'navigation/primary'
   });
 
   Views.Account = Backbone.View.extend({
@@ -43,7 +48,7 @@ define(['jquery', 'underscore', 'backbone', 'app'
           app.router.navigate('/', {trigger: true});
         });
       },
-      'click .signin': function () {
+      'click': function () {
         app.session.signIn(_.extend(app.env.auth0.signIn, {
           state: Backbone.history.fragment
         }));
