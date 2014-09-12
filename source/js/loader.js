@@ -19,9 +19,9 @@ require.config({
     'es6-shim': '../bower_components/es6-shim/es6-shim',
     'backbone-session': '../bower_components/backbone-session/backbone-session',
     'queryString': '../bower_components/query-string/query-string',
-    'Draggable': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/utils/Draggable.min',
-    'TweenLite': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/TweenLite.min',
-    'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.10.3/plugins/CSSPlugin.min'
+    'Draggable': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/utils/Draggable.min',
+    'TweenLite': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/TweenLite.min',
+    'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/plugins/CSSPlugin.min'
   },
   shim: {
     'backbone': {
@@ -31,8 +31,8 @@ require.config({
     'Draggable': {
       deps: [
         'CSSPlugin',
-        'libs/gsap/plugins/ThrowPropsPlugin',
-        'TweenLite'
+        'TweenLite',
+        //'libs/gsap/plugins/ThrowPropsPlugin',
       ],
       exports: 'Draggable'
     },
