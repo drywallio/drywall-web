@@ -1,5 +1,10 @@
-define(['jquery', 'underscore', 'backbone', 'app'
-], function ($, _, Backbone, app) {
+define([
+  'jquery', 'underscore', 'backbone', 'app',
+  'constants'
+], function (
+  $, _, Backbone, app,
+  constants
+) {
   var Models = {};
   var Collections = {};
   var Views = {};
@@ -30,7 +35,42 @@ define(['jquery', 'underscore', 'backbone', 'app'
   });
 
   Views.Primary = Backbone.View.extend({
-    template: 'navigation/primary'
+    template: 'navigation/primary',
+    initialize: function () {
+      _.bindAll(this, '_keydown');
+      $(document).keydown(this._keydown);
+    },
+    cleanup: function () {
+      $(document).off('keydown', this._keydown);
+    },
+    _keydown: function (event) {
+      with (constants) {
+        switch (event.keyCode) {
+          case KEY.ESC:
+            this.close();
+            break;
+        }
+      }
+    },
+    close: function () {
+      $(app.el).removeClass('navigation-primary-reveal');
+    },
+    events: {
+      'click': function (event) {
+        this.close();
+      },
+      'click .sign-out': function (event) {
+        app.session.signOut()
+        .then(function () {
+          app.router.navigate('/', {trigger: true});
+        });
+      }
+    },
+    serialize: function () {
+      return {
+        session: app.session.toJSON()
+      };
+    }
   });
 
   Views.Account = Backbone.View.extend({
@@ -42,12 +82,6 @@ define(['jquery', 'underscore', 'backbone', 'app'
       return app.session.toJSON();
     },
     events: {
-      'click .signout': function () {
-        app.session.signOut()
-        .then(function () {
-          app.router.navigate('/', {trigger: true});
-        });
-      },
       'click': function () {
         app.session.signIn(_.extend(app.env.auth0.signIn, {
           state: Backbone.history.fragment

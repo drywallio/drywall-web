@@ -6,5 +6,8 @@ define({
   GRID: {
     WIDTH: 26,
     HEIGHT: 26
+  },
+  KEY: {
+    ESC: 27
   }
 });
