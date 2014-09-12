@@ -1,20 +1,22 @@
-<section class="layouts nav error">
-  <header></header>
-  <article class="error">
-    <h1>
-      {{#if code}}{{code}} &mdash; {{/if}}
-      {{title}}
-    </h1>
-    {{#if showSignIn}}
-    <p>Sign in to access private walls.</p>
-    <div class="sign-in"></div>
-    {{/if}}
-    {{#if showPricing}}
-    <p>You are accessing a private wall and your current pricing plan has reached its limit.</p>
-    <p>Easy! Just upgrade the pricing plan and carry on.</p>
-    <div class="pricing"></div>
-    {{/if}}
-  </article>
+<section class="layouts nav content error">
   <aside></aside>
-  <footer></footer>
+  <section class="main">
+    <header></header>
+    <article>
+      <h1>
+        {{#if code}}{{code}} &mdash; {{/if}}
+        {{title}}
+      </h1>
+      {{#if showSignIn}}
+      <p>Sign in to access private walls.</p>
+      <div class="sign-in"></div>
+      {{/if}}
+      {{#if showPricing}}
+      <p>You are accessing a private wall and your current pricing plan has reached its limit.</p>
+      <p>Easy! Just upgrade the pricing plan and carry on.</p>
+      <div class="pricing"></div>
+      {{/if}}
+    </article>
+    <footer></footer>
+  </section>
 </section>
