@@ -44,12 +44,11 @@ define([
       $(document).off('keydown', this._keydown);
     },
     _keydown: function (event) {
-      with (constants) {
-        switch (event.keyCode) {
-          case KEY.ESC:
-            this.close();
-            break;
-        }
+      var KEY = constants.KEY;
+      switch (event.keyCode) {
+        case KEY.ESC:
+          this.close();
+          break;
       }
     },
     close: function () {
