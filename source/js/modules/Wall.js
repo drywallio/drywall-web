@@ -1,12 +1,14 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
   'constants',
-  'Draggable'
+  'Draggable',
+  'TweenLite'
 ],
 function (
   $, _, Backbone, app,
   constants,
-  Draggable
+  Draggable,
+  TweenLite
 ) {
   var Models = {};
   var Collections = {};
@@ -94,15 +96,18 @@ function (
     template: 'wall/draggable',
     initialize: function (options) {
       this.options = options;
+      this.options.scaleVal = 1;
       this.listenTo(options.stickies, 'add change remove', this.updateGrid);
       this.listenTo(options.stickies, 'add', this.addStickie);
+      this.listenTo(this, 'zoom', this.updateScaleValue);
       // this.listenTo(options.stickies, 'change', this.changeStickie);
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
     },
     afterRender: function () {
       this.insertView('aside', new Views.Controls({
         zoomInput: this.$el,
-        zoomTarget: this.$el.find('.zoom')
+        zoomTarget: this.$el.find('.zoom'),
+        parent: this
       })).render();
       this.options.stickies.each(function (stickie) {
         this.addStickie(stickie);
@@ -120,6 +125,24 @@ function (
       this.insertView('.stickies', stickieView);
       stickieView.render();
     },
+    dragStickies: function (options) {
+      return function() {
+        var stickies = this.target.parentNode.querySelector('.stickies');
+        var scaleMultiplier = 2 - options.scaleVal;
+        var xDist = (this.prevX - this.x) * scaleMultiplier;
+        var yDist = (this.prevY - this.y) * scaleMultiplier;
+
+        TweenLite.to(stickies, 0, {
+          left: '-=' + xDist + 'px',
+          top: '-=' + yDist + 'px'
+        });
+        this.prevX = this.x;
+        this.prevY = this.y;
+      };
+    },
+    updateScaleValue: function (value) {
+      this.options.scaleVal = value;
+    },
     updateGrid: function () {
       var gridPadding = Math.floor(stickieWidth);
       var voidPadding = Math.floor(gridPadding / 10);
@@ -135,62 +158,19 @@ function (
         });
       }
 
-      this.$el.find('.grid').css({
-        width: width,
-        height: height,
-        transform: 'translate3d(' +
-          left + 'px, ' +
-          top + 'px, ' +
-          '0px' +
-        ')'
-      });
-
-      /*jshint laxbreak:true, laxcomma:true */
-      var bounds = {
-        top:
-          // grid to draggable offset
-          - top
-          // container on the page offset
-          + this.$el.parent().offset().top
-          // margin to the screen
-          - voidPadding
-          // grid overflowing the viewport
-          - (height - this.$el.parent().height())
-        ,
-        left:
-          // grid to draggable offset
-          - left
-          // container on the page offset
-          + this.$el.parent().offset().left
-          // margin to the screen
-          - voidPadding
-          // grid overflowing the viewport
-          - (width - this.$el.parent().width())
-        ,
-        width:
-          // GSAP has a weird bug so we use width
-          // instead of the calculated movement area
-          // + (width - this.$el.parent().width())
-          + width
-          // margin to the screen
-          + (voidPadding * 2)
-        ,
-        height:
-          // GSAP does it correctly for height
-          // so we use the calculated movement area
-          + (height - this.$el.parent().height())
-          // + height
-          // margin to the screen
-          + voidPadding * 2
-      };
-
-      this.draggable = Draggable.create(this.$el.find('.anchor'), {
-        trigger: this.$el.find('.grid'),
+      this.draggable = Draggable.create(this.$el.find('.grid'), {
         type: 'x,y',
-        maxDuration: 0.5,
-        edgeResistance: 0.5,
-        throwProps: true,
-        bounds: bounds
+        dragResistance: 0,
+        zIndexBoost: false,
+        onDrag: this.dragStickies(this.options),
+        onPress: function () {
+          this.prevX = 0;
+          this.prevY = 0;
+        },
+        onDragEnd: function () {
+          this.target.style.zIndex = 0;
+          TweenLite.to(this.target, 0, {x: 0, y: 0});
+        }
       });
     }
   });
@@ -199,6 +179,7 @@ function (
     template: 'wall/controls',
     initialize: function (options) {
       this.options = options || {};
+      options.lastScale = 1;
       this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
     },
     events: {
@@ -223,11 +204,11 @@ function (
     zoomInStep: _.throttle(function () {
       var direction = 1;
       this.stepScale(direction);
-    }, 200, {trailing: false}),
+    }, 300, {trailing: false}),
     zoomOutStep: _.throttle(function () {
       var direction = -1;
       this.stepScale(direction);
-    }, 200, {trailing: false}),
+    }, 300, {trailing: false}),
     stepScale: function (direction) {
       var $scale = this.$el.find('.scale');
       var value = parseFloat($scale.val(), 10);
@@ -242,6 +223,7 @@ function (
       var $scale = this.$el.find('.scale');
       var value = parseFloat($scale.val(), 10);
       this.options.zoomTarget.css('transform', 'scale(' + value + ')');
+      this.options.parent.trigger('zoom', value);
     }
   });
 
@@ -294,7 +276,6 @@ function (
       if (permissions.push) {
         Draggable.create(this.$el, {
           type: 'x,y',
-          bounds: this.$el.parent().siblings('.grid'),
           maxDuration: 0.5,
           edgeResistance: 0.75,
           throwProps: true,
