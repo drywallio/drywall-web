@@ -128,7 +128,7 @@ function (
     dragStickies: function (options) {
       return function() {
         var stickies = this.target.parentNode.querySelector('.stickies');
-        var scaleMultiplier = 2 - options.scaleVal;
+        var scaleMultiplier = 1 / options.scaleVal;
         var xDist = (this.prevX - this.x) * scaleMultiplier;
         var yDist = (this.prevY - this.y) * scaleMultiplier;
 
