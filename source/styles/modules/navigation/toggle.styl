@@ -10,17 +10,22 @@
   width 50px
   box-sizing border-box
   padding 0
-  z-index 999999
-  order 1
+  // z-index 999999
   display inline-block
   cursor pointer
+  // position relative
+  &:after
+    content ''
+    transition background-color 0.25s linear
 
 #app.navigation-primary-reveal .navigation.toggle
   &:after
-    content ''
     display inline-block
     position absolute
     top 0
     right 0
     width 100vw
     height 100vh
+    cursor pointer
+    background-color rgba(0, 0, 0, 0.5)
+    z-index -1

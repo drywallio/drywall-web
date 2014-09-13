@@ -27,9 +27,9 @@ function (
   Views.Nav = Views.Base.extend({
     beforeRender: function (options) {
       this.setViews({
-        '> .main > header': [
-          new Navigation.Views.Toggle(),
-          new Navigation.Views.Account()
+        '> header': [
+          new Navigation.Views.Account(),
+          new Navigation.Views.Toggle()
         ],
         '> aside': new Navigation.Views.Primary()
       });
@@ -84,7 +84,7 @@ function (
     beforeRender: function () {
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '> .main > .viewport': new Wall.Views.Draggable({
+        '> .main > article': new Wall.Views.Draggable({
           coordinates: this.options.coordinates,
           issues: this.options.issues,
           repo: this.options.repo,

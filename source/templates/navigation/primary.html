@@ -9,8 +9,10 @@
     <li>
       <a href="mailto:drywall@cf.sg">Contact</a>
     </li>
+    {{#if session.id_token}}
     <li>
       <button class="sign-out">Sign Out</button>
     </li>
+    {{/if}}
   </ul>
 </nav>

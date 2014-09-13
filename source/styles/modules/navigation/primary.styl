@@ -10,6 +10,12 @@
     margin 0
     padding 10px 0 0 0
     list-style none
+    transform scale(0.75) translateX(0)
+    transform-origin right center
+    // opacity 0
+    transition-duration 0.25s
+    transition-timing-function ease-in-out
+    transition-property transform, opacity
     > li
       > a,
       > button
@@ -26,3 +32,8 @@
         appearance none
         border none
         background transparent
+
+#app.navigation-primary-reveal .navigation.primary
+  > ul
+    transform none
+    // opacity 1

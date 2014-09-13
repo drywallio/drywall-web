@@ -6,20 +6,22 @@
   align-items center
   position relative
 
-  > .main
+  > header
+    position fixed
+    top 0
+    right 0
+    z-index 1000000
+    display inline-flex
     transition transform 0.25s ease-in-out
 
-    > header
-      position fixed
-      top 0
-      right 0
-      z-index 1000000
-      display inline-flex
+    > *:not([hidden])
+      vertical-align top
+      border-radius 0 0 0 5px
+      & + *
+        border-radius 0
 
-      > *
-        vertical-align top
-        &:last-child
-          border-radius 0 0 0 5px
+  > .main
+    transition transform 0.25s ease-in-out
 
     > article
       flex-grow 0
@@ -34,10 +36,12 @@
   // > aside
 
 #app.navigation-primary-reveal > .layouts.nav
+  > header,
   > .main
     transform translateX(calc(-100vw + 50px))
 
 @media (min-width: 320px)
   #app.navigation-primary-reveal > .layouts.nav
+    > header,
     > .main
       transform translateX(calc(-270px))

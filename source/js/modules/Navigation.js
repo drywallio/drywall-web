@@ -39,6 +39,7 @@ define([
     initialize: function () {
       _.bindAll(this, '_keydown');
       $(document).keydown(this._keydown);
+      this.listenTo(app.session, 'change', this.render);
     },
     cleanup: function () {
       $(document).off('keydown', this._keydown);

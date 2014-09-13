@@ -1,6 +1,8 @@
-{{#unless id_token}}
+{{#if id_token}}
+<div class="navigation account" hidden></div>
+{{else}}
 <button class="navigation account" type="button">Sign In with <b>GitHub</b></button>
-{{/unless}}
+{{/if}}
 {{!--
 <a href="/{{nickname}}" class="user">
   <img class="avatar" src="http://gravatar.com/avatar/{{gravatar_id}}?s=30&r=pg&d=mm" alt="Profile photo">
