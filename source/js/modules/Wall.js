@@ -16,9 +16,10 @@ function (
 
   var stickieWidth = constants.STICKIE.WIDTH;
   var stickieHeight = constants.STICKIE.HEIGHT;
+  var stickieColour = constants.STICKIE.COLOUR;
 
-  var gridWidth = constants.GRID.WIDTH;
-  var gridHeight = constants.GRID.HEIGHT;
+  var tileWidth = constants.TILE.WIDTH;
+  var tileHeight = constants.TILE.HEIGHT;
 
   Collections.Stickies = Backbone.Collection.extend({
     initialize: function (models, options) {
@@ -97,9 +98,9 @@ function (
     initialize: function (options) {
       this.options = options;
       this.options.scaleVal = 1;
-      this.listenTo(options.stickies, 'add change remove', this.updateGrid);
       this.listenTo(options.stickies, 'add', this.addStickie);
       this.listenTo(this, 'zoom', this.updateScaleValue);
+      this.listenTo(this, 'zoom', this.updateGrid);
       // this.listenTo(options.stickies, 'change', this.changeStickie);
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
     },
@@ -112,7 +113,7 @@ function (
       this.options.stickies.each(function (stickie) {
         this.addStickie(stickie);
       }, this);
-      this.updateGrid();
+      this.createDraggableScreen();
     },
     addStickie: function (stickie) {
       var coordinate = this.options.coordinates
@@ -140,25 +141,23 @@ function (
         this.prevY = this.y;
       };
     },
-    updateScaleValue: function (value) {
-      this.options.scaleVal = value;
+    updateScaleValue: function (scaleVal) {
+      this.options.scaleVal = scaleVal;
     },
-    updateGrid: function () {
-      var gridPadding = Math.floor(stickieWidth);
-      var voidPadding = Math.floor(gridPadding / 10);
-      var box = this.options.stickies.bounds();
-      var left = box.left - gridPadding;
-      var top = box.top - gridPadding;
-      var width = gridPadding + box.width + gridPadding;
-      var height = gridPadding + box.height + gridPadding;
+    updateGrid: function (scaleVal) {
+      var scaleMultiplier = 1 / scaleVal;
+      var shiftPercent = -((scaleMultiplier - 1)/ 2 * 100) + '%';
 
-      if (this.draggable) {
-        _.each(this.draggable, function (draggable) {
-          draggable.disable();
-        });
-      }
-
-      this.draggable = Draggable.create(this.$el.find('.grid'), {
+      TweenLite.to(this.$el.find('.grid'), 0, {
+        scale: scaleVal,
+        left: shiftPercent,
+        top: shiftPercent,
+        width: 100 * scaleMultiplier + '%',
+        height: 100 * scaleMultiplier + '%'
+      });
+    },
+    createDraggableScreen: function () {
+      Draggable.create(this.$el.find('.draggablescreen'), {
         type: 'x,y',
         dragResistance: 0,
         zIndexBoost: false,
@@ -230,7 +229,7 @@ function (
   var snapX = function (endValue) {
     var minX = this.minX || 0;
     var maxX = this.maxX || 1E10;
-    var cell = Math.round(endValue / gridWidth) * gridWidth;
+    var cell = Math.round(endValue / tileWidth) * tileWidth;
     var target = Math.max(minX, Math.min(maxX, cell));
     return target;
   };
@@ -238,7 +237,7 @@ function (
   var snapY = function (endValue) {
     var minY = this.minY || 0;
     var maxY = this.maxY || 1E10;
-    var cell = Math.round(endValue / gridHeight) * gridHeight;
+    var cell = Math.round(endValue / tileHeight) * tileHeight;
     var target = Math.max(minY, Math.min(maxY, cell));
     return target;
   };
@@ -252,7 +251,7 @@ function (
     serialize: function () {
       var labels = this.model.get('labels') || [];
       var first = _.find(labels, function (label) { return !!label.color; });
-      var color = (first ? '#' + first.color : 'lemonchiffon');
+      var color = (first ? '#' + first.color : stickieColour);
       return _.extend(this.model.pick('x', 'y', 'title'), {
         color: color
       });

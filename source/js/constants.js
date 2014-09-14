@@ -1,11 +1,12 @@
 define({
   STICKIE: {
-    WIDTH: 312,
-    HEIGHT: 312
+    WIDTH: 336,
+    HEIGHT: 336,
+    COLOUR: 'lemonchiffon'
   },
-  GRID: {
-    WIDTH: 26,
-    HEIGHT: 26
+  TILE: {
+    WIDTH: 56,
+    HEIGHT: 56
   },
   KEY: {
     ESC: 27

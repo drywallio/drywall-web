@@ -1,16 +1,9 @@
 .wall.draggable
-  //background-color black
+  background-color black
   flex auto
   position relative
 
-  .zoom
-    // transform scale(0.5)
-    transition transform 0.2s ease-in-out
-
-  .anchor
-    position relative
-
-  .grid
+  .draggablescreen
     position absolute
     background-color transparent
     // border: 2px solid black;
@@ -18,12 +11,18 @@
     width 100%
     height 100%
 
+  .grid
+    position absolute
+    background url('/img/bg-grid.png')
+    width 100%
+    height 100%
+
+  .zoom
+    transition transform 0.2s ease-in-out
+
   .stickies
     list-style-type none
     overflow visible
     padding 0
     margin 0
     position relative
-
-.draggable
-  background url('/img/bg-grid.png')
