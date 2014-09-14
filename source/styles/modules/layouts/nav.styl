@@ -12,7 +12,10 @@
     right 0
     z-index 1000000
     display inline-flex
-    transition transform 0.25s ease-in-out
+    transition-duration 0.25s
+    transition-delay 0
+    transition-timing-function ease-in-out
+    transition-property opacity
 
     > *:not([hidden])
       vertical-align top
@@ -34,6 +37,11 @@
       flex-direction column
 
   // > aside
+
+#app.wall-draggable-moving > .layouts.nav
+  > header
+    opacity 0
+    transition-delay 0.5s
 
 #app.navigation-primary-reveal > .layouts.nav
   > header,

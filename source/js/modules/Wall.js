@@ -127,6 +127,7 @@ function (
     },
     dragStickies: function (options) {
       return function() {
+        $(app.el).addClass('wall-draggable-moving');
         var stickies = this.target.parentNode.querySelector('.stickies');
         var scaleMultiplier = 1 / options.scaleVal;
         var xDist = (this.prevX - this.x) * scaleMultiplier;
@@ -166,6 +167,7 @@ function (
           this.prevY = 0;
         },
         onDragEnd: function () {
+          $(app.el).removeClass('wall-draggable-moving');
           this.target.style.zIndex = 0;
           TweenLite.to(this.target, 0, {x: 0, y: 0});
         }
