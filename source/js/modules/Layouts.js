@@ -72,6 +72,9 @@ function (
         }).render();
       }.bind(this))
       .catch(function (err) {
+        if (err.status === 404) {
+          err.message = 'Wall not Found';
+        }
         app.useLayout(Views.Error, {
           error: err
         }).render();

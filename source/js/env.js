@@ -40,7 +40,8 @@ define(['underscore'], function (_) {
       signIn: {
         connection: 'github',
         connection_scope: ['repo'],
-        scope: 'openid nickname identities'
+        scope: 'openid nickname identities',
+        offline_mode: true
       },
       domain: 'drywall.auth0.com',
       clientID: 'aoGE4SXQR2Rg0oPxEycSrIPK9hbD8HQd'

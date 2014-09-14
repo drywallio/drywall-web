@@ -4,7 +4,9 @@ define([
 function (
   $, _, Backbone, app, Auth0, Session
 ) {
-  var saveProfile = function (err, profile, id_token, access_token, state) {
+  var saveProfile = function (err, profile,
+    id_token, access_token, state, refresh_token
+  ) {
     var auth0Attributes = {};
     if (id_token !== undefined) {
       auth0Attributes.id_token = id_token;
@@ -12,36 +14,81 @@ function (
     if(access_token !== undefined) {
       auth0Attributes.access_token = access_token;
     }
-    this.save(_.extend(profile, auth0Attributes));
+    if (refresh_token !== undefined) {
+      auth0Attributes.refresh_token = refresh_token;
+    }
+    this.save(_.extend(profile || {}, auth0Attributes));
   };
 
+  function HTTPError (status, message) {
+    this.status = status;
+    this.message = message;
+  }
+  HTTPError.prototype = new Error();
+  HTTPError.prototype.constructor = HTTPError;
+
   var sync = function (method, model, options) {
-    if (app.session.has('id_token')) {
-      options.headers = _.extend(options.headers || {}, {
-        'Authorization': 'Bearer ' + app.session.get('id_token')
-      });
-    }
-    model.once('request', function (model, xhr, options) {
-      xhr.fail(function (xhr, textStatus) {
+    var that = this;
+    var promise = $.Deferred();
+    var success = options.success || $.noop;
+    var error = options.error || $.noop;
+    var request = function () {
+      if (app.session.has('id_token')) {
+        options.headers = _.extend(options.headers || {}, {
+          'Authorization': 'Bearer ' + app.session.get('id_token')
+        });
+      }
+      Backbone.sync.call(that, method, model,
+        _.omit(options, 'error'))
+      .done(promise.resolve)
+      .fail(function (xhr, textStatus, errorThrown) {
+        var session = app.session;
+        var refresh_token = session.get('refresh_token');
+        if (xhr.status === 419 && refresh_token) {
+          session.auth0.refreshToken(refresh_token,
+            function (err, delegationResult) {
+              if (err) {
+                error(err);
+                promise.reject(err);
+                return;
+              }
+              // session.getAuthStatus(delegationResult)
+              //   .then(function () {
+              //     request();
+              //   }, function (err) {
+              //     error(err);
+              //     promise.reject(err);
+              //   });
+              saveProfile.call(session, err, undefined,
+                delegationResult.id_token);
+              request();
+            }
+          );
+          return;
+        }
         if (xhr.status === 401) {
           app.session.signOut();
         }
+        var httpError = new HTTPError(xhr.status, xhr.statusText);
+        error(httpError);
+        promise.reject(httpError);
       });
-    });
-    return Backbone.sync.call(this, method, model, options);
+    };
+    request();
+    return promise;
   };
 
-  var sessionModel = Backbone.Model.extend({
+  var Model = Backbone.Model.extend({
     sync: sync
   });
-  var sessionCollection = Backbone.Collection.extend({
+  var Collection = Backbone.Collection.extend({
     sync: sync,
-    model: sessionModel
+    model: Model
   });
 
   return Session.extend({
-    Model: sessionModel,
-    Collection: sessionCollection,
+    Model: Model,
+    Collection: Collection,
     initialize: function (attributes, options) {
       this.auth0 = new Auth0(_.defaults(options, {
         // domain: 'xxxxxxxx.auth0.com',
@@ -57,7 +104,7 @@ function (
       return new Promise(function (resolve, reject) {
         that.auth0.login(
           options,
-          function (err, profile, id_token, access_token, state) {
+          function (err) {
             if (err) {
               reject();
             } else {
@@ -86,43 +133,39 @@ function (
     // },
     getAuthStatus: function (options) {
       var that = this;
-
+      var has = function (object, key) {
+        return object && Object.hasOwnProperty.call(object, key);
+      };
       return new Promise(function (resolve, reject) {
-        var id_token;
-        var access_token;
-
-        if (that.has('id_token')) {
-          id_token = that.get('id_token');
-        }
-        if (that.has('access_token')) {
-          access_token = that.get('access_token');
-        }
-
         var hash = that.auth0.parseHash(window.location.hash);
-        if (hash) {
-          id_token = hash.id_token;
-          access_token = hash.access_token;
+        if (has(hash, 'error')) {
+          reject(Error(hash.error));
+          return;
         }
-
-        if (!id_token || !access_token) {
+        var val = function (key) {
+          return has(options, key) ? options[key] :
+            has(hash, key) ? hash[key] :
+            that.get(key);
+        };
+        if (!val('id_token')) {
           reject(Error('No valid tokens found'));
           return;
         }
-
-        that.auth0.getProfile(
-          id_token,
-          function (err, profile) {
-            if (err) {
-              reject(err);
-            } else {
-              saveProfile.apply(
-                that,
-                [undefined, profile, id_token, access_token]
-              );
-              resolve();
-            }
+        that.auth0.getProfile(val('id_token'), function (err, profile) {
+          if (err) {
+            reject(err);
+          } else {
+            saveProfile.apply(that, [
+              err,
+              profile,
+              val('id_token'),
+              val('access_token'),
+              val('state'),
+              val('refresh_token')
+            ]);
+            resolve();
           }
-        );
+        });
       });
     }
   });
