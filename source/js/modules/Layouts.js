@@ -26,7 +26,7 @@ function (
 
   Views.Nav = Views.Base.extend({
     beforeRender: function (options) {
-      this.setViews({
+      this.insertViews({
         '> header': [
           new Navigation.Views.Account(),
           new Navigation.Views.Toggle()
@@ -85,6 +85,11 @@ function (
   Views.Repository = Views.Nav.extend({
     template: 'layouts/repository',
     beforeRender: function () {
+      this.insertViews({
+        '> header': new Navigation.Views.Breadcrumbs({
+          repo: this.options.repo
+        })
+      });
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
         '> .main > article': new Wall.Views.Draggable({

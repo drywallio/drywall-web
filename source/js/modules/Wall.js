@@ -96,7 +96,6 @@ function (
   Views.Draggable = Backbone.View.extend({
     template: 'wall/draggable',
     initialize: function (options) {
-      this.options = options;
       this.options.scaleVal = 1;
       this.listenTo(options.stickies, 'add', this.addStickie);
       this.listenTo(this, 'zoom', this.updateScaleValue);
@@ -177,7 +176,6 @@ function (
   Views.Controls = Backbone.View.extend({
     template: 'wall/controls',
     initialize: function (options) {
-      this.options = options || {};
       options.lastScale = 1;
       this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
     },
@@ -245,7 +243,6 @@ function (
   Views.Stickie = Backbone.View.extend({
     template: 'wall/stickie',
     initialize: function (options) {
-      this.options = options || {};
       this.listenTo(this.model, 'change', this.updateCoordinates);
     },
     serialize: function () {

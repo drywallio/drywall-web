@@ -93,9 +93,10 @@ define([
   Views.Breadcrumbs = Backbone.View.extend({
     template: 'navigation/breadcrumbs',
     initialize: function () {
+      this.listenTo(this.options.repo, 'change', this.render);
     },
     serialize: function () {
-      return {};
+      return this.options.repo.toJSON();
     }
   });
 
