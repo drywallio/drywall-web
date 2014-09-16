@@ -2,13 +2,15 @@ define([
   'jquery', 'underscore', 'backbone', 'app',
   'constants',
   'Draggable',
-  'TweenLite'
+  'TweenLite',
+  'modules/GitHub'
 ],
 function (
   $, _, Backbone, app,
   constants,
   Draggable,
-  TweenLite
+  TweenLite,
+  GitHub
 ) {
   var Models = {};
   var Collections = {};
@@ -245,24 +247,68 @@ function (
   Views.Stickie = Backbone.View.extend({
     template: 'wall/stickie',
     initialize: function (options) {
-      this.listenTo(this.model, 'change', this.updateCoordinates);
+      this.listenTo(this.model, 'change', this.render);
     },
     serialize: function () {
       var labels = this.model.get('labels') || [];
       var first = _.find(labels, function (label) { return !!label.color; });
       var color = (first ? '#' + first.color : stickieColour);
       return _.extend(this.model.pick('x', 'y', 'title'), {
-        color: color
+        color: color,
+        edit: this.edit
       });
     },
-    updateCoordinates: function () {
-      var x = this.model.get('x');
-      var y = this.model.get('y');
-      this.$el.find('.coordinates .x').html(x);
-      this.$el.find('.coordinates .y').html(y);
+    edit: false,
+    events: {
+      'blur textarea': '_saveEdit',
+      'keydown textarea': function (event) {
+        var KEY = constants.KEY;
+        switch (event.keyCode) {
+          case KEY.RETURN:
+            this._saveEdit();
+            break;
+          case KEY.ESC:
+            this._cancelEdit();
+            break;
+        }
+      }
+    },
+    _saveEdit: function () {
+      var that = this;
+      var textarea = this.$el.find('textarea');
+      var title = textarea.val().trim();
+      if (title !== this.model.get('title')) {
+        textarea.attr('readonly', true);
+        new GitHub.Models.IssueEdit(null, this.model.attributes)
+          .save('title', title)
+          .then(function () {
+            that.edit = false;
+            that.model.set('title', title);
+          })
+          .fail(function () {
+            this._cancelEdit();
+          });
+      } else {
+        this._cancelEdit();
+      }
+    },
+    _cancelEdit: function () {
+      if (this.edit) {
+        this.edit = false;
+        this.render();
+      }
     },
     afterRender: function () {
       var that = this;
+      this.$el.find('textarea').get().forEach(function (element) {
+        /*
+          Glitch: Scrolling when focus on input that is translateX'd off-screen
+          Possibly related bug: Chromium issue 231600
+        */
+        // element.focus();
+        // var end = element.value.length;
+        // element.setSelectionRange(end, end);
+      });
       this.$el.css({
         transform: 'translate3d(' +
           this.model.get('x') + 'px, ' +
@@ -281,7 +327,13 @@ function (
             x: snapX,
             y: snapY
           },
-          onDragEnd: function () {
+          onClick: function (event) {
+            if (!that.edit) {
+              that.edit = true;
+              that.render();
+            }
+          },
+          onDragEnd: function (event) {
             var position = {
               x: this.x,
               y: this.y

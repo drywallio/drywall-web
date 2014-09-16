@@ -9,6 +9,7 @@ define({
     HEIGHT: 56
   },
   KEY: {
+    RETURN: 13,
     ESC: 27
   }
 });
