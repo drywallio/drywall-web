@@ -1,12 +1,14 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
   'constants',
+  'modules/Stickies',
   'Draggable',
   'TweenLite'
 ],
 function (
   $, _, Backbone, app,
   constants,
+  Stickies,
   Draggable,
   TweenLite
 ) {
@@ -14,82 +16,9 @@ function (
   var Collections = {};
   var Views = {};
 
-  var stickieWidth = constants.STICKIE.WIDTH;
-  var stickieHeight = constants.STICKIE.HEIGHT;
-  var stickieColour = constants.STICKIE.COLOUR;
-
-  var tileWidth = constants.TILE.WIDTH;
-  var tileHeight = constants.TILE.HEIGHT;
-
-  Collections.Stickies = Backbone.Collection.extend({
-    initialize: function (models, options) {
-      this.options = options || {};
-      var untouchedIssues = [];
-      options.issues.reduce(this._layoutStickies, untouchedIssues, this);
-      this._layoutUntouchedIssues(untouchedIssues);
-
-      this.listenTo(
-        options.issues,
-        'add remove change',
-        this._merge
-      );
-      this.listenTo(
-        options.coordinates,
-        'add remove change',
-        this._merge
-      );
-    },
-    _layoutStickies: function(arr, issue) {
-      var match = issue.pick('number');
-      var coordinate = this.options.coordinates.findWhere(match);
-
-      if (coordinate) {
-        this.addStickie(issue, coordinate);
-      } else {
-        arr.push(issue);
-      }
-      return arr;
-    },
-    _layoutUntouchedIssues: function (issues) {
-      var that = this;
-      var bounds = that.bounds();
-
-      issues.forEach(function (issue) {
-        var coordinate = new that.options.coordinates.model({
-          number: issue.get('number'),
-          x: (Math.random() * bounds.width / 2) + bounds.left,
-          y: (Math.random() * 200) + bounds.bottom + stickieWidth
-        });
-        that.options.coordinates.add(coordinate);
-        that.addStickie(issue, coordinate);
-      });
-    },
-    addStickie: function(issue, coordinate) {
-      var data = _.extend(issue.toJSON(), coordinate.toJSON());
-      var stickie = new this.model(data);
-      this.add(stickie);
-    },
-    bounds: function () {
-      var x = this.map(function (stickie) {
-        return stickie.get('x');
-      });
-      var y = this.map(function (stickie) {
-        return stickie.get('y');
-      });
-      x = _.isEmpty(x) ? [0] : x;
-      y = _.isEmpty(y) ? [0] : y;
-
-      var box = {
-        left: _.min(x),
-        right: _.max(x) + stickieWidth,
-        top: _.min(y),
-        bottom: _.max(y) + stickieHeight
-      };
-
-      return _.extend(box, {
-        width: box.right - box.left,
-        height: box.bottom - box.top
-      });
+  Models.Controls = Backbone.Model.extend({
+    defaults: {
+      scaleValue: 1,
     }
   });
 
@@ -98,17 +27,19 @@ function (
     initialize: function (options) {
       this.options.scaleVal = 1;
       this.listenTo(options.stickies, 'add', this.addStickie);
-      this.listenTo(this, 'zoom', this.updateScaleValue);
-      this.listenTo(this, 'zoom', this.updateGrid);
+      this.options.controls = new Models.Controls();
+      this.listenTo(this.options.controls, 'change', this.scaleGrid);
+
       // this.listenTo(options.stickies, 'change', this.changeStickie);
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
     },
     afterRender: function () {
       this.insertView('aside', new Views.Controls({
+        model: this.options.controls,
         zoomInput: this.$el,
-        zoomTarget: this.$el.find('.zoom'),
-        parent: this
+        zoomTarget: this.$el.find('.zoom')
       })).render();
+
       this.options.stickies.each(function (stickie) {
         this.addStickie(stickie);
       }, this);
@@ -117,7 +48,7 @@ function (
     addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
-      var stickieView = new Views.Stickie({
+      var stickieView = new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
@@ -128,8 +59,8 @@ function (
     dragStickies: function (options) {
       return function() {
         $(app.el).addClass('wall-draggable-moving');
+        var scaleMultiplier = 1 / options.controls.get('scaleValue');
         var stickies = this.target.parentNode.querySelector('.stickies');
-        var scaleMultiplier = 1 / options.scaleVal;
         var xDist = (this.prevX - this.x) * scaleMultiplier;
         var yDist = (this.prevY - this.y) * scaleMultiplier;
 
@@ -141,10 +72,8 @@ function (
         this.prevY = this.y;
       };
     },
-    updateScaleValue: function (scaleVal) {
-      this.options.scaleVal = scaleVal;
-    },
-    updateGrid: function (scaleVal) {
+    scaleGrid: function () {
+      var scaleVal = this.options.controls.get('scaleValue');
       var scaleMultiplier = 1 / scaleVal;
       var shiftPercent = -((scaleMultiplier - 1)/ 2 * 100) + '%';
 
@@ -222,75 +151,10 @@ function (
       var $scale = this.$el.find('.scale');
       var value = parseFloat($scale.val(), 10);
       this.options.zoomTarget.css('transform', 'scale(' + value + ')');
-      this.options.parent.trigger('zoom', value);
-    }
-  });
-
-  var snapX = function (endValue) {
-    var minX = this.minX || 0;
-    var maxX = this.maxX || 1E10;
-    var cell = Math.round(endValue / tileWidth) * tileWidth;
-    var target = Math.max(minX, Math.min(maxX, cell));
-    return target;
-  };
-
-  var snapY = function (endValue) {
-    var minY = this.minY || 0;
-    var maxY = this.maxY || 1E10;
-    var cell = Math.round(endValue / tileHeight) * tileHeight;
-    var target = Math.max(minY, Math.min(maxY, cell));
-    return target;
-  };
-
-  Views.Stickie = Backbone.View.extend({
-    template: 'wall/stickie',
-    initialize: function (options) {
-      this.listenTo(this.model, 'change', this.updateCoordinates);
-    },
-    serialize: function () {
-      var labels = this.model.get('labels') || [];
-      var first = _.find(labels, function (label) { return !!label.color; });
-      var color = (first ? '#' + first.color : stickieColour);
-      return _.extend(this.model.pick('x', 'y', 'title'), {
-        color: color
+      this.model.set({
+        scaleValue: value,
+        scaleMultiplier: 1 / value
       });
-    },
-    updateCoordinates: function () {
-      var x = this.model.get('x');
-      var y = this.model.get('y');
-      this.$el.find('.coordinates .x').html(x);
-      this.$el.find('.coordinates .y').html(y);
-    },
-    afterRender: function () {
-      var that = this;
-      this.$el.css({
-        transform: 'translate3d(' +
-          this.model.get('x') + 'px, ' +
-          this.model.get('y') + 'px, ' +
-          '0px' +
-        ')'
-      });
-      var permissions = this.options.repo.get('permissions') || {};
-      if (permissions.push) {
-        Draggable.create(this.$el, {
-          type: 'x,y',
-          maxDuration: 0.5,
-          edgeResistance: 0.75,
-          throwProps: true,
-          snap: {
-            x: snapX,
-            y: snapY
-          },
-          onDragEnd: function () {
-            var position = {
-              x: this.x,
-              y: this.y
-            };
-            that.model.set(position);
-            that.options.coordinate.save(position);
-          }
-        });
-      }
     }
   });
 
@@ -299,5 +163,4 @@ function (
     Collections: Collections,
     Views: Views
   };
-
 });
