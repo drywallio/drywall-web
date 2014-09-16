@@ -4,7 +4,8 @@ define([
   'modules/Coordinates',
   'modules/GitHub',
   'modules/Navigation',
-  'modules/Wall'
+  'modules/Wall',
+  'modules/Stickies'
 ],
 function (
   $, _, Backbone, app,
@@ -12,7 +13,8 @@ function (
   Coordinates,
   GitHub,
   Navigation,
-  Wall
+  Wall,
+  Stickies
 ) {
   var Models = {};
   var Collections = {};
@@ -96,7 +98,7 @@ function (
           coordinates: this.options.coordinates,
           issues: this.options.issues,
           repo: this.options.repo,
-          stickies: new Wall.Collections.Stickies(null, _.pick(
+          stickies: new Stickies.Collections.Stickies(null, _.pick(
             this.options,
             'coordinates', 'issues', 'repo', 'owner', 'repository'
           ))
