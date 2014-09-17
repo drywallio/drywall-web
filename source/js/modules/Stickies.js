@@ -117,7 +117,7 @@ function (
     serialize: function () {
       var labels = this.model.get('labels') || [];
       var first = _.find(labels, function (label) { return !!label.color; });
-      var color = (first ? '#' + first.color : stickieColour);
+      var color = first ? '#' + first.color : stickieColour;
       return _.extend(this.model.pick('x', 'y', 'title'), {
         color: color,
         edit: this.edit
