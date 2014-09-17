@@ -57,26 +57,23 @@ function (
       stickieView.render();
     },
     dragStickies: function (options) {
-      return function() {
+      var that = this;
+      return function () {
         $(app.el).addClass('wall-draggable-moving');
         var scaleMultiplier = 1 / options.controls.get('scaleValue');
         var stickies = this.target.parentNode.querySelector('.stickies');
-        var xDist = (this.prevX - this.x) * scaleMultiplier;
-        var yDist = (this.prevY - this.y) * scaleMultiplier;
-
+        var xDest = that.prevX + (this.x * scaleMultiplier);
+        var yDest = that.prevY + (this.y * scaleMultiplier);
         TweenLite.to(stickies, 0, {
-          left: '-=' + xDist + 'px',
-          top: '-=' + yDist + 'px'
+          x: xDest,
+          y: yDest
         });
-        this.prevX = this.x;
-        this.prevY = this.y;
       };
     },
     scaleGrid: function () {
       var scaleVal = this.options.controls.get('scaleValue');
       var scaleMultiplier = 1 / scaleVal;
-      var shiftPercent = -((scaleMultiplier - 1)/ 2 * 100) + '%';
-
+      var shiftPercent = -((scaleMultiplier - 1) / 2 * 100) + '%';
       TweenLite.to(this.$el.find('.grid'), 0, {
         scale: scaleVal,
         left: shiftPercent,
@@ -85,19 +82,21 @@ function (
         height: 100 * scaleMultiplier + '%'
       });
     },
+    prevX: 0,
+    prevY: 0,
     createDraggableScreen: function () {
+      var that = this;
       Draggable.create(this.$el.find('.draggablescreen'), {
         type: 'x,y',
         dragResistance: 0,
         zIndexBoost: false,
         onDrag: this.dragStickies(this.options),
-        onPress: function () {
-          this.prevX = 0;
-          this.prevY = 0;
-        },
         onDragEnd: function () {
           $(app.el).removeClass('wall-draggable-moving');
           this.target.style.zIndex = 0;
+          var scaleMultiplier = 1 / that.options.controls.get('scaleValue');
+          that.prevX = that.prevX + (this.x * scaleMultiplier);
+          that.prevY = that.prevY + (this.y * scaleMultiplier);
           TweenLite.to(this.target, 0, {x: 0, y: 0});
         }
       });
