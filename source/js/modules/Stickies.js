@@ -21,7 +21,28 @@ function (
   var tileWidth = constants.TILE.WIDTH;
   var tileHeight = constants.TILE.HEIGHT;
 
+  Models.Stickies = Backbone.Model.extend({
+    getReferences: function () {
+      var pattern = /#(\d+)/g;
+      var body = this.get('body') || '';
+      var title = this.get('title') || '';
+      var ownNumber = parseInt(this.get('number'), 10);
+      var matches = _.chain().union(
+        body.match(pattern),
+        title.match(pattern)
+      ).compact().value();
+      var references = _.chain(matches).map(function (match) {
+        pattern.lastIndex = 0;
+        var submatches = pattern.exec(match);
+        var digits = submatches[1];
+        return parseInt(digits, 10);
+      }).without(ownNumber).value();
+      return references;
+    }
+  });
+
   Collections.Stickies = Backbone.Collection.extend({
+    model: Models.Stickies,
     initialize: function (models, options) {
       this.options = options || {};
       var untouchedIssues = [];
@@ -112,7 +133,9 @@ function (
   Views.Stickie = Backbone.View.extend({
     template: 'wall/stickie',
     initialize: function (options) {
-      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:title', function () {
+        this.$el.find('.title').text(this.model.get('title'));
+      });
     },
     serialize: function () {
       var labels = this.model.get('labels') || [];
@@ -163,6 +186,44 @@ function (
         this.render();
       }
     },
+    // _drawReferences: function (dragX, dragY) {
+    //   var references = this.model.getReferences();
+    //   if (references.length === 0) {
+    //     return;
+    //   }
+    //   var svgns = 'http://www.w3.org/2000/svg';
+    //   var x = dragX === undefined ?
+    //     this.model.get('x') : dragX;
+    //   var y = dragY === undefined ?
+    //     this.model.get('y') : dragY;
+    //   var svg = this.$el[0].querySelector('svg');
+    //   if (svg) {
+    //     console.log('detaching svg');
+    //     $(svg).detach();
+    //   } else {
+    //     console.log('creating svg');
+    //     svg = document.createElementNS(svgns, 'svg');
+    //     svg.setAttribute('width', 1);
+    //     svg.setAttribute('height', 1);
+    //     svg.setAttribute('viewBox', '0 0 1 1');
+    //   }
+    //   svg.style.left = -x + stickieWidth / 2;
+    //   svg.style.top = -y + stickieHeight / 2;
+    //   references.forEach(function (reference) {
+    //     var coordinates = this.options.coordinate.collection
+    //       .findWhere({ number: reference });
+    //     var line = document.createElementNS(svgns, 'line');
+    //     line.setAttribute('x1', x);
+    //     line.setAttribute('y1', y);
+    //     line.setAttribute('x2', coordinates.get('x'));
+    //     line.setAttribute('y2', coordinates.get('y'));
+    //     line.setAttribute('data-number', reference);
+    //     line.style.stroke = 'black';
+    //     line.style.strokeWidth = 5;
+    //     svg.appendChild(line);
+    //   }, this);
+    //   $(svg).appendTo(this.$el);
+    // },
     afterRender: function () {
       var that = this;
       // /*
@@ -174,6 +235,11 @@ function (
       //   var end = element.value.length;
       //   element.setSelectionRange(end, end);
       // });
+      this.insertView(new Views.References({
+        model: this.model,
+        coordinate: this.options.coordinate
+      })).render();
+      // this._drawReferences();
       this.$el.css({
         transform: 'translate3d(' +
           this.model.get('x') + 'px, ' +
@@ -192,6 +258,13 @@ function (
             x: snapX,
             y: snapY
           },
+          onDrag: function () {
+            var position = {
+              x: this.x,
+              y: this.y
+            };
+            that.model.set(position);
+          },
           onClick: function (event) {
             if (!that.edit) {
               that.edit = true;
@@ -199,15 +272,42 @@ function (
             }
           },
           onDragEnd: function () {
-            var position = {
-              x: this.x,
-              y: this.y
-            };
-            that.model.set(position);
-            that.options.coordinate.save(position);
+            that.options.coordinate.save(
+              that.model.pick('x', 'y')
+            );
           }
         });
       }
+    }
+  });
+
+  Views.References = Backbone.View.extend({
+    template: 'stickies/references',
+    initialize: function (options) {
+      this.listenTo(this.model, 'change:title change:body change:x change:y', function () {
+        console.log('render', arguments);
+        this.render();
+      });
+    },
+    serialize: function () {
+      var references = this.model.getReferences();
+      var x = parseInt(this.model.get('x'), 10);
+      var y = parseInt(this.model.get('y'), 10);
+      return {
+        left: -x + stickieWidth / 2,
+        top: -y + stickieHeight / 2,
+        references: references.map(function (reference) {
+          var coordinates = this.options.coordinate.collection
+            .findWhere({ number: reference });
+          return {
+            x1: x,
+            y1: y,
+            x2: coordinates.get('x'),
+            y2: coordinates.get('y'),
+            number: reference
+          };
+        }, this)
+      };
     }
   });
 

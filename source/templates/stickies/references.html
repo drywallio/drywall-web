@@ -1,0 +1,9 @@
+{{#if references.length}}
+<svg xmlns="http://www.w3.org/2000/svg" class="stickies references" width="1" height="1" viewBox="0 0 1 1" style="left: {{left}}px; top: {{top}}px;">
+  {{#each references}}
+  <line xmlns="http://www.w3.org/2000/svg" x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" data-number="{{number}}"></line>
+  {{/each}}
+</svg>
+{{else}}
+<div class="stickies references"></div>
+{{/if}}
