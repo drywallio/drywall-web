@@ -48,13 +48,11 @@ function (
     addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
-      var stickieView = new Stickies.Views.Stickie({
+      this.insertView('.stickies', new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
-      });
-      this.insertView('.stickies', stickieView);
-      stickieView.render();
+      })).render();
     },
     dragStickies: function (options) {
       var that = this;

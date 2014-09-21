@@ -198,7 +198,11 @@ function (
               that.render();
             }
           },
+          onPress: function (event) {
+            that.$el.children(':first').addClass('lifted');
+          },
           onDragEnd: function () {
+            that.$el.children(':first').removeClass('lifted');
             var position = {
               x: this.x,
               y: this.y
