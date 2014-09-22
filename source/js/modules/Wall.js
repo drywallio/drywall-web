@@ -110,6 +110,13 @@ function (
     events: {
       'input .scale': 'setScale'
     },
+    afterRender: function () {
+      this.options.zoomTarget.css('transform-origin', '0 0');
+      var $scale = this.$el.find('.scale');
+      $scale.data('prevX', 0);
+      $scale.data('prevY', 0);
+      $scale.data('prevScale', 1);
+    },
     cleanup: function () {
       this.options.zoomInput.off('wheel');
     },
@@ -120,6 +127,10 @@ function (
       ) {
         return;
       }
+      var $scale = this.$el.find('.scale');
+      $scale.data('mouseX', evt.clientX);
+      $scale.data('mouseY', evt.clientY);
+
       if (evt.deltaY < 0) {
         this.zoomInStep();
       } else if (evt.deltaY > 0) {
@@ -146,12 +157,32 @@ function (
     },
     setScale: function (event) {
       var $scale = this.$el.find('.scale');
-      var value = parseFloat($scale.val(), 10);
-      this.options.zoomTarget.css('transform', 'scale(' + value + ')');
-      this.model.set({
-        scaleValue: value,
-        scaleMultiplier: 1 / value
+      var curScale = parseFloat($scale.val(), 10);
+      var prevX = $scale.data('prevX');
+      var prevY = $scale.data('prevY');
+      var mouseX = $scale.data('mouseX');
+      var mouseY = $scale.data('mouseY');
+      var prevScale = $scale.data('prevScale');
+
+      var scaledPrevMouseX = (mouseX - prevX) / prevScale;
+      var scaledPrevX = scaledPrevMouseX * curScale + prevX;
+      var newX = prevX + mouseX - scaledPrevX;
+      var scaledPrevMouseY = (mouseY - prevY) / prevScale;
+      var scaledPrevY = scaledPrevMouseY * curScale + prevY;
+      var newY = prevY + mouseY - scaledPrevY;
+
+      TweenLite.to(this.options.zoomTarget, 0, {
+        scale: curScale,
+        x: newX,
+        y: newY
       });
+      this.model.set({
+        scaleValue: curScale,
+        scaleMultiplier: 1 / curScale
+      });
+      $scale.data('prevScale', curScale);
+      $scale.data('prevX', newX);
+      $scale.data('prevY', newY);
     }
   });
 
