@@ -11,5 +11,8 @@ define({
   KEY: {
     RETURN: 13,
     ESC: 27
+  },
+  WALL: {
+    ZOOMFACTOR: 0.5
   }
 });

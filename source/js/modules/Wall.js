@@ -138,11 +138,11 @@ function (
       }
     },
     zoomInStep: _.throttle(function () {
-      var direction = 1;
+      var direction = -1;
       this.stepScale(direction);
     }, 300, {trailing: false}),
     zoomOutStep: _.throttle(function () {
-      var direction = -1;
+      var direction = 1;
       this.stepScale(direction);
     }, 300, {trailing: false}),
     stepScale: function (direction) {
@@ -153,23 +153,27 @@ function (
       var max = parseFloat($scale.attr('max'), 10);
       var capped = Math.min(max, Math.max(min, value + step));
       $scale.val(capped);
+      $scale.data(
+        'scale',
+        1 / Math.pow(1 + constants.WALL.ZOOMFACTOR, capped - 1)
+      );
       $scale.trigger('change').trigger('input');
     },
     setScale: function (event) {
       var $scale = this.$el.find('.scale');
-      var curScale = parseFloat($scale.val(), 10);
+      var curScale = $scale.data('scale');
       var prevX = $scale.data('prevX');
       var prevY = $scale.data('prevY');
       var mouseX = $scale.data('mouseX');
       var mouseY = $scale.data('mouseY');
       var prevScale = $scale.data('prevScale');
 
-      var scaledPrevMouseX = (mouseX - prevX) / prevScale;
-      var scaledPrevX = scaledPrevMouseX * curScale + prevX;
-      var newX = prevX + mouseX - scaledPrevX;
-      var scaledPrevMouseY = (mouseY - prevY) / prevScale;
-      var scaledPrevY = scaledPrevMouseY * curScale + prevY;
-      var newY = prevY + mouseY - scaledPrevY;
+      var mouseXinPrevScale = (mouseX - prevX) / prevScale;
+      var mouseXinCurScale = mouseXinPrevScale * curScale + prevX;
+      var newX = prevX + mouseX - mouseXinCurScale;
+      var mouseYinPrevScale = (mouseY - prevY) / prevScale;
+      var mouseYinCurScale = mouseYinPrevScale * curScale + prevY;
+      var newY = prevY + mouseY - mouseYinCurScale;
 
       TweenLite.to(this.options.zoomTarget, 0, {
         scale: curScale,
@@ -177,8 +181,7 @@ function (
         y: newY
       });
       this.model.set({
-        scaleValue: curScale,
-        scaleMultiplier: 1 / curScale
+        scaleValue: curScale
       });
       $scale.data('prevScale', curScale);
       $scale.data('prevX', newX);
