@@ -1,7 +1,7 @@
 define({
   STICKIE: {
-    WIDTH: 336,
-    HEIGHT: 336,
+    WIDTH: 288,
+    HEIGHT: 288,
     COLOUR: 'lemonchiffon'
   },
   TILE: {
