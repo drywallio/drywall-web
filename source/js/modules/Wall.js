@@ -136,6 +136,9 @@ function (
       } else if (evt.deltaY > 0) {
         this.zoomOutStep();
       }
+
+      $scale.removeData('mouseX');
+      $scale.removeData('mouseY');
     },
     zoomInStep: _.throttle(function () {
       var direction = -1;
@@ -153,20 +156,17 @@ function (
       var max = parseFloat($scale.attr('max'), 10);
       var capped = Math.min(max, Math.max(min, value + step));
       $scale.val(capped);
-      $scale.data(
-        'scale',
-        1 / Math.pow(1 + constants.WALL.ZOOMFACTOR, capped - 1)
-      );
       $scale.trigger('change').trigger('input');
     },
     setScale: function (event) {
       var $scale = this.$el.find('.scale');
-      var curScale = $scale.data('scale');
-      var prevX = $scale.data('prevX');
-      var prevY = $scale.data('prevY');
-      var mouseX = $scale.data('mouseX');
-      var mouseY = $scale.data('mouseY');
-      var prevScale = $scale.data('prevScale');
+      var value = $scale.val();
+      var curScale = 1 / Math.pow(1 + constants.WALL.ZOOMFACTOR, value - 1);
+      var prevX = $scale.data('prevX') || 0;
+      var prevY = $scale.data('prevY') || 0;
+      var mouseX = $scale.data('mouseX') || $(document).width() / 2;
+      var mouseY = $scale.data('mouseY') || $(document).height() / 2;
+      var prevScale = $scale.data('prevScale') || 1;
 
       var mouseXinPrevScale = (mouseX - prevX) / prevScale;
       var mouseXinCurScale = mouseXinPrevScale * curScale + prevX;
