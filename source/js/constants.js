@@ -13,7 +13,8 @@ define({
     ESC: 27
   },
   WALL: {
-    ZOOMFACTOR: 0.5
+    ZOOMFACTOR: 0.5,
+    ENABLE_REFERENCES: false
   },
   XMLNS: {
     SVG: 'http://www.w3.org/2000/svg'
