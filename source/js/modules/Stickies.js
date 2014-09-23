@@ -186,22 +186,16 @@ function (
     },
     afterRender: function () {
       var that = this;
-      // /*
-      //   Glitch: Scrolling when focus on input that is translateX'd off-screen
-      //   Possibly related bug: Chromium issue 231600
-      // */
-      // this.$el.find('textarea').get().forEach(function (element) {
-      //   element.focus();
-      //   var end = element.value.length;
-      //   element.setSelectionRange(end, end);
-      // });
+      if (constants.WALL.ENABLE_REFERENCES) {
+        this.insertView('', new References.Views.References({
+          model: this.model,
+          collection: new References.Collections.References(null, {
+            stickie: this.model
+          })
+        })).render();
+      }
+
       this._setColor();
-      this.insertView('', new References.Views.References({
-        model: this.model,
-        collection: new References.Collections.References(null, {
-          stickie: this.model
-        })
-      })).render();
       this.$el.css({
         transform: 'translate3d(' +
           this.model.get('x') + 'px, ' +
@@ -236,11 +230,7 @@ function (
               that._setEdit();
             }
           },
-          onPress: function (event) {
-            that.$el.children(':first').addClass('lifted');
-          },
           onDragEnd: function () {
-            that.$el.children(':first').removeClass('lifted');
             that.options.coordinate.save(
               that.model.pick('x', 'y')
             );

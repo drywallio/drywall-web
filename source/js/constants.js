@@ -13,6 +13,7 @@ define({
     ESC: 27
   },
   WALL: {
-    ZOOMFACTOR: 0.5
+    ZOOMFACTOR: 0.5,
+    ENABLE_REFERENCES: false
   }
 });
