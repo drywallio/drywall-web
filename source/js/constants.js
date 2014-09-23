@@ -14,5 +14,8 @@ define({
   },
   WALL: {
     ZOOMFACTOR: 0.5
+  },
+  XMLNS: {
+    SVG: 'http://www.w3.org/2000/svg'
   }
 });

@@ -116,7 +116,7 @@ function (
   };
 
   Views.Stickie = Backbone.View.extend({
-    template: 'wall/stickie',
+    template: 'stickies/stickie',
     initialize: function (options) {
       this.listenTo(this.model, 'change:title', this._setTitle);
       this.listenTo(this.model, 'change:labels', this._setColor);
@@ -143,7 +143,7 @@ function (
       var labels = this.model.get('labels') || [];
       var first = _.find(labels, function (label) { return !!label.color; });
       var color = first ? '#' + first.color : stickieColour;
-      this.$el.css('background-color', color);
+      this.$el.find('.card').css('background-color', color);
     },
     _setTitle: function () {
       if (!this.edit) {
@@ -184,6 +184,8 @@ function (
         title.replaceWith(element);
       }
     },
+    beforeRender: function () {
+    },
     afterRender: function () {
       var that = this;
       // /*
@@ -195,13 +197,17 @@ function (
       //   var end = element.value.length;
       //   element.setSelectionRange(end, end);
       // });
+
       this._setColor();
-      this.insertView('', new References.Views.References({
+
+      this.references = new References.Views.Anchor({
+        el: this.$el[0],
         model: this.model,
         collection: new References.Collections.References(null, {
           stickie: this.model
         })
-      })).render();
+      }).render();
+
       this.$el.css({
         transform: 'translate3d(' +
           this.model.get('x') + 'px, ' +
@@ -209,6 +215,7 @@ function (
           '0px' +
         ')'
       });
+
       var permissions = this.options.repo.get('permissions') || {};
       if (permissions.push) {
         Draggable.create(this.$el, {

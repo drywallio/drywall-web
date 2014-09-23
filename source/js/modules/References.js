@@ -69,8 +69,8 @@ function (
     }
   });
 
-  Views.References = Backbone.View.extend({
-    template: 'references/references',
+  Views.Anchor = Backbone.View.extend({
+    manage: false,
     initialize: function (options) {
       this.listenTo(this.model, 'change:x change:y',
         throttleAnimation(this._setCoordinates)
@@ -84,60 +84,66 @@ function (
     _removeReference: function () {
       console.error('TODO _removeReference does not exist');
     },
-    afterRender: function () {
+    render: function () {
+      this.svg = document.createElementNS(constants.XMLNS.SVG, 'svg');
+      this.svg.setAttribute('width', 1);
+      this.svg.setAttribute('height', 1);
+      this.svg.setAttribute('viewBox', '0 0 1 1');
+      this.svg.classList.add('references');
+      this.svg.classList.add('anchor');
+
       this._setCoordinates();
-      var svgns = 'http://www.w3.org/2000/svg';
+
       var references = this.collection;
       references.forEach(function (reference) {
-        var line = document.createElementNS(svgns, 'svg');
-        this.$el.append(line);
-        this.insertView(new Views.Reference({
-          el: line,
+        var line = new Views.Line({
+          el: this.svg,
           source: this.model,
           target: reference
-        })).render();
+        }).render();
       }, this);
+
+      this.el.appendChild(this.svg);
+
+      return this;
     },
     _setCoordinates: function () {
-      this.$el.css({
+      $(this.svg).css({
         left: - this.model.get('x') + constants.STICKIE.WIDTH / 2,
         top: - this.model.get('y') + constants.STICKIE.HEIGHT / 2
       });
     }
   });
 
-  Views.Reference = Backbone.View.extend({
-    template: 'references/reference',
+  Views.Line = Backbone.View.extend({
+    manage: false,
     initialize: function (options) {
       var _setCoordinates = throttleAnimation(this._setCoordinates);
       this.listenTo(options.source, 'change:x change:y', _setCoordinates);
       this.listenTo(options.target, 'change:x change:y', _setCoordinates);
     },
-    beforeRender: function () {
-    },
-    serialize: function () {
-      return {
-        number: this.options.target.get('number')
-      };
-    },
-    afterRender: function () {
-      // Hack
-      var line = this.$el.find('line');
-      this.$el.replaceWith(line);
-      this.$el = line;
+    render: function () {
+      this.line = document.createElementNS(constants.XMLNS.SVG, 'line');
+      this.line.setAttribute('data-number', this.options.target.get('number'));
+      this.line.classList.add('references');
+      this.line.classList.add('line');
 
       this._setCoordinates();
+
+      this.el.appendChild(this.line);
+
+      return this;
     },
     _setCoordinates: function _setCoordinates() {
       var x1 = this.options.source.get('x');
       var y1 = this.options.source.get('y');
-      this.$el[0].setAttribute('x1', x1);
-      this.$el[0].setAttribute('y1', y1);
+      this.line.setAttribute('x1', x1);
+      this.line.setAttribute('y1', y1);
 
       var x2 = this.options.target.get('x');
       var y2 = this.options.target.get('y');
-      this.$el[0].setAttribute('x2', x2);
-      this.$el[0].setAttribute('y2', y2);
+      this.line.setAttribute('x2', x2);
+      this.line.setAttribute('y2', y2);
     }
   });
 

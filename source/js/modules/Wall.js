@@ -48,7 +48,7 @@ function (
     addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
-      this.insertView('.stickies', new Stickies.Views.Stickie({
+      this.insertView('> .zoom > .stickies', new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
