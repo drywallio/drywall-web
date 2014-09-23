@@ -1,4 +1,8 @@
-<ol class="navigation breadcrumbs">
-  <li><a class="organisation" href="/dannylimanseta">Danny Limanseta</a></li>
-  <li><a class="repository" href="/dannylimanseta/golden-grocer">Golden Grocer</a></li>
-</ol>
+<a class="navigation breadcrumbs" href="/dashboard">
+  <img class="avatar" alt="Logo" src="{{owner.avatar_url}}&s=60" />
+  <span class="owner" href="">{{owner.login}}</span>
+  {{#if private}}
+  <span class="account">Pro</span>
+  {{/if}}
+  <span class="repository">{{name}}</span>
+</a>

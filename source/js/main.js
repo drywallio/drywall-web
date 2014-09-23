@@ -9,6 +9,8 @@ define(
   'googletagmanager',
   'fastclick',
   'backbone-loading',
+  'handlebars',
+  'libs/handlebars.helpers',
   'modules/Layouts'
 ],
 function (
@@ -21,6 +23,8 @@ function (
   googletagmanager,
   FastClick,
   bbLoading,
+  Handlebars,
+  handlebarsHelpersPack,
   Layouts
 ) {
   if (typeof Function.prototype.bind === 'undefined') {
@@ -30,6 +34,7 @@ function (
   }
 
   var JST = window.JST = _.extend(window.JST || {}, templatesBuilt);
+  handlebarsHelpersPack.register(Handlebars);
 
   Backbone.Layout.configure({
     el: false,
@@ -45,6 +50,7 @@ function (
       $.get(path + '.html', function (response) {
         require(['handlebars.compiler'], function (Handlebars) {
           if (!JST[bare]) {
+            handlebarsHelpersPack.register(Handlebars);
             JST[bare] = Handlebars.compile(response);
           }
           done(JST[bare]);

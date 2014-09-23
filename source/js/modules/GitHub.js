@@ -1,8 +1,10 @@
 define([
-  'jquery', 'underscore', 'backbone', 'app'
+  'jquery', 'underscore', 'backbone', 'app',
+  'libs/api'
 ],
 function (
-  $, _, Backbone, app
+  $, _, Backbone, app,
+  api
 ) {
   var Models = {};
   var Collections = {};
@@ -31,6 +33,7 @@ function (
   var ghInitialize = function (models, options) {
     this.options = options || {};
   };
+  var ghApi = api('https://api.github.com');
 
   var ghCollection = Backbone.Collection.extend({
     initialize: ghInitialize,
@@ -43,18 +46,38 @@ function (
 
   Models.Repo = ghModel.extend({
     url: function () {
-      return 'https://api.github.com/repos/' +
-        this.options.owner + '/' +
-        this.options.repository;
+      return ghApi('repos/:owner/:repository', this.options);
+    }
+  });
+
+  Models.IssueEdit = ghModel.extend({
+    url: function () {
+      return ghApi('repos/:owner/:repository/issues/:number', this.options);
+    },
+    isNew: function () {
+      return false;
+    },
+    save: function (key, value, options) {
+      var opts = { patch: true };
+      var args = [].slice.call(arguments, 0);
+      if (args.length === 1) {
+        args.push(opts);
+      } else if (args.length === 2) {
+        if (!key || typeof key === 'object') {
+          args[1] = _.defaults(args[1], opts);
+        } else {
+          args.push(opts);
+        }
+      } else if (args.length === 3) {
+        args[2] = _.defaults(args[2], opts);
+      }
+      return ghModel.prototype.save.apply(this, args);
     }
   });
 
   Collections.Issues = ghCollection.extend({
     url: function () {
-      return 'https://api.github.com/repos/' +
-        this.options.owner + '/' +
-        this.options.repository +
-        '/issues';
+      return ghApi('repos/:owner/:repository/issues', this.options);
     }
   });
 

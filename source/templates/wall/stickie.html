@@ -1,8 +1,9 @@
-<li class="wall stickie" style="background-color: {{color}};">
-  <label>{{title}}</label>
-  <aside class="coordinates">
-    <span class="x">{{x}}</span>
-    ×
-    <span class="y">{{y}}</span>
-  </aside>
+<li class="wall stickie">
+  <div class="card" style="background-color: {{color}};">
+    {{#if edit}}
+    <textarea class="title">{{title}}</textarea>
+    {{else}}
+    <div class="title">{{title}}</div>
+    {{/if}}
+  </div>
 </li>

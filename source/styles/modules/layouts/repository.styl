@@ -1,12 +1,17 @@
 #app > .layouts.repository
   align-items stretch
-
-  .viewport
-    flex-grow 1
+  > .main
     display flex
-    overflow hidden
-    // width 500px
-    // height 500px
-    // max-width 500px
-    // max-height 500px
-    // margin 100px auto
+    flex-grow 1
+    flex-direction column
+    flex-wrap nowrap
+    position relative
+    > article
+      flex-grow 1
+      display flex
+      overflow hidden
+      // width 500px
+      // height 500px
+      // max-width 500px
+      // max-height 500px
+      // margin 100px auto

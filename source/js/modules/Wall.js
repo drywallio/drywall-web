@@ -1,196 +1,102 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
   'constants',
-  'Draggable'
+  'modules/Stickies',
+  'Draggable',
+  'TweenLite'
 ],
 function (
   $, _, Backbone, app,
   constants,
-  Draggable
+  Stickies,
+  Draggable,
+  TweenLite
 ) {
   var Models = {};
   var Collections = {};
   var Views = {};
 
-  var stickieWidth = constants.STICKIE.WIDTH;
-  var stickieHeight = constants.STICKIE.HEIGHT;
-
-  var gridWidth = constants.GRID.WIDTH;
-  var gridHeight = constants.GRID.HEIGHT;
-
-  Collections.Stickies = Backbone.Collection.extend({
-    initialize: function (models, options) {
-      this.options = options || {};
-      var untouchedIssues = [];
-      options.issues.reduce(this._layoutStickies, untouchedIssues, this);
-      this._layoutUntouchedIssues(untouchedIssues);
-
-      this.listenTo(
-        options.issues,
-        'add remove change',
-        this._merge
-      );
-      this.listenTo(
-        options.coordinates,
-        'add remove change',
-        this._merge
-      );
-    },
-    _layoutStickies: function(arr, issue) {
-      var match = issue.pick('number');
-      var coordinate = this.options.coordinates.findWhere(match);
-
-      if (coordinate) {
-        this.addStickie(issue, coordinate);
-      } else {
-        arr.push(issue);
-      }
-      return arr;
-    },
-    _layoutUntouchedIssues: function (issues) {
-      var that = this;
-      var bounds = that.bounds();
-
-      issues.forEach(function (issue) {
-        var coordinate = new that.options.coordinates.model({
-          number: issue.get('number'),
-          x: (Math.random() * bounds.width / 2) + bounds.left,
-          y: (Math.random() * 200) + bounds.bottom + stickieWidth
-        });
-        that.options.coordinates.add(coordinate);
-        that.addStickie(issue, coordinate);
-      });
-    },
-    addStickie: function(issue, coordinate) {
-      var data = _.extend(issue.toJSON(), coordinate.toJSON());
-      var stickie = new this.model(data);
-      this.add(stickie);
-    },
-    bounds: function () {
-      var x = this.map(function (stickie) {
-        return stickie.get('x');
-      });
-      var y = this.map(function (stickie) {
-        return stickie.get('y');
-      });
-      x = _.isEmpty(x) ? [0] : x;
-      y = _.isEmpty(y) ? [0] : y;
-
-      var box = {
-        left: _.min(x),
-        right: _.max(x) + stickieWidth,
-        top: _.min(y),
-        bottom: _.max(y) + stickieHeight
-      };
-
-      return _.extend(box, {
-        width: box.right - box.left,
-        height: box.bottom - box.top
-      });
+  Models.Controls = Backbone.Model.extend({
+    defaults: {
+      scaleValue: 1,
     }
   });
 
   Views.Draggable = Backbone.View.extend({
     template: 'wall/draggable',
     initialize: function (options) {
-      this.options = options;
-      this.listenTo(options.stickies, 'add change remove', this.updateGrid);
+      this.options.scaleVal = 1;
       this.listenTo(options.stickies, 'add', this.addStickie);
+      this.options.controls = new Models.Controls();
+      this.listenTo(this.options.controls, 'change', this.scaleGrid);
+
       // this.listenTo(options.stickies, 'change', this.changeStickie);
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
     },
     afterRender: function () {
       this.insertView('aside', new Views.Controls({
+        model: this.options.controls,
         zoomInput: this.$el,
         zoomTarget: this.$el.find('.zoom')
       })).render();
+
       this.options.stickies.each(function (stickie) {
         this.addStickie(stickie);
       }, this);
-      this.updateGrid();
+      this.createDraggableScreen();
     },
     addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
-      var stickieView = new Views.Stickie({
+      this.insertView('.stickies', new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
-      });
-      this.insertView('.stickies', stickieView);
-      stickieView.render();
+      })).render();
     },
-    updateGrid: function () {
-      var gridPadding = Math.floor(stickieWidth);
-      var voidPadding = Math.floor(gridPadding / 10);
-      var box = this.options.stickies.bounds();
-      var left = box.left - gridPadding;
-      var top = box.top - gridPadding;
-      var width = gridPadding + box.width + gridPadding;
-      var height = gridPadding + box.height + gridPadding;
-
-      if (this.draggable) {
-        _.each(this.draggable, function (draggable) {
-          draggable.disable();
+    dragStickies: function (options) {
+      var that = this;
+      return function () {
+        $(app.el).addClass('wall-draggable-moving');
+        var scaleMultiplier = 1 / options.controls.get('scaleValue');
+        var stickies = this.target.parentNode.querySelector('.stickies');
+        var xDest = that.prevX + (this.x * scaleMultiplier);
+        var yDest = that.prevY + (this.y * scaleMultiplier);
+        TweenLite.to(stickies, 0, {
+          x: xDest,
+          y: yDest
         });
-      }
-
-      this.$el.find('.grid').css({
-        width: width,
-        height: height,
-        transform: 'translate3d(' +
-          left + 'px, ' +
-          top + 'px, ' +
-          '0px' +
-        ')'
-      });
-
-      /*jshint laxbreak:true, laxcomma:true */
-      var bounds = {
-        top:
-          // grid to draggable offset
-          - top
-          // container on the page offset
-          + this.$el.parent().offset().top
-          // margin to the screen
-          - voidPadding
-          // grid overflowing the viewport
-          - (height - this.$el.parent().height())
-        ,
-        left:
-          // grid to draggable offset
-          - left
-          // container on the page offset
-          + this.$el.parent().offset().left
-          // margin to the screen
-          - voidPadding
-          // grid overflowing the viewport
-          - (width - this.$el.parent().width())
-        ,
-        width:
-          // GSAP has a weird bug so we use width
-          // instead of the calculated movement area
-          // + (width - this.$el.parent().width())
-          + width
-          // margin to the screen
-          + (voidPadding * 2)
-        ,
-        height:
-          // GSAP does it correctly for height
-          // so we use the calculated movement area
-          + (height - this.$el.parent().height())
-          // + height
-          // margin to the screen
-          + voidPadding * 2
       };
-
-      this.draggable = Draggable.create(this.$el.find('.anchor'), {
-        trigger: this.$el.find('.grid'),
+    },
+    scaleGrid: function () {
+      var scaleVal = this.options.controls.get('scaleValue');
+      var scaleMultiplier = 1 / scaleVal;
+      var shiftPercent = -((scaleMultiplier - 1) / 2 * 100) + '%';
+      TweenLite.to(this.$el.find('.grid'), 0, {
+        scale: scaleVal,
+        left: shiftPercent,
+        top: shiftPercent,
+        width: 100 * scaleMultiplier + '%',
+        height: 100 * scaleMultiplier + '%'
+      });
+    },
+    prevX: 0,
+    prevY: 0,
+    createDraggableScreen: function () {
+      var that = this;
+      Draggable.create(this.$el.find('.draggablescreen'), {
         type: 'x,y',
-        maxDuration: 0.5,
-        edgeResistance: 0.5,
-        throwProps: true,
-        bounds: bounds
+        dragResistance: 0,
+        zIndexBoost: false,
+        onDrag: this.dragStickies(this.options),
+        onDragEnd: function () {
+          $(app.el).removeClass('wall-draggable-moving');
+          this.target.style.zIndex = 0;
+          var scaleMultiplier = 1 / that.options.controls.get('scaleValue');
+          that.prevX = that.prevX + (this.x * scaleMultiplier);
+          that.prevY = that.prevY + (this.y * scaleMultiplier);
+          TweenLite.to(this.target, 0, {x: 0, y: 0});
+        }
       });
     }
   });
@@ -198,11 +104,18 @@ function (
   Views.Controls = Backbone.View.extend({
     template: 'wall/controls',
     initialize: function (options) {
-      this.options = options || {};
+      options.lastScale = 1;
       this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
     },
     events: {
       'input .scale': 'setScale'
+    },
+    afterRender: function () {
+      this.options.zoomTarget.css('transform-origin', '0 0');
+      var $scale = this.$el.find('.scale');
+      $scale.data('prevX', 0);
+      $scale.data('prevY', 0);
+      $scale.data('prevScale', 1);
     },
     cleanup: function () {
       this.options.zoomInput.off('wheel');
@@ -214,6 +127,10 @@ function (
       ) {
         return;
       }
+      var $scale = this.$el.find('.scale');
+      $scale.data('mouseX', evt.clientX);
+      $scale.data('mouseY', evt.clientY);
+
       if (evt.deltaY < 0) {
         this.zoomInStep();
       } else if (evt.deltaY > 0) {
@@ -221,13 +138,13 @@ function (
       }
     },
     zoomInStep: _.throttle(function () {
-      var direction = 1;
-      this.stepScale(direction);
-    }, 200, {trailing: false}),
-    zoomOutStep: _.throttle(function () {
       var direction = -1;
       this.stepScale(direction);
-    }, 200, {trailing: false}),
+    }, 300, {trailing: false}),
+    zoomOutStep: _.throttle(function () {
+      var direction = 1;
+      this.stepScale(direction);
+    }, 300, {trailing: false}),
     stepScale: function (direction) {
       var $scale = this.$el.find('.scale');
       var value = parseFloat($scale.val(), 10);
@@ -236,82 +153,39 @@ function (
       var max = parseFloat($scale.attr('max'), 10);
       var capped = Math.min(max, Math.max(min, value + step));
       $scale.val(capped);
+      $scale.data(
+        'scale',
+        1 / Math.pow(1 + constants.WALL.ZOOMFACTOR, capped - 1)
+      );
       $scale.trigger('change').trigger('input');
     },
     setScale: function (event) {
       var $scale = this.$el.find('.scale');
-      var value = parseFloat($scale.val(), 10);
-      this.options.zoomTarget.css('transform', 'scale(' + value + ')');
-    }
-  });
+      var curScale = $scale.data('scale');
+      var prevX = $scale.data('prevX');
+      var prevY = $scale.data('prevY');
+      var mouseX = $scale.data('mouseX');
+      var mouseY = $scale.data('mouseY');
+      var prevScale = $scale.data('prevScale');
 
-  var snapX = function (endValue) {
-    var minX = this.minX || 0;
-    var maxX = this.maxX || 1E10;
-    var cell = Math.round(endValue / gridWidth) * gridWidth;
-    var target = Math.max(minX, Math.min(maxX, cell));
-    return target;
-  };
+      var mouseXinPrevScale = (mouseX - prevX) / prevScale;
+      var mouseXinCurScale = mouseXinPrevScale * curScale + prevX;
+      var newX = prevX + mouseX - mouseXinCurScale;
+      var mouseYinPrevScale = (mouseY - prevY) / prevScale;
+      var mouseYinCurScale = mouseYinPrevScale * curScale + prevY;
+      var newY = prevY + mouseY - mouseYinCurScale;
 
-  var snapY = function (endValue) {
-    var minY = this.minY || 0;
-    var maxY = this.maxY || 1E10;
-    var cell = Math.round(endValue / gridHeight) * gridHeight;
-    var target = Math.max(minY, Math.min(maxY, cell));
-    return target;
-  };
-
-  Views.Stickie = Backbone.View.extend({
-    template: 'wall/stickie',
-    initialize: function (options) {
-      this.options = options || {};
-      this.listenTo(this.model, 'change', this.updateCoordinates);
-    },
-    serialize: function () {
-      var labels = this.model.get('labels') || [];
-      var first = _.find(labels, function (label) { return !!label.color; });
-      var color = (first ? '#' + first.color : 'lemonchiffon');
-      return _.extend(this.model.pick('x', 'y', 'title'), {
-        color: color
+      TweenLite.to(this.options.zoomTarget, 0, {
+        scale: curScale,
+        x: newX,
+        y: newY
       });
-    },
-    updateCoordinates: function () {
-      var x = this.model.get('x');
-      var y = this.model.get('y');
-      this.$el.find('.coordinates .x').html(x);
-      this.$el.find('.coordinates .y').html(y);
-    },
-    afterRender: function () {
-      var that = this;
-      this.$el.css({
-        transform: 'translate3d(' +
-          this.model.get('x') + 'px, ' +
-          this.model.get('y') + 'px, ' +
-          '0px' +
-        ')'
+      this.model.set({
+        scaleValue: curScale
       });
-      var permissions = this.options.repo.get('permissions') || {};
-      if (permissions.push) {
-        Draggable.create(this.$el, {
-          type: 'x,y',
-          bounds: this.$el.parent().siblings('.grid'),
-          maxDuration: 0.5,
-          edgeResistance: 0.75,
-          throwProps: true,
-          snap: {
-            x: snapX,
-            y: snapY
-          },
-          onDragEnd: function () {
-            var position = {
-              x: this.x,
-              y: this.y
-            };
-            that.model.set(position);
-            that.options.coordinate.save(position);
-          }
-        });
-      }
+      $scale.data('prevScale', curScale);
+      $scale.data('prevX', newX);
+      $scale.data('prevY', newY);
     }
   });
 
@@ -320,5 +194,4 @@ function (
     Collections: Collections,
     Views: Views
   };
-
 });

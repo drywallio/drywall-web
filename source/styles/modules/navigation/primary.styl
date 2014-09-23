@@ -1,45 +1,39 @@
 .navigation.primary
-
-  > button
-    font-size 0
-    background-color #5A2876
-    background-image url('/img/icn-menu.svg')
-    background-size 20px
-    background-position center
-    background-repeat no-repeat
-    border-style none
-    height 53px
-    width 50px
-    box-sizing border-box
-    padding 0
-    position absolute
-    top 0
-    right 0
-    z-index 999999
-    transition transform 0.25s ease-in-out
-
-  > .menu
-    background-color #5A2876
-    position absolute
-    top 0
-    right 0
-    width 100vw
-    height 100vh
-    max-width 300px
-    z-index -99999
+  background-color #5A2876
+  position fixed
+  top 0
+  right 0
+  width 100vw
+  height 100vh
+  max-width 270px
+  > ul
+    margin 0
+    padding 10px 0 0 0
+    list-style none
+    transform scale(0.75) translateX(0)
+    transform-origin right center
+    // opacity 0
+    transition-duration 0.25s
+    transition-timing-function ease-in-out
+    transition-property transform, opacity
+    > li
+      > a,
+      > button
+        display block
+        text-align left
+        width 100%
+        height 100%
+        text-decoration none
+        font-size 18px
+        color white
+        margin 0
+        padding 10px 0 10px 30px
+      > button
+        appearance none
+        border none
+        background transparent
 
 #app.navigation-primary-reveal .navigation.primary
-  > button
-    transform translateX(calc(-100vw + 50px))
-    &:after
-      content ''
-      position absolute
-      top 0
-      right 0
-      width 100vw
-      height 100vh
-
-@media (min-width: 320px)
-  #app.navigation-primary-reveal .navigation.primary
-    > button
-      transform translateX(calc(-270px))
+  > ul
+    transform none
+    // opacity 1

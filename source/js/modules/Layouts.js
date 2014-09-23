@@ -4,7 +4,8 @@ define([
   'modules/Coordinates',
   'modules/GitHub',
   'modules/Navigation',
-  'modules/Wall'
+  'modules/Wall',
+  'modules/Stickies'
 ],
 function (
   $, _, Backbone, app,
@@ -12,7 +13,8 @@ function (
   Coordinates,
   GitHub,
   Navigation,
-  Wall
+  Wall,
+  Stickies
 ) {
   var Models = {};
   var Collections = {};
@@ -26,26 +28,29 @@ function (
 
   Views.Nav = Views.Base.extend({
     beforeRender: function (options) {
-      this.setViews({
-        '> header': new Navigation.Views.Account(),
+      this.insertViews({
+        '> header': [
+          new Navigation.Views.Account(),
+          new Navigation.Views.Toggle()
+        ],
         '> aside': new Navigation.Views.Primary()
       });
     }
   });
 
-  Views.NavContent = Views.Nav.extend({
+  Views.Content = Views.Nav.extend({
     beforeRender: function (options) {
       Views.Nav.prototype.beforeRender.apply(this, arguments);
-      this.setViews({
-        '> footer': new Navigation.Views.Legalese()
+      this.insertViews({
+        '> .main > footer': new Navigation.Views.Legalese()
       });
     }
   });
 
-  Views.Preload = Views.Nav.extend({
+  Views.Preload = Views.Base.extend({
     template: 'layouts/preload',
     initialize: function (options) {
-      Views.Nav.prototype.initialize.apply(this, arguments);
+      Views.Base.prototype.initialize.apply(this, arguments);
       var path = {
         owner: this.options.owner,
         repository: this.options.repository
@@ -69,6 +74,9 @@ function (
         }).render();
       }.bind(this))
       .catch(function (err) {
+        if (err.status === 404) {
+          err.message = 'Wall not Found';
+        }
         app.useLayout(Views.Error, {
           error: err
         }).render();
@@ -79,13 +87,18 @@ function (
   Views.Repository = Views.Nav.extend({
     template: 'layouts/repository',
     beforeRender: function () {
+      this.insertViews({
+        '> header': new Navigation.Views.Breadcrumbs({
+          repo: this.options.repo
+        })
+      });
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '> .viewport': new Wall.Views.Draggable({
+        '> .main > article': new Wall.Views.Draggable({
           coordinates: this.options.coordinates,
           issues: this.options.issues,
           repo: this.options.repo,
-          stickies: new Wall.Collections.Stickies(null, _.pick(
+          stickies: new Stickies.Collections.Stickies(null, _.pick(
             this.options,
             'coordinates', 'issues', 'repo', 'owner', 'repository'
           ))
@@ -94,25 +107,25 @@ function (
     }
   });
 
-  Views.Landing = Views.NavContent.extend({
+  Views.Landing = Views.Content.extend({
     template: 'layouts/landing',
     beforeRender: function () {
-      Views.NavContent.prototype.beforeRender.apply(this, arguments);
+      Views.Content.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '.sign-in': new Navigation.Views.SignIn()
+        '> .main > article .sign-in': new Navigation.Views.SignIn()
       });
     }
   });
 
-  Views.Pricing = Views.NavContent.extend({
+  Views.Pricing = Views.Content.extend({
     title: 'Plans & Pricing',
     template: 'layouts/pricing'
   });
 
-  Views.Error = Views.NavContent.extend({
+  Views.Error = Views.Content.extend({
     template: 'layouts/error',
     initialize: function (options) {
-      Views.NavContent.prototype.initialize.apply(this, arguments);
+      Views.Content.prototype.initialize.apply(this, arguments);
     },
     serialize: function () {
       var error = this.options.error;
@@ -128,10 +141,10 @@ function (
       };
     },
     beforeRender: function () {
-      Views.NavContent.prototype.beforeRender.apply(this, arguments);
+      Views.Content.prototype.beforeRender.apply(this, arguments);
       if (!app.session.has('id_token')) {
         this.setViews({
-          '.sign-in': new Navigation.Views.SignIn()
+          '> .main > article .sign-in': new Navigation.Views.SignIn()
         });
       }
       if (this.options.error.status === 402) {
@@ -140,7 +153,7 @@ function (
         );
         var owners = new Billing.Collections.Billings();
         this.setViews({
-          '.pricing': new Billing.Views.Plans({
+          '> .main > article .pricing': new Billing.Views.Plans({
             returnPath: Backbone.history.fragment,
             owner: owner,
             owners: owners

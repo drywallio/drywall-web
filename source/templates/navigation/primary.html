@@ -1,4 +1,18 @@
 <nav class="navigation primary">
-  <button>Menu</button>
-  <div class="menu"></div>
+  <ul>
+    <li>
+      <a href="/">Home</a>
+    </li>
+    <li>
+      <a href="/pricing">Plans & Pricing</a>
+    </li>
+    <li>
+      <a href="mailto:drywall@cf.sg">Contact</a>
+    </li>
+    {{#if session.id_token}}
+    <li>
+      <button class="sign-out">Sign Out</button>
+    </li>
+    {{/if}}
+  </ul>
 </nav>

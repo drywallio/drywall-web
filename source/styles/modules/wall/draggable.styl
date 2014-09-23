@@ -2,23 +2,44 @@
   background-color black
   flex auto
   position relative
+  display flex
+  flex-direction column
 
-  .zoom
-    // transform scale(0.5)
-    transition transform 0.2s ease-in-out
+  > .controls
+    position absolute
+    width 100%
+    height 100%
 
-  .anchor
-    position relative
-
-  .grid
-    background-color #ffa
+  > .grid
     position absolute
     background url('/img/bg-grid.png')
-    transition all 0.2s ease-in-out
+    width 100%
+    height 100%
 
-  .stickies
-    list-style-type none
-    overflow visible
-    padding 0
-    margin 0
-    position relative
+  > .draggablescreen
+    position absolute
+    background-color transparent
+    transition all 0.2s ease-in-out
+    width 100%
+    height 100%
+    cursor grab !important
+    cursor -moz-grab !important
+    cursor -webkit-grab !important
+    &:active
+      cursor grabbing !important
+      cursor -moz-grabbing !important
+      cursor -webkit-grabbing !important
+
+  > .zoom
+    pointer-events none
+    flex-grow 1
+    transition transform 0.2s ease-in-out,
+      transform-origin 0.2s ease-in-out
+
+    > .stickies
+      pointer-events all
+      list-style-type none
+      overflow visible
+      padding 0
+      margin 0
+      position relative
