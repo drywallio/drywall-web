@@ -2,13 +2,15 @@ define([
   'jquery', 'underscore', 'backbone',
   'constants',
   'Draggable',
-  'modules/GitHub'
+  'modules/GitHub',
+  'modules/References'
 ],
 function (
   $, _, Backbone,
   constants,
   Draggable,
-  GitHub
+  GitHub,
+  References
 ) {
   var Models = {};
   var Collections = {};
@@ -21,7 +23,11 @@ function (
   var tileWidth = constants.TILE.WIDTH;
   var tileHeight = constants.TILE.HEIGHT;
 
+  Models.Stickies = Backbone.Model.extend({
+  });
+
   Collections.Stickies = Backbone.Collection.extend({
+    model: Models.Stickies,
     initialize: function (models, options) {
       this.options = options || {};
       var untouchedIssues = [];
@@ -112,16 +118,11 @@ function (
   Views.Stickie = Backbone.View.extend({
     template: 'wall/stickie',
     initialize: function (options) {
-      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:title', this._setTitle);
+      this.listenTo(this.model, 'change:labels', this._setColor);
     },
     serialize: function () {
-      var labels = this.model.get('labels') || [];
-      var first = _.find(labels, function (label) { return !!label.color; });
-      var color = first ? '#' + first.color : stickieColour;
-      return _.extend(this.model.pick('x', 'y', 'title'), {
-        color: color,
-        edit: this.edit
-      });
+      return this.model.pick('x', 'y', 'title');
     },
     edit: false,
     events: {
@@ -138,6 +139,17 @@ function (
         }
       }
     },
+    _setColor: function () {
+      var labels = this.model.get('labels') || [];
+      var first = _.find(labels, function (label) { return !!label.color; });
+      var color = first ? '#' + first.color : stickieColour;
+      this.$el.css('background-color', color);
+    },
+    _setTitle: function () {
+      if (!this.edit) {
+        this.$el.find('.title').text(this.model.get('title'));
+      }
+    },
     _saveEdit: function () {
       var that = this;
       var textarea = this.$el.find('textarea');
@@ -147,10 +159,9 @@ function (
         new GitHub.Models.IssueEdit(null, this.model.attributes)
           .save('title', title)
           .then(function () {
-            that.edit = false;
             that.model.set('title', title);
           })
-          .fail(function () {
+          .always(function () {
             this._cancelEdit();
           });
       } else {
@@ -160,7 +171,17 @@ function (
     _cancelEdit: function () {
       if (this.edit) {
         this.edit = false;
-        this.render();
+        this._setEdit();
+      }
+    },
+    _setEdit: function () {
+      var title = this.$el.find('.title');
+      var tagName = this.edit ? 'textarea' : 'div';
+      if (title.prop('tagName').toLowerCase() !== tagName) {
+        var element = $(document.createElement(tagName))
+          .addClass('title')
+          .text(this.model.get('title'));
+        title.replaceWith(element);
       }
     },
     afterRender: function () {
@@ -174,6 +195,13 @@ function (
       //   var end = element.value.length;
       //   element.setSelectionRange(end, end);
       // });
+      this._setColor();
+      this.insertView('', new References.Views.References({
+        model: this.model,
+        collection: new References.Collections.References(null, {
+          stickie: this.model
+        })
+      })).render();
       this.$el.css({
         transform: 'translate3d(' +
           this.model.get('x') + 'px, ' +
@@ -192,10 +220,20 @@ function (
             x: snapX,
             y: snapY
           },
+          onDrag: function () {
+            var position = {
+              x: this.x,
+              y: this.y
+            };
+            that.model.set(position);
+            if (that.edit) {
+              that._cancelEdit();
+            }
+          },
           onClick: function (event) {
             if (!that.edit) {
               that.edit = true;
-              that.render();
+              that._setEdit();
             }
           },
           onPress: function (event) {
@@ -203,12 +241,9 @@ function (
           },
           onDragEnd: function () {
             that.$el.children(':first').removeClass('lifted');
-            var position = {
-              x: this.x,
-              y: this.y
-            };
-            that.model.set(position);
-            that.options.coordinate.save(position);
+            that.options.coordinate.save(
+              that.model.pick('x', 'y')
+            );
           }
         });
       }
