@@ -2,13 +2,15 @@ define([
   'jquery', 'underscore', 'backbone',
   'constants',
   'Draggable',
-  'modules/GitHub'
+  'modules/GitHub',
+  'modules/References'
 ],
 function (
   $, _, Backbone,
   constants,
   Draggable,
-  GitHub
+  GitHub,
+  References
 ) {
   var Models = {};
   var Collections = {};
@@ -22,23 +24,6 @@ function (
   var tileHeight = constants.TILE.HEIGHT;
 
   Models.Stickies = Backbone.Model.extend({
-    getReferences: function () {
-      var pattern = /#(\d+)/g;
-      var body = this.get('body') || '';
-      var title = this.get('title') || '';
-      var ownNumber = parseInt(this.get('number'), 10);
-      var matches = _.chain().union(
-        body.match(pattern),
-        title.match(pattern)
-      ).compact().value();
-      var references = _.chain(matches).map(function (match) {
-        pattern.lastIndex = 0;
-        var submatches = pattern.exec(match);
-        var digits = submatches[1];
-        return parseInt(digits, 10);
-      }).without(ownNumber).value();
-      return references;
-    }
   });
 
   Collections.Stickies = Backbone.Collection.extend({
@@ -133,18 +118,11 @@ function (
   Views.Stickie = Backbone.View.extend({
     template: 'wall/stickie',
     initialize: function (options) {
-      this.listenTo(this.model, 'change:title', function () {
-        this.$el.find('.title').text(this.model.get('title'));
-      });
+      this.listenTo(this.model, 'change:title', this._setTitle);
+      this.listenTo(this.model, 'change:labels', this._setColor);
     },
     serialize: function () {
-      var labels = this.model.get('labels') || [];
-      var first = _.find(labels, function (label) { return !!label.color; });
-      var color = first ? '#' + first.color : stickieColour;
-      return _.extend(this.model.pick('x', 'y', 'title'), {
-        color: color,
-        edit: this.edit
-      });
+      return this.model.pick('x', 'y', 'title');
     },
     edit: false,
     events: {
@@ -161,6 +139,17 @@ function (
         }
       }
     },
+    _setColor: function () {
+      var labels = this.model.get('labels') || [];
+      var first = _.find(labels, function (label) { return !!label.color; });
+      var color = first ? '#' + first.color : stickieColour;
+      this.$el.css('background-color', color);
+    },
+    _setTitle: function () {
+      if (!this.edit) {
+        this.$el.find('.title').text(this.model.get('title'));
+      }
+    },
     _saveEdit: function () {
       var that = this;
       var textarea = this.$el.find('textarea');
@@ -170,10 +159,9 @@ function (
         new GitHub.Models.IssueEdit(null, this.model.attributes)
           .save('title', title)
           .then(function () {
-            that.edit = false;
             that.model.set('title', title);
           })
-          .fail(function () {
+          .always(function () {
             this._cancelEdit();
           });
       } else {
@@ -183,47 +171,19 @@ function (
     _cancelEdit: function () {
       if (this.edit) {
         this.edit = false;
-        this.render();
+        this._setEdit();
       }
     },
-    // _drawReferences: function (dragX, dragY) {
-    //   var references = this.model.getReferences();
-    //   if (references.length === 0) {
-    //     return;
-    //   }
-    //   var svgns = 'http://www.w3.org/2000/svg';
-    //   var x = dragX === undefined ?
-    //     this.model.get('x') : dragX;
-    //   var y = dragY === undefined ?
-    //     this.model.get('y') : dragY;
-    //   var svg = this.$el[0].querySelector('svg');
-    //   if (svg) {
-    //     console.log('detaching svg');
-    //     $(svg).detach();
-    //   } else {
-    //     console.log('creating svg');
-    //     svg = document.createElementNS(svgns, 'svg');
-    //     svg.setAttribute('width', 1);
-    //     svg.setAttribute('height', 1);
-    //     svg.setAttribute('viewBox', '0 0 1 1');
-    //   }
-    //   svg.style.left = -x + stickieWidth / 2;
-    //   svg.style.top = -y + stickieHeight / 2;
-    //   references.forEach(function (reference) {
-    //     var coordinates = this.options.coordinate.collection
-    //       .findWhere({ number: reference });
-    //     var line = document.createElementNS(svgns, 'line');
-    //     line.setAttribute('x1', x);
-    //     line.setAttribute('y1', y);
-    //     line.setAttribute('x2', coordinates.get('x'));
-    //     line.setAttribute('y2', coordinates.get('y'));
-    //     line.setAttribute('data-number', reference);
-    //     line.style.stroke = 'black';
-    //     line.style.strokeWidth = 5;
-    //     svg.appendChild(line);
-    //   }, this);
-    //   $(svg).appendTo(this.$el);
-    // },
+    _setEdit: function () {
+      var title = this.$el.find('.title');
+      var tagName = this.edit ? 'textarea' : 'div';
+      if (title.prop('tagName').toLowerCase() !== tagName) {
+        var element = $(document.createElement(tagName))
+          .addClass('title')
+          .text(this.model.get('title'));
+        title.replaceWith(element);
+      }
+    },
     afterRender: function () {
       var that = this;
       // /*
@@ -235,11 +195,13 @@ function (
       //   var end = element.value.length;
       //   element.setSelectionRange(end, end);
       // });
-      this.insertView(new Views.References({
+      this._setColor();
+      this.insertView('', new References.Views.References({
         model: this.model,
-        coordinate: this.options.coordinate
+        collection: new References.Collections.References(null, {
+          stickie: this.model
+        })
       })).render();
-      // this._drawReferences();
       this.$el.css({
         transform: 'translate3d(' +
           this.model.get('x') + 'px, ' +
@@ -264,11 +226,14 @@ function (
               y: this.y
             };
             that.model.set(position);
+            if (that.edit) {
+              that._cancelEdit();
+            }
           },
           onClick: function (event) {
             if (!that.edit) {
               that.edit = true;
-              that.render();
+              that._setEdit();
             }
           },
           onDragEnd: function () {
@@ -278,36 +243,6 @@ function (
           }
         });
       }
-    }
-  });
-
-  Views.References = Backbone.View.extend({
-    template: 'stickies/references',
-    initialize: function (options) {
-      this.listenTo(this.model, 'change:title change:body change:x change:y', function () {
-        console.log('render', arguments);
-        this.render();
-      });
-    },
-    serialize: function () {
-      var references = this.model.getReferences();
-      var x = parseInt(this.model.get('x'), 10);
-      var y = parseInt(this.model.get('y'), 10);
-      return {
-        left: -x + stickieWidth / 2,
-        top: -y + stickieHeight / 2,
-        references: references.map(function (reference) {
-          var coordinates = this.options.coordinate.collection
-            .findWhere({ number: reference });
-          return {
-            x1: x,
-            y1: y,
-            x2: coordinates.get('x'),
-            y2: coordinates.get('y'),
-            number: reference
-          };
-        }, this)
-      };
     }
   });
 
