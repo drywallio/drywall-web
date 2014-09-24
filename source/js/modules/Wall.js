@@ -115,6 +115,9 @@ function (
         alert('pinchy! ' + JSON.stringify(evt.center));
       });
     },
+    serialize: function () {
+      return constants.WALL;
+    },
     events: {
       'input .scale': 'setScale'
     },
@@ -169,7 +172,7 @@ function (
     setScale: function (event) {
       var $scale = this.$el.find('.scale');
       var value = $scale.val();
-      var curScale = 1 / Math.pow(1 + constants.WALL.ZOOMFACTOR, value - 1);
+      var curScale = 1 / Math.pow(constants.WALL.ZOOM_FACTOR, value - 1);
       var prevX = $scale.data('prevX') || 0;
       var prevY = $scale.data('prevY') || 0;
       var mouseX = $scale.data('mouseX') || $(document).width() / 2;

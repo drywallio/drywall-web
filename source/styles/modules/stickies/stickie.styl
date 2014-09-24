@@ -3,27 +3,117 @@
   perspective 900px
 
   > .card
+    display flex
+    flex-direction column
+    font-family 'Roboto Slab', serif
+    font-weight 400
     box-sizing border-box
     width $stickieWidth
     height $stickieWidth
     overflow hidden
-    color black
     padding 0 0 6px 0
     box-shadow inset 0px 0px 0px 2px rgba(0, 0, 0, 0.1),
       inset 0 -6px 0 0 rgba(0, 0, 0, 0.3)
 
+    > header
+      flex-grow 0
+      display flex
+      justify-content space-between
+      overflow visible
+
+      > .number
+        height 100%
+        padding 1px 6px 1px 8px
+        margin 10px 0 5px 15px
+        color inherit
+        text-decoration none
+        display inline-block
+        background-color rgba(255, 255, 255, 0.25)
+        border 1px solid rgba(0, 0, 0, 0.1)
+        &:before
+          content 'github'
+          font-family icons
+          padding-right 5px
+
+      > label
+        > input[type='checkbox']
+          background-color rgba(255, 255, 255, 0.25)
+          border 1px solid rgba(0, 0, 0, 0.1)
+          -webkit-appearance none
+          display inline-block
+          height 20px
+          width 20px
+          margin 10px 10px 0 0
+          position relative
+          &:after
+            content ''
+            font-family icons
+            font-size 30px
+            position absolute
+            display inline-block
+            text-align center
+            left -5px
+            top -5px
+            width 30px
+            height 30px
+          &:checked:after
+            content 'checked'
+
     > .title
+      flex-grow 1
       display block
       box-sizing border-box
       width 100%
       height 100%
-      padding 10px 20px 0 20px
+      padding 10px 20px
       border none
       background transparent
-      color #000
-      font-size 34px
+      font-size 18px
       font-weight 400
-      line-height 41px
+      color inherit
+      font-family inherit
+      -webkit-hyphens: auto;
+      -moz-hyphens: auto;
+      -ms-hyphens: auto;
+      hyphens: auto;
 
-    > [readonly]
-      opacity 0.25
+      &[readonly]
+        opacity 0.25
+
+    > footer
+      flex-grow 0
+      display flex
+      justify-content space-between
+      overflow visible
+
+      > .milestone
+        font-family 'Roboto', sans-serif
+        font-weight 400
+        font-size 12px
+        height 100%
+        padding 1px 6px 1px 8px
+        margin 0 0 10px 10px
+        color inherit
+        text-decoration none
+        display inline-block
+        background-color rgba(255, 255, 255, 0.25)
+        border 1px solid rgba(0, 0, 0, 0.1)
+        &:before
+          content 'milestone'
+          font-family icons
+          padding-right 5px
+
+      > .comments
+        font-size 12px
+        height 100%
+        padding 1px 6px 1px 8px
+        margin 0 10px 10px 0
+        color inherit
+        text-decoration none
+        display inline-block
+        background-color rgba(255, 255, 255, 0.25)
+        border 1px solid rgba(0, 0, 0, 0.1)
+        &:before
+          content 'comments'
+          font-family icons
+          padding-right 5px
