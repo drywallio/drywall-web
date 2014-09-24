@@ -2,6 +2,7 @@ define([
   'jquery', 'underscore', 'backbone',
   'constants',
   'Draggable',
+  'tinycolor',
   'modules/GitHub',
   'modules/References'
 ],
@@ -9,6 +10,7 @@ function (
   $, _, Backbone,
   constants,
   Draggable,
+  tinycolor,
   GitHub,
   References
 ) {
@@ -18,7 +20,6 @@ function (
 
   var stickieWidth = constants.STICKIE.WIDTH;
   var stickieHeight = constants.STICKIE.HEIGHT;
-  var stickieColour = constants.STICKIE.COLOUR;
 
   var tileWidth = constants.TILE.WIDTH;
   var tileHeight = constants.TILE.HEIGHT;
@@ -122,7 +123,10 @@ function (
       this.listenTo(this.model, 'change:labels', this._setColor);
     },
     serialize: function () {
-      return this.model.pick('x', 'y', 'title');
+      return _.extend(
+        this.model.toJSON(),
+        _.pick(this.model.collection.options, 'owner', 'repository')
+      );
     },
     edit: false,
     events: {
@@ -142,8 +146,15 @@ function (
     _setColor: function () {
       var labels = this.model.get('labels') || [];
       var first = _.find(labels, function (label) { return !!label.color; });
-      var color = first ? '#' + first.color : stickieColour;
-      this.$el.find('.card').css('background-color', color);
+      var bgColor = first ? '#' + first.color :
+        constants.STICKIE.BACKGROUND_COLOR;
+      var fgColor = tinycolor.mostReadable(
+        bgColor, constants.STICKIE.FOREGROUND_COLOR
+      ).toHexString();
+      this.$el.find('.card').css({
+        'background-color': bgColor,
+        color: fgColor
+      });
     },
     _setTitle: function () {
       if (!this.edit) {

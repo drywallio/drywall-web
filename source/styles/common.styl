@@ -1,11 +1,18 @@
 html, body
   height 100%
 
-body, button, textarea
+body, button, textarea, input[type='checkbox']
   font-family Roboto, sans-serif
   font-weight 300
   font-size 18px
   color #444
+  text-rendering optimizeLegibility
+  font-variant-ligatures common-ligatures
+  -webkit-font-smoothing antialiased
+  -moz-osx-font-smoothing grayscale
+  -webkit-font-feature-settings 'liga', 'dlig' 1, 'kern' 1, 'frac' 1
+  -ms-font-feature-settings 'liga' 1, 'dlig' 1, 'kern' 1, 'frac' 1
+  font-feature-settings 'liga' 1, 'dlig' 1, 'kern' 1, 'frac' 1
 
 h1, h2, h3, h4, h5, h6
   font-family 'Roboto Slab', serif

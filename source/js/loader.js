@@ -22,7 +22,8 @@ require.config({
     'queryString': '../bower_components/query-string/query-string',
     'Draggable': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/utils/Draggable.min',
     'TweenLite': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/TweenLite.min',
-    'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/plugins/CSSPlugin.min'
+    'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/plugins/CSSPlugin.min',
+    'tinycolor': '../bower_components/tinycolor/tinycolor'
   },
   shim: {
     'backbone': {

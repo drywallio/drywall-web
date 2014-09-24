@@ -2,7 +2,8 @@ define({
   STICKIE: {
     WIDTH: 288,
     HEIGHT: 288,
-    COLOUR: 'lemonchiffon'
+    BACKGROUND_COLOR: 'lemonchiffon',
+    FOREGROUND_COLOR: ['black', 'white']
   },
   TILE: {
     WIDTH: 56,
