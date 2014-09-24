@@ -59,7 +59,7 @@ function (
     dragStickies: function (options) {
       var that = this;
       return function () {
-        $(app.el).addClass('wall-draggable-moving');
+        // $(app.el).addClass('wall-draggable-moving');
         var scaleMultiplier = 1 / options.controls.get('scaleValue');
         var stickies = this.target.parentNode.querySelector('.stickies');
         var xDest = that.prevX + (this.x * scaleMultiplier);
@@ -94,7 +94,7 @@ function (
         zIndexBoost: false,
         onDrag: this.dragStickies(this.options),
         onDragEnd: function () {
-          $(app.el).removeClass('wall-draggable-moving');
+          // $(app.el).removeClass('wall-draggable-moving');
           this.target.style.zIndex = 0;
           var scaleMultiplier = 1 / that.options.controls.get('scaleValue');
           that.prevX = that.prevX + (this.x * scaleMultiplier);
