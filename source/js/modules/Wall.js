@@ -113,9 +113,7 @@ function (
 
       var mc = new Hammer.Manager(this.options.zoomTarget.parent().get(0));
       mc.add(new Hammer.Pinch());
-      mc.on('pinch', function(evt) {
-        alert('pinchy! ' + JSON.stringify(evt.center));
-      });
+      mc.on('pinchmove', this.onPinch.bind(this));
     },
     serialize: function () {
       return constants.WALL;
@@ -132,6 +130,18 @@ function (
     },
     cleanup: function () {
       this.options.zoomInput.off('wheel');
+    },
+    onPinch: function(evt) {
+      var $scale = this.$el.find('.scale');
+      $scale.data('mouseX', evt.center.x);
+      $scale.data('mouseY', evt.center.y);
+      if (evt.scale > (1 + 0.05)) {
+        this.zoomOutStep();
+      } else if (evt.scale < (1 - 0.05)) {
+        this.zoomInStep();
+      }
+      $scale.removeData('mouseX');
+      $scale.removeData('mouseY');
     },
     onWheelZoom: function (event) {
       var evt = event.originalEvent;
