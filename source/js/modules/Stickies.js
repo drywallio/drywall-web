@@ -141,6 +141,17 @@ function (
             this._cancelEdit();
             break;
         }
+      },
+      'change .state > input': function (event) {
+        var that = this;
+        var toggle = this.$el.find('.state > input').is(':checked');
+        var state = toggle ? 'closed' : 'open';
+        new GitHub.Models.IssueEdit(null, this.model.attributes)
+          .save('state', state)
+          .done(function () {
+            that.model.set('state', state);
+            that.$el.find('.state > input').prop('checked', toggle);
+          });
       }
     },
     _setColor: function () {
@@ -169,11 +180,11 @@ function (
         textarea.attr('readonly', true);
         new GitHub.Models.IssueEdit(null, this.model.attributes)
           .save('title', title)
-          .then(function () {
+          .done(function () {
             that.model.set('title', title);
           })
           .always(function () {
-            this._cancelEdit();
+            that._cancelEdit();
           });
       } else {
         this._cancelEdit();
