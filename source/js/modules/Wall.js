@@ -3,14 +3,16 @@ define([
   'constants',
   'modules/Stickies',
   'Draggable',
-  'TweenLite'
+  'TweenLite',
+  'hammerjs'
 ],
 function (
   $, _, Backbone, app,
   constants,
   Stickies,
   Draggable,
-  TweenLite
+  TweenLite,
+  Hammer
 ) {
   var Models = {};
   var Collections = {};
@@ -70,15 +72,17 @@ function (
     },
     scaleGrid: function () {
       var scaleVal = this.options.controls.get('scaleValue');
-      var scaleMultiplier = 1 / scaleVal;
-      var shiftPercent = -((scaleMultiplier - 1) / 2 * 100) + '%';
-      TweenLite.to(this.$el.find('.grid'), 0, {
-        scale: scaleVal,
-        left: shiftPercent,
-        top: shiftPercent,
-        width: 100 * scaleMultiplier + '%',
-        height: 100 * scaleMultiplier + '%'
+      if (scaleVal > 0.25) {
+        var scaleMultiplier = 1 / scaleVal;
+        var shiftPercent = -((scaleMultiplier - 1) / 2 * 100) + '%';
+        TweenLite.to(this.$el.find('.grid'), 0, {
+          scale: scaleVal,
+          left: shiftPercent,
+          top: shiftPercent,
+          width: 100 * scaleMultiplier + '%',
+          height: 100 * scaleMultiplier + '%'
       });
+      }
     },
     prevX: 0,
     prevY: 0,
@@ -106,6 +110,10 @@ function (
     initialize: function (options) {
       options.lastScale = 1;
       this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
+
+      var mc = new Hammer.Manager(this.options.zoomTarget.parent().get(0));
+      mc.add(new Hammer.Pinch());
+      mc.on('pinchmove', this.onPinch.bind(this));
     },
     serialize: function () {
       return constants.WALL;
@@ -122,6 +130,18 @@ function (
     },
     cleanup: function () {
       this.options.zoomInput.off('wheel');
+    },
+    onPinch: function(evt) {
+      var $scale = this.$el.find('.scale');
+      $scale.data('mouseX', evt.center.x);
+      $scale.data('mouseY', evt.center.y);
+      if (evt.scale > (1 + 0.05)) {
+        this.zoomOutStep();
+      } else if (evt.scale < (1 - 0.05)) {
+        this.zoomInStep();
+      }
+      $scale.removeData('mouseX');
+      $scale.removeData('mouseY');
     },
     onWheelZoom: function (event) {
       var evt = event.originalEvent;
