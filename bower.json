@@ -2,6 +2,7 @@
   "name": "drywall-web",
   "dependencies": {
     "backbone-loading": "*",
+    "hammerjs": "*",
     "handlebars-helpers-pack": "*",
     "urlbuilder": "*",
     "doctit": "*",

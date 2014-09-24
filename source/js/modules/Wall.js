@@ -3,14 +3,16 @@ define([
   'constants',
   'modules/Stickies',
   'Draggable',
-  'TweenLite'
+  'TweenLite',
+  'hammerjs'
 ],
 function (
   $, _, Backbone, app,
   constants,
   Stickies,
   Draggable,
-  TweenLite
+  TweenLite,
+  Hammer
 ) {
   var Models = {};
   var Collections = {};
@@ -106,6 +108,12 @@ function (
     initialize: function (options) {
       options.lastScale = 1;
       this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
+
+      var mc = new Hammer.Manager(this.options.zoomTarget.parent().get(0));
+      mc.add(new Hammer.Pinch());
+      mc.on('pinch', function(evt) {
+        alert('pinchy! ' + JSON.stringify(evt.center));
+      });
     },
     events: {
       'input .scale': 'setScale'
