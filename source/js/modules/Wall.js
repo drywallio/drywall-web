@@ -72,15 +72,17 @@ function (
     },
     scaleGrid: function () {
       var scaleVal = this.options.controls.get('scaleValue');
-      var scaleMultiplier = 1 / scaleVal;
-      var shiftPercent = -((scaleMultiplier - 1) / 2 * 100) + '%';
-      TweenLite.to(this.$el.find('.grid'), 0, {
-        scale: scaleVal,
-        left: shiftPercent,
-        top: shiftPercent,
-        width: 100 * scaleMultiplier + '%',
-        height: 100 * scaleMultiplier + '%'
+      if (scaleVal > 0.25) {
+        var scaleMultiplier = 1 / scaleVal;
+        var shiftPercent = -((scaleMultiplier - 1) / 2 * 100) + '%';
+        TweenLite.to(this.$el.find('.grid'), 0, {
+          scale: scaleVal,
+          left: shiftPercent,
+          top: shiftPercent,
+          width: 100 * scaleMultiplier + '%',
+          height: 100 * scaleMultiplier + '%'
       });
+      }
     },
     prevX: 0,
     prevY: 0,
