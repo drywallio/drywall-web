@@ -1,7 +1,7 @@
 <li class="stickies stickie">
   <section class="card">
     <header>
-      <a href="{{html_url}}" class="number">#{{number}}</a>
+      <a href="{{html_url}}" class="number"><span class="hint">#{{number}}</span></a>
       <label class="state">
         {{#ifCond state '===' 'closed'}}
         <input type="checkbox" checked />
@@ -15,6 +15,11 @@
       <textarea class="title hidden">{{title}}</textarea>
       <div class="title">{{title}}</div>
     </article>
+    <ul class="labels">
+      {{#each labels}}
+      <li style="background-color: #{{color}}">{{name}}</li>
+      {{/each}}
+    </ul>
     <footer>
       {{#if milestone}}
       <span class="milestone">{{milestone.title}}</span>

@@ -22,19 +22,16 @@
       overflow visible
 
       > .number
-        padding 1px 6px 1px 8px
         margin 10px 0 5px 15px
         color inherit
         text-decoration none
         display inline-block
-        background-color rgba(255, 255, 255, 0.25)
-        border 1px solid rgba(0, 0, 0, 0.1)
         &:before
           content 'github'
           font-family icons
           padding-right 5px
-        &:hover
-          box-shadow inset 0px -4px 0px -2px rgba(0, 0, 0, 0.3)
+        > .hint
+          text-decoration underline
 
       > label
         > input[type='checkbox']
@@ -91,6 +88,29 @@
       > .hidden
         display none
 
+    > .labels
+      flex-grow 0
+      margin 0 10px 5px 10px
+      padding 0
+
+      > li
+        font-family 'Roboto', sans-serif
+        font-weight 400
+        font-size 12px
+        position relative
+        display inline-block
+        padding 4px 8px
+        margin 0 10px 5px 0
+        &:after
+          content ''
+          position absolute
+          top 0
+          right 0
+          bottom 0
+          left 0
+          background-color rgba(0, 0, 0, 0.05)
+          border-radius 3px
+
     > footer
       flex-grow 0
       display flex
@@ -101,13 +121,10 @@
         font-family 'Roboto', sans-serif
         font-weight 400
         font-size 12px
-        padding 1px 6px 1px 8px
         margin 0 0 10px 10px
         color inherit
         text-decoration none
         display inline-block
-        background-color rgba(255, 255, 255, 0.25)
-        border 1px solid rgba(0, 0, 0, 0.1)
         &:before
           content 'milestone'
           font-family icons
@@ -115,7 +132,6 @@
 
       > .comments
         font-size 12px
-        padding 1px 6px 1px 8px
         margin 0 10px 10px 0
         color inherit
         text-decoration none

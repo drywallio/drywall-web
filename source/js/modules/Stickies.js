@@ -123,10 +123,18 @@ function (
       this.listenTo(this.model, 'change:labels', this._setColor);
     },
     serialize: function () {
-      return _.extend(
+      var json = _.extend(
         this.model.toJSON(),
         _.pick(this.model.collection.options, 'owner', 'repository')
       );
+      if (json.labels) {
+        json.labels.forEach(function (label) {
+          label.fgColor = tinycolor.mostReadable(
+            label.color, constants.STICKIE.FOREGROUND_COLOR
+          ).toHexString();
+        });
+      }
+      return json;
     },
     edit: false,
     events: {
