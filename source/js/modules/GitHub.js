@@ -77,11 +77,7 @@ function (
 
   Collections.Issues = ghCollection.extend({
     url: function () {
-      return ghApi(
-        'repos/:owner/:repository/issues',
-        this.options,
-        {state: 'all'}
-      );
+      return ghApi('repos/:owner/:repository/issues', this.options);
     }
   });
 
