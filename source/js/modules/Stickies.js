@@ -152,6 +152,19 @@ function (
             that.model.set('state', state);
             that.$el.find('.state > input').prop('checked', toggle);
           });
+      },
+      'click .title': function (event) {
+        var that = this;
+
+        var clicks = that.$el.data('clicks') || 0;
+        that.$el.data('clicks', ++clicks);
+        if (clicks === 2) {
+          that.onDoubleClick.call(that, event);
+        }
+
+        setTimeout(function() {
+          that.$el.data('clicks', 0);
+        }, 500);
       }
     },
     _setColor: function () {
@@ -168,9 +181,7 @@ function (
       });
     },
     _setTitle: function () {
-      if (!this.edit) {
-        this.$el.find('.title').text(this.model.get('title'));
-      }
+      this.$el.find('.title').text(this.model.get('title'));
     },
     _saveEdit: function () {
       var that = this;
@@ -185,6 +196,7 @@ function (
           })
           .always(function () {
             that._cancelEdit();
+            textarea.attr('readonly', false);
           });
       } else {
         this._cancelEdit();
@@ -198,13 +210,11 @@ function (
     },
     _setEdit: function () {
       var title = this.$el.find('.title');
-      var tagName = this.edit ? 'textarea' : 'div';
-      if (title.prop('tagName').toLowerCase() !== tagName) {
-        var element = $(document.createElement(tagName))
-          .addClass('title')
-          .text(this.model.get('title'));
-        title.replaceWith(element);
-      }
+      var isEdit = this.edit === true;
+      var textarea = title.filter('textarea');
+      textarea.toggleClass('hidden', !isEdit);
+      title.filter('div').toggleClass('hidden', isEdit);
+      textarea.focus();
     },
     afterRender: function () {
       var that = this;
@@ -244,17 +254,6 @@ function (
             that.model.set({
               x: this.x,
               y: this.y
-            };
-            that.model.set(position);
-            if (that.edit) {
-              that._cancelEdit();
-            }
-          },
-          onClick: function (event) {
-            if (!that.edit) {
-              that.edit = true;
-              that._setEdit();
-            }
             });
           }
         },
@@ -267,6 +266,11 @@ function (
         }
       });
     },
+    onDoubleClick: function (evt) {
+      var permissions = this.options.repo.get('permissions') || {};
+      if (permissions.push) {
+        this.edit = true;
+        this._setEdit();
       }
     }
   });

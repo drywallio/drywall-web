@@ -12,11 +12,8 @@
       </label>
     </header>
     <article>
-      {{#if edit}}
-      <textarea class="title">{{title}}</textarea>
-      {{else}}
+      <textarea class="title hidden">{{title}}</textarea>
       <div class="title">{{title}}</div>
-      {{/if}}
     </article>
     <footer>
       {{#if milestone}}
