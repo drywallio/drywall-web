@@ -133,12 +133,13 @@ function (
     },
     onPinch: function(evt) {
       var $scale = this.$el.find('.scale');
+      var minScaleDiff = 0.06;
       $scale.data('mouseX', evt.center.x);
       $scale.data('mouseY', evt.center.y);
-      if (evt.scale > (1 + 0.05)) {
-        this.zoomOutStep();
-      } else if (evt.scale < (1 - 0.05)) {
+      if (evt.scale > (1 + minScaleDiff)) {
         this.zoomInStep();
+      } else if (evt.scale < (1 - minScaleDiff)) {
+        this.zoomOutStep();
       }
       $scale.removeData('mouseX');
       $scale.removeData('mouseY');
