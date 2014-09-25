@@ -230,18 +230,18 @@ function (
       });
 
       var permissions = this.options.repo.get('permissions') || {};
-      if (permissions.push) {
-        Draggable.create(this.$el, {
-          type: 'x,y',
-          maxDuration: 0.5,
-          edgeResistance: 0.75,
-          throwProps: true,
-          snap: {
-            x: snapX,
-            y: snapY
-          },
-          onDrag: function () {
-            var position = {
+      Draggable.create(this.$el, {
+        type: 'x,y',
+        maxDuration: 0.5,
+        edgeResistance: 0.75,
+        throwProps: true,
+        snap: {
+          x: snapX,
+          y: snapY
+        },
+        onDrag: function () {
+          if (permissions.push) {
+            that.model.set({
               x: this.x,
               y: this.y
             };
@@ -255,13 +255,18 @@ function (
               that.edit = true;
               that._setEdit();
             }
-          },
-          onDragEnd: function () {
+            });
+          }
+        },
+        onDragEnd: function () {
+          if (permissions.push) {
             that.options.coordinate.save(
               that.model.pick('x', 'y')
             );
           }
-        });
+        }
+      });
+    },
       }
     }
   });
