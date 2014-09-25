@@ -17,10 +17,10 @@
     </article>
     <footer>
       {{#if milestone}}
-      <a href="https://github.com/{{owner}}/{{repository}}/milestones/{{milestone.title}}" class="milestone">{{milestone.title}}</a>
+      <span class="milestone">{{milestone.title}}</span>
       {{/if}}
       {{#if comments}}
-      <a href="https://github.com/{{owner}}/{{repository}}/issues/{{number}}" class="comments">{{comments}}</a>
+      <span class="comments">{{comments}}</span>
       {{/if}}
     </footer>
   </section>
