@@ -1,5 +1,5 @@
 <li class="stickies stickie">
-  <div class="card">
+  <section class="card">
     <header>
       <a href="{{html_url}}" class="number">#{{number}}</a>
       <label class="state">
@@ -8,13 +8,16 @@
         {{else}}
         <input type="checkbox" />
         {{/ifCond}}
+        <span class="marker"></span>
       </label>
     </header>
-    {{#if edit}}
-    <textarea class="title">{{title}}</textarea>
-    {{else}}
-    <div class="title">{{title}}</div>
-    {{/if}}
+    <article>
+      {{#if edit}}
+      <textarea class="title">{{title}}</textarea>
+      {{else}}
+      <div class="title">{{title}}</div>
+      {{/if}}
+    </article>
     <footer>
       {{#if milestone}}
       <a href="https://github.com/{{owner}}/{{repository}}/milestones/{{milestone.title}}" class="milestone">{{milestone.title}}</a>
@@ -23,5 +26,5 @@
       <a href="https://github.com/{{owner}}/{{repository}}/issues/{{number}}" class="comments">{{comments}}</a>
       {{/if}}
     </footer>
-  </div>
+  </section>
 </li>
