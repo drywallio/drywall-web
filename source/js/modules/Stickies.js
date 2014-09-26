@@ -167,6 +167,19 @@ function (
           this.edit = true;
           this._setEdit();
         }
+      },
+      'touchstart': function (event) {
+        var clonedEvent = _.clone(event.originalEvent);
+        this.touchDelay = setTimeout(function () {
+          this.$el.addClass('touch-hold');
+          this.draggable.enable();
+          this.draggable.startDrag(clonedEvent);
+        }.bind(this), 500);
+      },
+      'touchend': function (event) {
+        this.$el.removeClass('touch-hold');
+        clearTimeout(this.touchDelay);
+        this.draggable.disable();
       }
     },
     _setColor: function () {
@@ -242,7 +255,7 @@ function (
       });
 
       var permissions = this.options.repo.get('permissions') || {};
-      Draggable.create(this.$el, {
+      this.draggable = new Draggable(this.$el, {
         type: 'x,y',
         maxDuration: 0.5,
         edgeResistance: 0.75,
@@ -267,6 +280,8 @@ function (
           }
         }
       });
+      if ('ontouchstart' in document.documentElement) {
+        this.draggable.disable();
       }
     }
   });

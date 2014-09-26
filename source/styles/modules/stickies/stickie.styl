@@ -142,3 +142,18 @@
           content 'comments'
           font-family icons
           padding-right 5px
+
+  &.touch-hold
+    > .card
+      animation-name wiggle
+      animation-duration .4s
+      animation-iteration-count infinite
+      animation-timing-function ease
+
+@keyframes wiggle
+  from
+    transform rotateZ(2deg)
+  50%
+    transform rotateZ(-2deg)
+  to
+    transform rotateZ(2deg)
