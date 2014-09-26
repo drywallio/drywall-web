@@ -161,18 +161,12 @@ function (
             that.$el.find('.state > input').prop('checked', toggle);
           });
       },
-      'click .title': function (event) {
-        var that = this;
-
-        var clicks = that.$el.data('clicks') || 0;
-        that.$el.data('clicks', ++clicks);
-        if (clicks === 2) {
-          that.onDoubleClick.call(that, event);
+      'dblclick .title': function (event) {
+        var permissions = this.options.repo.get('permissions') || {};
+        if (permissions.push) {
+          this.edit = true;
+          this._setEdit();
         }
-
-        setTimeout(function() {
-          that.$el.data('clicks', 0);
-        }, 500);
       }
     },
     _setColor: function () {
@@ -273,12 +267,6 @@ function (
           }
         }
       });
-    },
-    onDoubleClick: function (evt) {
-      var permissions = this.options.repo.get('permissions') || {};
-      if (permissions.push) {
-        this.edit = true;
-        this._setEdit();
       }
     }
   });
