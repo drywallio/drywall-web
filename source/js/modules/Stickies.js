@@ -2,6 +2,7 @@ define([
   'jquery', 'underscore', 'backbone',
   'constants',
   'Draggable',
+  'tinycolor',
   'modules/GitHub',
   'modules/References'
 ],
@@ -9,6 +10,7 @@ function (
   $, _, Backbone,
   constants,
   Draggable,
+  tinycolor,
   GitHub,
   References
 ) {
@@ -18,7 +20,6 @@ function (
 
   var stickieWidth = constants.STICKIE.WIDTH;
   var stickieHeight = constants.STICKIE.HEIGHT;
-  var stickieColour = constants.STICKIE.COLOUR;
 
   var tileWidth = constants.TILE.WIDTH;
   var tileHeight = constants.TILE.HEIGHT;
@@ -116,13 +117,24 @@ function (
   };
 
   Views.Stickie = Backbone.View.extend({
-    template: 'wall/stickie',
+    template: 'stickies/stickie',
     initialize: function (options) {
       this.listenTo(this.model, 'change:title', this._setTitle);
       this.listenTo(this.model, 'change:labels', this._setColor);
     },
     serialize: function () {
-      return this.model.pick('x', 'y', 'title');
+      var json = _.extend(
+        this.model.toJSON(),
+        _.pick(this.model.collection.options, 'owner', 'repository')
+      );
+      if (json.labels) {
+        json.labels.forEach(function (label) {
+          label.fgColor = tinycolor.mostReadable(
+            label.color, constants.STICKIE.FOREGROUND_COLOR
+          ).toHexString();
+        });
+      }
+      return json;
     },
     edit: false,
     events: {
@@ -137,18 +149,54 @@ function (
             this._cancelEdit();
             break;
         }
+      },
+      'change .state > input': function (event) {
+        var that = this;
+        var toggle = this.$el.find('.state > input').is(':checked');
+        var state = toggle ? 'closed' : 'open';
+        new GitHub.Models.IssueEdit(null, this.model.attributes)
+          .save('state', state)
+          .done(function () {
+            that.model.set('state', state);
+            that.$el.find('.state > input').prop('checked', toggle);
+          });
+      },
+      'dblclick .title': function (event) {
+        var permissions = this.options.repo.get('permissions') || {};
+        if (permissions.push) {
+          this.edit = true;
+          this._setEdit();
+        }
+      },
+      'touchstart': function (event) {
+        var clonedEvent = _.clone(event.originalEvent);
+        this.touchDelay = setTimeout(function () {
+          this.$el.addClass('touch-hold');
+          this.draggable.enable();
+          this.draggable.startDrag(clonedEvent);
+        }.bind(this), 500);
+      },
+      'touchend': function (event) {
+        this.$el.removeClass('touch-hold');
+        clearTimeout(this.touchDelay);
+        this.draggable.disable();
       }
     },
     _setColor: function () {
       var labels = this.model.get('labels') || [];
       var first = _.find(labels, function (label) { return !!label.color; });
-      var color = first ? '#' + first.color : stickieColour;
-      this.$el.css('background-color', color);
+      var bgColor = first ? '#' + first.color :
+        constants.STICKIE.BACKGROUND_COLOR;
+      var fgColor = tinycolor.mostReadable(
+        bgColor, constants.STICKIE.FOREGROUND_COLOR
+      ).toHexString();
+      this.$el.find('.card').css({
+        'background-color': bgColor,
+        color: fgColor
+      });
     },
     _setTitle: function () {
-      if (!this.edit) {
-        this.$el.find('.title').text(this.model.get('title'));
-      }
+      this.$el.find('.title').text(this.model.get('title'));
     },
     _saveEdit: function () {
       var that = this;
@@ -158,11 +206,12 @@ function (
         textarea.attr('readonly', true);
         new GitHub.Models.IssueEdit(null, this.model.attributes)
           .save('title', title)
-          .then(function () {
+          .done(function () {
             that.model.set('title', title);
           })
           .always(function () {
-            this._cancelEdit();
+            that._cancelEdit();
+            textarea.attr('readonly', false);
           });
       } else {
         this._cancelEdit();
@@ -176,32 +225,27 @@ function (
     },
     _setEdit: function () {
       var title = this.$el.find('.title');
-      var tagName = this.edit ? 'textarea' : 'div';
-      if (title.prop('tagName').toLowerCase() !== tagName) {
-        var element = $(document.createElement(tagName))
-          .addClass('title')
-          .text(this.model.get('title'));
-        title.replaceWith(element);
-      }
+      var isEdit = this.edit === true;
+      var textarea = title.filter('textarea');
+      textarea.toggleClass('hidden', !isEdit);
+      title.filter('div').toggleClass('hidden', isEdit);
+      textarea.focus();
     },
     afterRender: function () {
       var that = this;
-      // /*
-      //   Glitch: Scrolling when focus on input that is translateX'd off-screen
-      //   Possibly related bug: Chromium issue 231600
-      // */
-      // this.$el.find('textarea').get().forEach(function (element) {
-      //   element.focus();
-      //   var end = element.value.length;
-      //   element.setSelectionRange(end, end);
-      // });
+
+      if (constants.WALL.ENABLE_REFERENCES) {
+        this.references = new References.Views.Anchor({
+          el: this.$el[0],
+          model: this.model,
+          collection: new References.Collections.References(null, {
+            stickie: this.model
+          })
+        }).render();
+      }
+
       this._setColor();
-      this.insertView('', new References.Views.References({
-        model: this.model,
-        collection: new References.Collections.References(null, {
-          stickie: this.model
-        })
-      })).render();
+
       this.$el.css({
         transform: 'translate3d(' +
           this.model.get('x') + 'px, ' +
@@ -209,43 +253,35 @@ function (
           '0px' +
         ')'
       });
+
       var permissions = this.options.repo.get('permissions') || {};
-      if (permissions.push) {
-        Draggable.create(this.$el, {
-          type: 'x,y',
-          maxDuration: 0.5,
-          edgeResistance: 0.75,
-          throwProps: true,
-          snap: {
-            x: snapX,
-            y: snapY
-          },
-          onDrag: function () {
-            var position = {
+      this.draggable = new Draggable(this.$el, {
+        type: 'x,y',
+        maxDuration: 0.5,
+        edgeResistance: 0.75,
+        throwProps: true,
+        snap: {
+          x: snapX,
+          y: snapY
+        },
+        onDrag: function () {
+          if (permissions.push) {
+            that.model.set({
               x: this.x,
               y: this.y
-            };
-            that.model.set(position);
-            if (that.edit) {
-              that._cancelEdit();
-            }
-          },
-          onClick: function (event) {
-            if (!that.edit) {
-              that.edit = true;
-              that._setEdit();
-            }
-          },
-          onPress: function (event) {
-            that.$el.children(':first').addClass('lifted');
-          },
-          onDragEnd: function () {
-            that.$el.children(':first').removeClass('lifted');
+            });
+          }
+        },
+        onDragEnd: function () {
+          if (permissions.push) {
             that.options.coordinate.save(
               that.model.pick('x', 'y')
             );
           }
-        });
+        }
+      });
+      if ('ontouchstart' in document.documentElement) {
+        this.draggable.disable();
       }
     }
   });

@@ -3,14 +3,16 @@ define([
   'constants',
   'modules/Stickies',
   'Draggable',
-  'TweenLite'
+  'TweenLite',
+  'hammerjs'
 ],
 function (
   $, _, Backbone, app,
   constants,
   Stickies,
   Draggable,
-  TweenLite
+  TweenLite,
+  Hammer
 ) {
   var Models = {};
   var Collections = {};
@@ -48,7 +50,7 @@ function (
     addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
-      this.insertView('.stickies', new Stickies.Views.Stickie({
+      this.insertView('> .zoom > .stickies', new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
@@ -57,7 +59,7 @@ function (
     dragStickies: function (options) {
       var that = this;
       return function () {
-        $(app.el).addClass('wall-draggable-moving');
+        // $(app.el).addClass('wall-draggable-moving');
         var scaleMultiplier = 1 / options.controls.get('scaleValue');
         var stickies = this.target.parentNode.querySelector('.stickies');
         var xDest = that.prevX + (this.x * scaleMultiplier);
@@ -70,15 +72,17 @@ function (
     },
     scaleGrid: function () {
       var scaleVal = this.options.controls.get('scaleValue');
-      var scaleMultiplier = 1 / scaleVal;
-      var shiftPercent = -((scaleMultiplier - 1) / 2 * 100) + '%';
-      TweenLite.to(this.$el.find('.grid'), 0, {
-        scale: scaleVal,
-        left: shiftPercent,
-        top: shiftPercent,
-        width: 100 * scaleMultiplier + '%',
-        height: 100 * scaleMultiplier + '%'
+      if (scaleVal > 0.25) {
+        var scaleMultiplier = 1 / scaleVal;
+        var shiftPercent = -((scaleMultiplier - 1) / 2 * 100) + '%';
+        TweenLite.to(this.$el.find('.grid'), 0, {
+          scale: scaleVal,
+          left: shiftPercent,
+          top: shiftPercent,
+          width: 100 * scaleMultiplier + '%',
+          height: 100 * scaleMultiplier + '%'
       });
+      }
     },
     prevX: 0,
     prevY: 0,
@@ -90,7 +94,7 @@ function (
         zIndexBoost: false,
         onDrag: this.dragStickies(this.options),
         onDragEnd: function () {
-          $(app.el).removeClass('wall-draggable-moving');
+          // $(app.el).removeClass('wall-draggable-moving');
           this.target.style.zIndex = 0;
           var scaleMultiplier = 1 / that.options.controls.get('scaleValue');
           that.prevX = that.prevX + (this.x * scaleMultiplier);
@@ -106,6 +110,13 @@ function (
     initialize: function (options) {
       options.lastScale = 1;
       this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
+
+      var mc = new Hammer.Manager(this.options.zoomTarget.parent().get(0));
+      mc.add(new Hammer.Pinch());
+      mc.on('pinchmove', this.onPinch.bind(this));
+    },
+    serialize: function () {
+      return constants.WALL;
     },
     events: {
       'input .scale': 'setScale'
@@ -119,6 +130,19 @@ function (
     },
     cleanup: function () {
       this.options.zoomInput.off('wheel');
+    },
+    onPinch: function(evt) {
+      var $scale = this.$el.find('.scale');
+      var minScaleDiff = 0.06;
+      $scale.data('mouseX', evt.center.x);
+      $scale.data('mouseY', evt.center.y);
+      if (evt.scale > (1 + minScaleDiff)) {
+        this.zoomInStep();
+      } else if (evt.scale < (1 - minScaleDiff)) {
+        this.zoomOutStep();
+      }
+      $scale.removeData('mouseX');
+      $scale.removeData('mouseY');
     },
     onWheelZoom: function (event) {
       var evt = event.originalEvent;
@@ -136,6 +160,9 @@ function (
       } else if (evt.deltaY > 0) {
         this.zoomOutStep();
       }
+
+      $scale.removeData('mouseX');
+      $scale.removeData('mouseY');
     },
     zoomInStep: _.throttle(function () {
       var direction = -1;
@@ -153,20 +180,17 @@ function (
       var max = parseFloat($scale.attr('max'), 10);
       var capped = Math.min(max, Math.max(min, value + step));
       $scale.val(capped);
-      $scale.data(
-        'scale',
-        1 / Math.pow(1 + constants.WALL.ZOOMFACTOR, capped - 1)
-      );
       $scale.trigger('change').trigger('input');
     },
     setScale: function (event) {
       var $scale = this.$el.find('.scale');
-      var curScale = $scale.data('scale');
-      var prevX = $scale.data('prevX');
-      var prevY = $scale.data('prevY');
-      var mouseX = $scale.data('mouseX');
-      var mouseY = $scale.data('mouseY');
-      var prevScale = $scale.data('prevScale');
+      var value = $scale.val();
+      var curScale = 1 / Math.pow(constants.WALL.ZOOM_FACTOR, value - 1);
+      var prevX = $scale.data('prevX') || 0;
+      var prevY = $scale.data('prevY') || 0;
+      var mouseX = $scale.data('mouseX') || $(document).width() / 2;
+      var mouseY = $scale.data('mouseY') || $(document).height() / 2;
+      var prevScale = $scale.data('prevScale') || 1;
 
       var mouseXinPrevScale = (mouseX - prevX) / prevScale;
       var mouseXinCurScale = mouseXinPrevScale * curScale + prevX;

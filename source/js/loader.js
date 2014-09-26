@@ -6,6 +6,7 @@ require.config({
     'backbone': '//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min',
     'handlebars.compiler': '//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min',
     'handlebars': '//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.runtime.min',
+    'hammerjs': '../bower_components/hammerjs/hammer.min',
     'jquery': '//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min',
     'backbone.layoutmanager': '//cdnjs.cloudflare.com/ajax/libs/backbone.layoutmanager/0.9.4/backbone.layoutmanager.min',
     'underscore': '//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min',
@@ -22,7 +23,8 @@ require.config({
     'queryString': '../bower_components/query-string/query-string',
     'Draggable': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/utils/Draggable.min',
     'TweenLite': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/TweenLite.min',
-    'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/plugins/CSSPlugin.min'
+    'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/plugins/CSSPlugin.min',
+    'tinycolor': '../bower_components/tinycolor/tinycolor'
   },
   shim: {
     'backbone': {

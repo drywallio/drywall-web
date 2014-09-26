@@ -2,7 +2,8 @@ define({
   STICKIE: {
     WIDTH: 288,
     HEIGHT: 288,
-    COLOUR: 'lemonchiffon'
+    BACKGROUND_COLOR: 'lemonchiffon',
+    FOREGROUND_COLOR: ['black', 'white']
   },
   TILE: {
     WIDTH: 56,
@@ -13,6 +14,11 @@ define({
     ESC: 27
   },
   WALL: {
-    ZOOMFACTOR: 0.5
+    ZOOM_FACTOR: 1.8,
+    ZOOM_STEPS: 5,
+    ENABLE_REFERENCES: false
+  },
+  XMLNS: {
+    SVG: 'http://www.w3.org/2000/svg'
   }
 });

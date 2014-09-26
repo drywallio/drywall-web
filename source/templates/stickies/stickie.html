@@ -1,0 +1,34 @@
+<li class="stickies stickie">
+  <section class="card">
+    <header>
+      <a href="{{html_url}}" class="number"><span class="hint">#{{number}}</span></a>
+      <label class="state">
+        {{#ifCond state '===' 'closed'}}
+        <input type="checkbox" checked />
+        {{else}}
+        <input type="checkbox" />
+        {{/ifCond}}
+        <span class="marker"></span>
+      </label>
+    </header>
+    <article>
+      <textarea class="title hidden">{{title}}</textarea>
+      <div class="title">{{title}}</div>
+    </article>
+    <ul class="labels">
+      {{#each labels}}
+      <li style="background-color: #{{color}}; color: {{fgColor}};">{{name}}</li>
+      {{/each}}
+    </ul>
+    <footer>
+      {{#if milestone}}
+      <span class="milestone">{{milestone.title}}</span>
+      {{else}}
+      <div></div>
+      {{/if}}
+      {{#if comments}}
+      <span class="comments">{{comments}}</span>
+      {{/if}}
+    </footer>
+  </section>
+</li>

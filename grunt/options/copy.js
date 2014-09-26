@@ -9,6 +9,7 @@ module.exports = {
         'robots.txt',
         'js/**',
         'styles/**',
+        'fonts/**',
         'img/**',
         'templates/**',
         'bower_components/**'
@@ -25,6 +26,7 @@ module.exports = {
         'robots.txt',
         'js/*.loader.js',
         'styles/*.app.css',
+        'fonts/**',
         'img/**/*.{jpg,jpeg,gif,png,ico,webp,svg}'
       ]
     }]
