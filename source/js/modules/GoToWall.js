@@ -163,8 +163,6 @@ function (
       var repo = parent.find('input.' + this.options.repoName).val();
       if (owner && repo) {
         app.router.navigate(owner + '/' + repo, {trigger: true});
-      } else {
-        // TODO: Red highlight unfilled input
       }
     }
   });
