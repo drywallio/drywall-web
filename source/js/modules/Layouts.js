@@ -127,16 +127,23 @@ function (
           user: app.session.get('nickname')
         }) : null;
 
+      var ownerName = 'owners';
+      var repoName = 'repositories';
+      var goView = new GoToWall.Views.Go({
+        ownerName: ownerName,
+        repoName: repoName
+      });
       this.insertViews({
         '> .main > article > .gotowall': [
           new GoToWall.Views.OwnerInput({
-            listname: 'owners',
+            listname: ownerName,
             userOrgs: userOrgs
           }),
           new GoToWall.Views.RepoInput({
-            listname: 'repositories'
+            listname: repoName,
+            goView: goView
           }),
-          new GoToWall.Views.Go()
+          goView
         ]
       });
 

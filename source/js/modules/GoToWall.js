@@ -76,7 +76,7 @@ function (
       };
     },
     _findRepos: function (event) {
-      console.log(event);
+      console.log('find repos!');
     },
     _throttledFindOrgs: _.throttle(function (event) {
       this._findOrgs(event);
@@ -113,6 +113,11 @@ function (
     template: 'gotowall/datalist',
     initialize: function (options) {
       this.options = options;
+    },
+    serialize: function () {
+      return {
+        listname: this.options.listname
+      };
     }
   });
 
@@ -124,16 +129,44 @@ function (
         listname: this.options.listname,
       });
     },
+    events: {
+      'keydown input': function (event) {
+        if (event.keyCode === constants.KEY.RETURN) {
+          this.options.goView.gotowall();
+        }
+      }
+    },
     afterRender: function () {
       this.insertViews({
         'label': this.options.datalistView
       });
       this.options.datalistView.render();
+    },
+    serialize: function () {
+      return {
+        listname: this.options.listname
+      };
     }
   });
 
   Views.Go = Backbone.View.extend({
-    template: 'gotowall/go'
+    template: 'gotowall/go',
+    initialize: function (options) {
+      this.options = options;
+    },
+    events: {
+      'click': 'gotowall'
+    },
+    gotowall: function (event) {
+      var parent = this.$el.parent();
+      var owner = parent.find('input.' + this.options.ownerName).val();
+      var repo = parent.find('input.' + this.options.repoName).val();
+      if (owner && repo) {
+        app.router.navigate(owner + '/' + repo, {trigger: true});
+      } else {
+        // TODO: Red highlight unfilled input
+      }
+    }
   });
 
   return {
