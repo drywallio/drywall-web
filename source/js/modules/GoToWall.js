@@ -132,6 +132,10 @@ function (
     }
   });
 
+  Views.Go = Backbone.View.extend({
+    template: 'gotowall/go'
+  });
+
   return {
     Models: Models,
     Collections: Collections,

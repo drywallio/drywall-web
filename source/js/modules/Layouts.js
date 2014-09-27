@@ -128,14 +128,15 @@ function (
         }) : null;
 
       this.insertViews({
-        '> .main > article .gotowall': [
+        '> .main > article > .gotowall': [
           new GoToWall.Views.OwnerInput({
             listname: 'owners',
             userOrgs: userOrgs
           }),
           new GoToWall.Views.RepoInput({
             listname: 'repositories'
-          })
+          }),
+          new GoToWall.Views.Go()
         ]
       });
 
