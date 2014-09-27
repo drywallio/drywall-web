@@ -14,15 +14,18 @@ function (
   var Views = {};
 
   Views.OwnerList = Backbone.View.extend({
-    template: 'layouts/datalist',
+    template: 'gotowall/datalist',
     initialize: function (options) {
       this.options = options;
-      this.listenTo(options.userOrgs, 'sync', this._showUserOrgs);
+      if (options.userOrgs) {
+        this.listenTo(options.userOrgs, 'sync', this._showUserOrgs);
+      }
     },
     serialize: function () {
       return {
         listname: this.options.listname,
-        userOrgs: this.options.userOrgs.toJSON()
+        userOrgs: this.options.userOrgs ?
+          this.options.userOrgs.toJSON() : null
       };
     },
     update: function (models) {
@@ -45,7 +48,7 @@ function (
   });
 
   Views.OwnerInput = Backbone.View.extend({
-    template: 'layouts/input',
+    template: 'gotowall/input',
     initialize: function (options) {
       this.options = options;
       this.options.datalistView = new Views.OwnerList({
@@ -107,14 +110,14 @@ function (
   });
 
   Views.RepoList = Backbone.View.extend({
-    template: 'layouts/datalist',
+    template: 'gotowall/datalist',
     initialize: function (options) {
       this.options = options;
     }
   });
 
   Views.RepoInput = Backbone.View.extend({
-    template: 'layouts/input',
+    template: 'gotowall/input',
     initialize: function (options) {
       this.options = options;
       this.options.datalistView = new Views.RepoList({

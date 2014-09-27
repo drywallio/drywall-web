@@ -7,7 +7,7 @@ define([
   'modules/Navigation',
   'modules/Wall',
   'modules/Stickies',
-  'modules/Datalist'
+  'modules/GoToWall'
 ],
 function (
   $, _, Backbone, app,
@@ -18,7 +18,7 @@ function (
   Navigation,
   Wall,
   Stickies,
-  Datalist
+  GoToWall
 ) {
   var Models = {};
   var Collections = {};
@@ -125,15 +125,15 @@ function (
       var userOrgs = app.session.has('id_token') ?
         new GitHub.Collections.UserOrganisations({
           user: app.session.get('nickname')
-        }) : {};
+        }) : null;
 
       this.insertViews({
-        '> .main > article .wallsearch': [
-          new Datalist.Views.OwnerInput({
+        '> .main > article .gotowall': [
+          new GoToWall.Views.OwnerInput({
             listname: 'owners',
             userOrgs: userOrgs
           }),
-          new Datalist.Views.RepoInput({
+          new GoToWall.Views.RepoInput({
             listname: 'repositories'
           })
         ]
