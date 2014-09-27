@@ -1,20 +1,24 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
+  'constants',
   'modules/Billing',
   'modules/Coordinates',
   'modules/GitHub',
   'modules/Navigation',
   'modules/Wall',
-  'modules/Stickies'
+  'modules/Stickies',
+  'modules/Datalist'
 ],
 function (
   $, _, Backbone, app,
+  constants,
   Billing,
   Coordinates,
   GitHub,
   Navigation,
   Wall,
-  Stickies
+  Stickies,
+  Datalist
 ) {
   var Models = {};
   var Collections = {};
@@ -109,11 +113,35 @@ function (
 
   Views.Landing = Views.Content.extend({
     template: 'layouts/landing',
+    serialize: function () {
+      return app.session.toJSON();
+    },
     beforeRender: function () {
       Views.Content.prototype.beforeRender.apply(this, arguments);
       this.setViews({
         '> .main > article .sign-in': new Navigation.Views.SignIn()
       });
+
+      var userOrgs = app.session.has('id_token') ?
+        new GitHub.Collections.UserOrganisations({
+          user: app.session.get('nickname')
+        }) : {};
+
+      this.insertViews({
+        '> .main > article .wallsearch': [
+          new Datalist.Views.OwnerInput({
+            listname: 'owners',
+            userOrgs: userOrgs
+          }),
+          new Datalist.Views.RepoInput({
+            listname: 'repositories'
+          })
+        ]
+      });
+
+      if (userOrgs) {
+        userOrgs.fetch();
+      }
     }
   });
 

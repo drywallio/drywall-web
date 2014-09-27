@@ -1,0 +1,10 @@
+<datalist id="{{listname}}">
+  {{#if userOrgs}}
+  <optgroup label="My Organizations" class="first">
+    {{#each userOrgs}}
+    <option value="{{login}}">{{login}}</option>
+    {{/each}}
+  </optgroup>
+  {{/if}}
+  <optgroup label="Search Results" class="results"></optgroup>
+</datalist>
