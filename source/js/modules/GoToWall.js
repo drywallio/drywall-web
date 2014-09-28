@@ -56,6 +56,8 @@ function (
     _getUserOrganizations: function () {
       if (app.session.has('id_token')) {
         this.options.UserOrganizations.fetch();
+      } else {
+        this.options.UserOrganizations.reset();
       }
     },
     _getOwner: function () {
