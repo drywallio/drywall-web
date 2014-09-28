@@ -117,12 +117,45 @@ function (
     serialize: function () {
       return app.session.toJSON();
     },
+    initialize: function (options) {
+      Views.Base.prototype.initialize.apply(this, arguments);
+      var path = {
+        owner: constants.DEMO_WALL.OWNER,
+        repository: constants.DEMO_WALL.REPOSITORY
+      };
+      var coordinates = new Coordinates.Collections.Coordinates(null, path);
+      var issues = new GitHub.Collections.Issues(null, path);
+      Promise.all(
+        [coordinates, issues]
+          .map(function (collection) {
+            return collection.fetch();
+          })
+      ).then(function (data) {
+        var stickies = new Stickies.Collections.Stickies(null, {
+          coordinates: coordinates,
+          issues: issues,
+          owner: path.owner,
+          repository: path.repository
+        });
+        stickies.each(function (stickie) {
+          this._addStickie(stickie);
+        }, this);
+      }.bind(this));
+    },
     beforeRender: function () {
       Views.Content.prototype.beforeRender.apply(this, arguments);
       this.setViews({
         '> .main > article .sign-in': new Navigation.Views.SignIn(),
         '> .main > article > .gotowall': new GoToWall.Views.Navigator()
       });
+    },
+    _addStickie: function (stickie) {
+      this.insertView('.zoom > .stickies', new Stickies.Views.Stickie({
+        model: stickie,
+        repo: new GitHub.Models.Repo({
+          permissions: {pull: true}
+        })
+      })).render();
     }
   });
 
