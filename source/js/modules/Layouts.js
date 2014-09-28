@@ -112,6 +112,7 @@ function (
   });
 
   Views.Landing = Views.Content.extend({
+    title: 'Project Management Tool for GitHub Issues',
     template: 'layouts/landing',
     serialize: function () {
       return app.session.toJSON();
@@ -119,37 +120,9 @@ function (
     beforeRender: function () {
       Views.Content.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '> .main > article .sign-in': new Navigation.Views.SignIn()
+        '> .main > article .sign-in': new Navigation.Views.SignIn(),
+        '> .main > article > .gotowall': new GoToWall.Views.Navigator()
       });
-
-      var userOrgs = app.session.has('id_token') ?
-        new GitHub.Collections.UserOrganisations({
-          user: app.session.get('nickname')
-        }) : null;
-
-      var ownerName = 'owners';
-      var repoName = 'repositories';
-      var goView = new GoToWall.Views.Go({
-        ownerName: ownerName,
-        repoName: repoName
-      });
-      this.insertViews({
-        '> .main > article > .gotowall': [
-          new GoToWall.Views.OwnerInput({
-            listname: ownerName,
-            userOrgs: userOrgs
-          }),
-          new GoToWall.Views.RepoInput({
-            listname: repoName,
-            goView: goView
-          }),
-          goView
-        ]
-      });
-
-      if (userOrgs) {
-        userOrgs.fetch();
-      }
     }
   });
 

@@ -1,0 +1,61 @@
+.gotowall.navigator
+  font-size 24px
+  font-family 'Roboto Slab', serif
+  font-weight 400
+  > *
+    display inline-block
+    height 50px
+    vertical-align top
+    line-height 50px
+  > .host
+    //
+  > .segment
+    > .divider
+      //
+    > .owner,
+    > .repository
+      > input
+        font-size 24px
+        font-family 'Roboto Slab', serif
+        font-weight 400
+        padding 5px 10px
+        background-color white
+        border 1px solid #BBBBBB
+        border-radius 3px
+        max-width 230px
+        &:focus
+          border-color #9263AC
+          border-bottom-width 3px
+      > datalist
+        //
+  > .control
+    > button
+      vertical-align top
+      font-size 18px
+      font-family 'Roboto Slab', serif
+      font-weight 400
+      color white
+      background-color #74448E
+      border-color #532C68
+      border-style solid
+      border-width 0 0 3px 0
+      border-radius 5px
+      padding 10px 40px 10px 20px
+
+@media (max-width: 960px)
+  .gotowall.navigator
+    > .host
+      display none
+    > .segment
+      display block
+      > .divider
+        display none
+      > .owner,
+      > .repository
+        > input
+          box-sizing border-box
+          text-align left
+          width 100%
+          max-width 480px
+    > .control
+      margin-top 10px

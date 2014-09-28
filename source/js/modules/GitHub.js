@@ -85,22 +85,25 @@ function (
     }
   });
 
-  Collections.OrganisationRepositories = ghCollection.extend({
+  Collections.OrganizationRepositories = ghCollection.extend({
     url: function () {
-      return ghApi('orgs/:org/repos', this.options);
+      return ghApi('orgs/:org/repos', _.defaults(this.options, {
+        type: 'all'
+      }));
     }
   });
 
   Collections.UserRepositories = ghCollection.extend({
     url: function () {
-      return ghApi('user/:user/repos', this.options);
+      return ghApi('users/:user/repos', _.defaults(this.options, {
+        type: 'owner'
+      }));
     }
   });
 
-  Collections.UserOrganisations = ghCollection.extend({
-    initialize: function (options) {
-      this.options = options || {};
-      this.comparator = 'login';
+  Collections.UserOrganizations = ghCollection.extend({
+    comparator: function (model) {
+      return model.get('login').toLowerCase();
     },
     url: function () {
       return ghApi('user/orgs' , this.options);
@@ -117,11 +120,12 @@ function (
     initialize: function (models, options) {
       this.options = options || {};
       this.options.per_page = 7;
-      this.comparator = 'login';
     },
-    set: function (response, options) {
-      return Backbone.Collection.prototype.set.call(
-        this, response.items, options);
+    comparator: function (model) {
+      return model.get('login').toLowerCase();
+    },
+    parse: function (response) {
+      return response.items;
     },
     url: function () {
       return ghApi(

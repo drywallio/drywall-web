@@ -1,0 +1,20 @@
+<form class="gotowall navigator">
+  <span class="host">{{host}}</span>
+  <span class="segment">
+    <span class="divider">/</span>
+    <label class="owner">
+      <input list="owner" placeholder="GitHub username" />
+      <datalist id="owner"></datalist>
+    </label>
+  </span>
+  <span class="segment">
+    <span class="divider">/</span>
+    <label class="repository">
+      <input list="repository" placeholder="GitHub repository" />
+      <datalist id="repository"></datalist>
+    </label>
+  </span>
+  <span class="control">
+    <button type="submit">Show My Wall</button>
+  </span>
+</form>

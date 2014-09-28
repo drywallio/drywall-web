@@ -13,157 +13,140 @@ function (
   var Collections = {};
   var Views = {};
 
-  Views.OwnerList = Backbone.View.extend({
-    template: 'gotowall/datalist',
+  Views.Navigator = Backbone.View.extend({
+    template: 'gotowall/navigator',
     initialize: function (options) {
-      this.options = options;
-      if (options.userOrgs) {
-        this.listenTo(options.userOrgs, 'sync', this._showUserOrgs);
-      }
-    },
-    serialize: function () {
-      return {
-        listname: this.options.listname,
-        userOrgs: this.options.userOrgs ?
-          this.options.userOrgs.toJSON() : null
-      };
-    },
-    update: function (models) {
-      var $results = this.$el.find('.results');
+      this.options = options || {};
 
-      $results.empty();
-      models.each(function (model) {
-        var option = document.createElement('option');
-        option.value = model.get('login');
-        $results.append(option);
-      });
-    },
-    clear: function () {
-      this.$el.find('.results').empty();
-    },
-    _showUserOrgs: function () {
-      this.options.userOrgs.addUser();
-      this.render();
-    }
-  });
-
-  Views.OwnerInput = Backbone.View.extend({
-    template: 'gotowall/input',
-    initialize: function (options) {
-      this.options = options;
-      this.options.datalistView = new Views.OwnerList({
-        listname: this.options.listname,
-        userOrgs: this.options.userOrgs
-      });
-    },
-    afterRender: function () {
-      this.insertViews({
-        'label': this.options.datalistView
-      });
-      this.options.datalistView.render();
-    },
-    events: {
-      'input input': '_throttledFindOrgs',
-      'keyup input.owners': function (event) {
-        if (event.keyCode === constants.KEY.RETURN) {
-          this._findRepos($(event.target).val());
-        }
-      }
-    },
-    serialize: function () {
-      return {
-        listname: this.options.listname
-      };
-    },
-    _findRepos: function (event) {
-      console.log('find repos!');
-    },
-    _throttledFindOrgs: _.throttle(function (event) {
-      this._findOrgs(event);
-    }, 400, {leading: true, trailing: true}),
-    _findOrgs: function (event) {
-      var that = this;
-      var query = $(event.target).val().trim();
-      var list = that.options.userOrgs.toJSON();
-      if (that.options.datalist) {
-        list = list.concat(that.options.datalist.toJSON());
-      }
-      var datalistMatch = _.findWhere(list, {login: query});
-
-      if (datalistMatch) { //user manually selected from datalist
-        that.options.datalist = null;
-        that._findRepos(query);
-      } else if (query) { // searching
-        var owners = new GitHub.Collections.SearchUsers(null, {
-          query: query
-        }).fetch({
-          success: function (data) {
-            that.options.datalist = data;
-            that.options.datalistView.update(data);
-          }
+      this.options.OrganizationRepositories =
+        new GitHub.Collections.OrganizationRepositories();
+      this.options.UserRepositories =
+        new GitHub.Collections.UserRepositories();
+      this.options.UserOrganizations =
+        new GitHub.Collections.UserOrganizations(null, {
+          user: app.session.get('nickname')
         });
-      } else { // empty
-        that.options.datalist = null;
-        that.options.datalistView.clear();
-      }
-    }
-  });
+      this.options.SearchUsers =
+        new GitHub.Collections.SearchUsers();
 
-  Views.RepoList = Backbone.View.extend({
-    template: 'gotowall/datalist',
-    initialize: function (options) {
-      this.options = options;
+      this.listenTo(this.options.OrganizationRepositories,
+        'sync reset', this._updateRepositories);
+      this.listenTo(this.options.UserRepositories,
+        'sync reset', this._updateRepositories);
+      this.listenTo(this.options.UserOrganizations,
+        'sync reset', this._updateOwners);
+      this.listenTo(this.options.SearchUsers,
+        'sync reset', this._updateOwners);
+
+      this.listenTo(app.session, 'change:id_token',
+        this._getUserOrganizations);
+
+      this._getUserOrganizations();
     },
     serialize: function () {
       return {
-        listname: this.options.listname
+        host: location.host
       };
-    }
-  });
-
-  Views.RepoInput = Backbone.View.extend({
-    template: 'gotowall/input',
-    initialize: function (options) {
-      this.options = options;
-      this.options.datalistView = new Views.RepoList({
-        listname: this.options.listname,
-      });
     },
     events: {
-      'keydown input': function (event) {
-        if (event.keyCode === constants.KEY.RETURN) {
-          this.options.goView.gotowall();
-        }
+      'submit': '_showMyWall',
+      'input .owner': '_findOwners',
+      'focus .repository': '_getRepositories'
+    },
+    _getUserOrganizations: function () {
+      if (app.session.has('id_token')) {
+        this.options.UserOrganizations.fetch();
       }
     },
-    afterRender: function () {
-      this.insertViews({
-        'label': this.options.datalistView
-      });
-      this.options.datalistView.render();
+    _getOwner: function () {
+      var owner = this.$el.find('.owner input').val().trim();
+      return owner;
     },
-    serialize: function () {
-      return {
-        listname: this.options.listname
-      };
-    }
-  });
-
-  Views.Go = Backbone.View.extend({
-    template: 'gotowall/go',
-    initialize: function (options) {
-      this.options = options;
+    _getRepository: function () {
+      var repo = this.$el.find('.repository input').val().trim();
+      return repo;
     },
-    events: {
-      'click': 'gotowall'
-    },
-    gotowall: function (event) {
-      var parent = this.$el.parent();
-      var owner = parent.find('input.' + this.options.ownerName).val();
-      var repo = parent.find('input.' + this.options.repoName).val();
+    _showMyWall: function (event) {
+      event.preventDefault();
+      var owner = this._getOwner();
+      var repo = this._getRepository();
       if (owner && repo) {
         app.router.navigate(owner + '/' + repo, {trigger: true});
       }
+    },
+    _findOwners: _.throttle(function (event) {
+      var query = $(event.target).val().trim();
+      this.options.SearchUsers.options.query = query;
+      if (query) {
+        this.options.SearchUsers.fetch();
+      } else {
+        this.options.SearchUsers.reset();
+      }
+    }, 200, {leading: true, trailing: true}),
+    _updateOwners: function () {
+      var datalist = this.$el.find('.owner datalist').empty();
+      this._addDatalistGroup(
+        datalist,
+        this.options.UserOrganizations.models,
+        'My Organizations'
+      );
+      this._addDatalistGroup(
+        datalist,
+        this.options.SearchUsers.reject(function (model) {
+          return this.options.UserOrganizations.findWhere({
+            login: model.get('login')
+          });
+        }, this),
+        'Search Results'
+      );
+    },
+    _getRepositories: function (event) {
+      var owner = this._getOwner();
+      var isOwner = {login: owner};
+      var inUserOrganizations =
+        this.options.UserOrganizations.findWhere(isOwner);
+      var inSearchUsers = this.options.SearchUsers.findWhere(isOwner);
+      var isOrganization = inUserOrganizations ||
+        (inSearchUsers && inSearchUsers.get('type') === 'Organization');
+      var collection;
+      if (isOrganization) {
+        collection = this.options.OrganizationRepositories;
+        collection.options.org = owner;
+      } else {
+        collection = this.options.UserRepositories;
+        collection.options.user = owner;
+      }
+      if (owner) {
+        collection.fetch();
+      } else {
+        collection.reset();
+      }
+    },
+    _updateRepositories: function (collection) {
+      var datalist = this.$el.find('.repository datalist').empty();
+      this._addDatalistGroup(datalist, collection.models);
+    },
+    _addDatalistGroup: function (datalist, collection, title) {
+      if (collection.length) {
+        var optgroup;
+        if (title) {
+          optgroup = document.createElement('optgroup');
+          optgroup.setAttribute('label', title);
+        }
+        var parent = title ? optgroup : datalist.get(0);
+        _.forEach(collection, this._addDatalistOption, parent);
+        if (title) {
+          datalist.append(optgroup);
+        }
+      }
+    },
+    _addDatalistOption: function (model) {
+      var option = document.createElement('option');
+      option.value = model.has('login') ? model.get('login') :
+        model.has('name') ? model.get('name') :
+        '';
+      option.textContent = model.get('login');
+      this.appendChild(option);
     }
   });
 
