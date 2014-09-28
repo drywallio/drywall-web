@@ -87,16 +87,12 @@ function (
     }
   })
   .then(function () {
-    Backbone.history.start({
-      pushState: true,
-      root: app.root
+    _.defer(function () {
+      Backbone.history.start({
+        pushState: true,
+        root: app.root
+      });
     });
-  })
-  .catch(function (err) {
-    console.error(err);
-    app.useLayout(Layouts.Views.Error, {
-      error: err
-    }).render();
   });
 
   googletagmanager(app.env.googletagmanager.id);
