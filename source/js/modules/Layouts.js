@@ -1,20 +1,24 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
+  'constants',
   'modules/Billing',
   'modules/Coordinates',
   'modules/GitHub',
   'modules/Navigation',
   'modules/Wall',
-  'modules/Stickies'
+  'modules/Stickies',
+  'modules/GoToWall'
 ],
 function (
   $, _, Backbone, app,
+  constants,
   Billing,
   Coordinates,
   GitHub,
   Navigation,
   Wall,
-  Stickies
+  Stickies,
+  GoToWall
 ) {
   var Models = {};
   var Collections = {};
@@ -109,11 +113,43 @@ function (
 
   Views.Landing = Views.Content.extend({
     template: 'layouts/landing',
+    serialize: function () {
+      return app.session.toJSON();
+    },
     beforeRender: function () {
       Views.Content.prototype.beforeRender.apply(this, arguments);
       this.setViews({
         '> .main > article .sign-in': new Navigation.Views.SignIn()
       });
+
+      var userOrgs = app.session.has('id_token') ?
+        new GitHub.Collections.UserOrganisations({
+          user: app.session.get('nickname')
+        }) : null;
+
+      var ownerName = 'owners';
+      var repoName = 'repositories';
+      var goView = new GoToWall.Views.Go({
+        ownerName: ownerName,
+        repoName: repoName
+      });
+      this.insertViews({
+        '> .main > article > .gotowall': [
+          new GoToWall.Views.OwnerInput({
+            listname: ownerName,
+            userOrgs: userOrgs
+          }),
+          new GoToWall.Views.RepoInput({
+            listname: repoName,
+            goView: goView
+          }),
+          goView
+        ]
+      });
+
+      if (userOrgs) {
+        userOrgs.fetch();
+      }
     }
   });
 

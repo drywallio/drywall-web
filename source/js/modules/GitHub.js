@@ -25,7 +25,7 @@ function (
     if (method === 'read') {
       // Adds query param in GET request
       extendedOptions.data = _.defaults({
-        per_page: 100,
+        per_page: this.options.per_page || 100,
       }, extendedOptions.data || {});
     }
     return Backbone.sync(method, model, extendedOptions);
@@ -81,6 +81,52 @@ function (
         'repos/:owner/:repository/issues',
         this.options,
         {state: 'all'}
+      );
+    }
+  });
+
+  Collections.OrganisationRepositories = ghCollection.extend({
+    url: function () {
+      return ghApi('orgs/:org/repos', this.options);
+    }
+  });
+
+  Collections.UserRepositories = ghCollection.extend({
+    url: function () {
+      return ghApi('user/:user/repos', this.options);
+    }
+  });
+
+  Collections.UserOrganisations = ghCollection.extend({
+    initialize: function (options) {
+      this.options = options || {};
+      this.comparator = 'login';
+    },
+    url: function () {
+      return ghApi('user/orgs' , this.options);
+    },
+    addUser: function () {
+      return this.add(new this.model({
+        isUser: true,
+        login: this.options.user
+      }));
+    }
+  });
+
+  Collections.SearchUsers = ghCollection.extend({
+    initialize: function (models, options) {
+      this.options = options || {};
+      this.options.per_page = 7;
+      this.comparator = 'login';
+    },
+    set: function (response, options) {
+      return Backbone.Collection.prototype.set.call(
+        this, response.items, options);
+    },
+    url: function () {
+      return ghApi(
+        'search/users?q=:query+in:login+repos:>1',
+        this.options
       );
     }
   });
