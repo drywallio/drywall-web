@@ -24,7 +24,8 @@ require.config({
     'Draggable': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/utils/Draggable.min',
     'TweenLite': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/TweenLite.min',
     'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/plugins/CSSPlugin.min',
-    'tinycolor': '../bower_components/tinycolor/tinycolor'
+    'tinycolor': '../bower_components/tinycolor/tinycolor',
+    'konami': '../bower_components/konami-js/konami'
   },
   shim: {
     'backbone': {
@@ -53,6 +54,9 @@ require.config({
     },
     'underscore': {
       exports: '_'
+    },
+    'konami': {
+      exports: 'Konami'
     }
   }
 });

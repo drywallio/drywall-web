@@ -1,5 +1,5 @@
 define([
-  'jquery', 'underscore', 'backbone',
+  'jquery', 'underscore', 'backbone', 'app',
   'constants',
   'Draggable',
   'tinycolor',
@@ -7,7 +7,7 @@ define([
   'modules/References'
 ],
 function (
-  $, _, Backbone,
+  $, _, Backbone, app,
   constants,
   Draggable,
   tinycolor,
@@ -121,6 +121,7 @@ function (
     initialize: function (options) {
       this.listenTo(this.model, 'change:title', this._setTitle);
       this.listenTo(this.model, 'change:labels', this._setColor);
+      this.listenTo(app, 'konami', this._konami);
     },
     serialize: function () {
       var json = _.extend(
@@ -230,6 +231,12 @@ function (
       textarea.toggleClass('hidden', !isEdit);
       title.filter('div').toggleClass('hidden', isEdit);
       textarea.focus();
+    },
+    _konami: function () {
+      this.$el.removeClass('konami');
+      _.delay(function () {
+        this.$el.addClass('konami');
+      }.bind(this), _.random(0, 10000));
     },
     afterRender: function () {
       var that = this;

@@ -7,6 +7,7 @@ define(
   'templates.built',
   'session',
   'googletagmanager',
+  'konami',
   'fastclick',
   'backbone-loading',
   'handlebars',
@@ -21,6 +22,7 @@ function (
   templatesBuilt,
   Session,
   googletagmanager,
+  Konami,
   FastClick,
   bbLoading,
   Handlebars,
@@ -122,5 +124,9 @@ function (
 
   $(document).on('click', 'a[href="#"]', function (event) {
     event.preventDefault();
+  });
+
+  var konami = new Konami(function () {
+    app.trigger('konami');
   });
 });
