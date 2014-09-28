@@ -85,9 +85,13 @@ function (
     }, 200, {leading: true, trailing: true}),
     _updateOwners: function () {
       var datalist = this.$el.find('.owner datalist').empty();
+      var user = app.session.has('id_token') ?
+        [new Backbone.Model({
+          login: app.session.get('nickname')
+        })] : [];
       this._addDatalistGroup(
         datalist,
-        this.options.UserOrganizations.models,
+        _.union(user, this.options.UserOrganizations.models),
         'My Organizations'
       );
       this._addDatalistGroup(
