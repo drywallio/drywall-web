@@ -148,10 +148,11 @@ function (
     },
     _addDatalistOption: function (model) {
       var option = document.createElement('option');
-      option.value = model.has('login') ? model.get('login') :
+      var value = model.has('login') ? model.get('login') :
         model.has('name') ? model.get('name') :
         '';
-      option.textContent = model.get('login');
+      option.value = value;
+      option.textContent = value;
       this.appendChild(option);
     }
   });
