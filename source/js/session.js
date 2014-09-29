@@ -45,25 +45,20 @@ function (
         var session = app.session;
         var refresh_token = session.get('refresh_token');
         if (xhr.status === 419 && refresh_token) {
-          session.auth0.refreshToken(refresh_token,
-            function (err, delegationResult) {
-              if (err) {
-                error(err);
-                promise.reject(err);
-                return;
-              }
-              // session.getAuthStatus(delegationResult)
-              //   .then(function () {
-              //     request();
-              //   }, function (err) {
-              //     error(err);
-              //     promise.reject(err);
-              //   });
-              saveProfile.call(session, err, undefined,
-                delegationResult.id_token);
-              request();
+          session.auth0.getDelegationToken({
+            scope: app.env.auth0.signIn.scope,
+            refresh_token: refresh_token,
+            api: 'auth0'
+          }, function (err, delegationResult) {
+            if (err) {
+              error(err);
+              promise.reject(err);
+              return;
             }
-          );
+            saveProfile.call(session, err, undefined,
+              delegationResult.id_token);
+            request();
+          });
           return;
         }
         if (xhr.status === 401) {
