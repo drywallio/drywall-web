@@ -1,6 +1,8 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
   'constants',
+  'modules/Coordinates',
+  'modules/GitHub',
   'modules/Stickies',
   'Draggable',
   'TweenLite',
@@ -9,6 +11,8 @@ define([
 function (
   $, _, Backbone, app,
   constants,
+  Coordinates,
+  GitHub,
   Stickies,
   Draggable,
   TweenLite,
@@ -21,6 +25,48 @@ function (
   Models.Controls = Backbone.Model.extend({
     defaults: {
       scaleValue: 1,
+    }
+  });
+
+  Models.Preload = Backbone.Model.extend({
+    initialize: function (attributes, options) {
+      this.options = options || {};
+    },
+    fetch: function (options) {
+      options = options || {};
+      var success = options.success || $.noop;
+      var error = options.error || $.noop;
+
+      var promise = $.Deferred();
+
+      var path = _.pick(this.options, 'owner', 'repository');
+      var coordinates = new Coordinates.Collections.Coordinates(null, path);
+      var issues = new GitHub.Collections.Issues(null, path);
+      var repo = new GitHub.Models.Repo(null, path);
+
+      Promise.all(
+        [coordinates, issues, repo]
+          .map(function (collection) {
+            return collection.fetch();
+          })
+      )
+      .then(function (data) {
+        console.log('fetch preload', coordinates.toJSON(), this);
+        this.set({
+          coordinates: coordinates,
+          issues: issues,
+          repo: repo,
+          owner: this.options.owner,
+          repository: this.options.repository
+        });
+        success(this, data, options);
+        promise.resolve(this);
+      }.bind(this))
+      .catch(function (err) {
+        error(this, err, options);
+        promise.reject(err);
+      });
+      return promise;
     }
   });
 
