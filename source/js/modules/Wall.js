@@ -51,7 +51,6 @@ function (
           })
       )
       .then(function (data) {
-        console.log('fetch preload', coordinates.toJSON(), this);
         this.set({
           coordinates: coordinates,
           issues: issues,
