@@ -4,7 +4,7 @@ define([
   'modules/Billing',
   'modules/GitHub',
   'modules/Navigation',
-  'modules/Wall',
+  'modules/Walls',
   'modules/Stickies',
   'modules/GoToWall'
 ],
@@ -14,7 +14,7 @@ function (
   Billing,
   GitHub,
   Navigation,
-  Wall,
+  Walls,
   Stickies,
   GoToWall
 ) {
@@ -29,6 +29,15 @@ function (
   });
 
   Views.Nav = Views.Base.extend({
+    initialize: function () {
+      Views.Base.prototype.initialize.apply(this, arguments);
+      this.listenTo(app, 'walls.views.wall.pan.start', function (event) {
+        this.$el.find('> header').addClass('wall-panning');
+      });
+      this.listenTo(app, 'walls.views.wall.pan.end', function (event) {
+        this.$el.find('> header').removeClass('wall-panning');
+      });
+    },
     beforeRender: function (options) {
       this.insertViews({
         '> header': [
@@ -53,7 +62,7 @@ function (
     template: 'layouts/preload',
     initialize: function (options) {
       Views.Base.prototype.initialize.apply(this, arguments);
-      new Wall.Models.Preload(null,
+      new Walls.Models.Preload(null,
         _.pick(this.options, 'owner', 'repository'))
       .fetch({
         success: function (preload) {
@@ -83,7 +92,7 @@ function (
       });
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '> .main > article': new Wall.Views.Draggable({
+        '> .main > article': new Walls.Views.Wall({
           coordinates: this.options.coordinates,
           issues: this.options.issues,
           repo: this.options.repo,
@@ -104,7 +113,7 @@ function (
     },
     initialize: function (options) {
       Views.Base.prototype.initialize.apply(this, arguments);
-      new Wall.Models.Preload(null, {
+      new Walls.Models.Preload(null, {
         owner: constants.DEMO_WALL.OWNER,
         repository: constants.DEMO_WALL.REPOSITORY
       })

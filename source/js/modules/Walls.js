@@ -69,8 +69,8 @@ function (
     }
   });
 
-  Views.Draggable = Backbone.View.extend({
-    template: 'wall/draggable',
+  Views.Wall = Backbone.View.extend({
+    template: 'walls/wall',
     initialize: function (options) {
       this.options.scaleVal = 1;
       this.listenTo(options.stickies, 'add', this.addStickie);
@@ -104,7 +104,7 @@ function (
     dragStickies: function (options) {
       var that = this;
       return function () {
-        // $(app.el).addClass('wall-draggable-moving');
+        app.trigger('walls.views.wall.pan.start');
         var scaleMultiplier = 1 / options.controls.get('scaleValue');
         var stickies = this.target.parentNode.querySelector('.stickies');
         var xDest = that.prevX + (this.x * scaleMultiplier);
@@ -126,7 +126,7 @@ function (
           top: shiftPercent,
           width: 100 * scaleMultiplier + '%',
           height: 100 * scaleMultiplier + '%'
-      });
+        });
       }
     },
     prevX: 0,
@@ -139,7 +139,7 @@ function (
         zIndexBoost: false,
         onDrag: this.dragStickies(this.options),
         onDragEnd: function () {
-          // $(app.el).removeClass('wall-draggable-moving');
+          app.trigger('walls.views.wall.pan.end');
           this.target.style.zIndex = 0;
           var scaleMultiplier = 1 / that.options.controls.get('scaleValue');
           that.prevX = that.prevX + (this.x * scaleMultiplier);
@@ -151,7 +151,7 @@ function (
   });
 
   Views.Controls = Backbone.View.extend({
-    template: 'wall/controls',
+    template: 'walls/controls',
     initialize: function (options) {
       options.lastScale = 1;
       this.options.zoomInput.on('wheel', this.onWheelZoom.bind(this));
