@@ -144,6 +144,11 @@ function (
     }
   });
 
+  Views.About = Views.Content.extend({
+    title: 'About',
+    template: 'layouts/about'
+  });
+
   Views.Pricing = Views.Content.extend({
     title: 'Plans & Pricing',
     template: 'layouts/pricing'
