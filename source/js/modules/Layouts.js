@@ -62,6 +62,15 @@ function (
     template: 'layouts/preload',
     initialize: function (options) {
       Views.Base.prototype.initialize.apply(this, arguments);
+
+      var wall = this.options.owner + '/' + this.options.repository;
+      var lastVisitedWalls = new GoToWall.Collections.LastVisitedWalls();
+      lastVisitedWalls.create({
+        wallId: wall.toLowerCase(),
+        wall: wall,
+        timestamp: new Date().getTime()
+      });
+
       new Walls.Models.Preload(null,
         _.pick(this.options, 'owner', 'repository'))
       .fetch({
