@@ -1,19 +1,44 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
+  'backbone.localstorage',
   'constants',
-  'modules/GitHub',
-  'modules/LocalStorage'
+  'modules/GitHub'
 ],
 function (
   $, _, Backbone, app,
+  BackboneLocalStorage,
   constants,
-  GitHub,
-  LocalStorage
+  GitHub
 ) {
 
   var Models = {};
   var Collections = {};
   var Views = {};
+
+  Models.LastVisitedWall = Backbone.Model.extend({
+    idAttribute: 'wallId'
+  });
+
+  Collections.LastVisitedWalls = Backbone.Collection.extend({
+    model: Models.LastVisitedWall,
+    initialize: function (models, options) {
+      this.options = options || {};
+      this.options.maxWalls = this.options.maxWalls || 3;
+      this.on('add', this._restrictSize);
+    },
+    localStorage: new BackboneLocalStorage('Drywall-lastVisitedWalls'),
+    comparator: function (model) {
+      return -model.get('timestamp');
+    },
+    _restrictSize: function (model) {
+      if (this.length > this.options.maxWalls) {
+        this.pop(model);
+      }
+    },
+    _removeLast: function () {
+      this.at(this.length - 1).destroy();
+    }
+  });
 
   Views.Navigator = Backbone.View.extend({
     template: 'gotowall/navigator',
@@ -21,7 +46,7 @@ function (
       this.options = options || {};
 
       this.options.LastVisitedWalls =
-        new LocalStorage.Collections.LastVisitedWalls();
+        new Collections.LastVisitedWalls();
       this.options.OrganizationRepositories =
         new GitHub.Collections.OrganizationRepositories();
       this.options.UserRepositories =
@@ -47,11 +72,6 @@ function (
 
       this._getUserOrganizations();
       this.options.LastVisitedWalls.fetch();
-      this.options.LastVisitedWalls.create({
-        repo: 'polymer/polymer',
-        timestamp: new Date().getTime()
-      });
-
     },
     serialize: function () {
       return {

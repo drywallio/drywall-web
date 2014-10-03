@@ -17,12 +17,15 @@
   <span class="control">
     <button type="submit">Show My Wall</button>
   </span>
-  {{#if lastVisitedWalls}}
-  Last Visited:
-  <ul>
-    {{#each lastVisitedWalls}}
-    <li><a href="{{repo}}">{{repo}}</a></li>
-    {{/each}}
-  </ul>
-  {{/if}}
 </form>
+
+{{#if lastVisitedWalls}}
+<article class="gotowall lastVisited">
+<span>Last Visited:</span>
+<ul class="lastVisitedWalls">
+  {{#each lastVisitedWalls}}
+  <li class="visitedWall"><a href="{{wall}}">{{wall}}</a></li>
+  {{/each}}
+</ul>
+</article>
+{{/if}}
