@@ -29,6 +29,7 @@
           text-align center
 
       > h1
+        text-align center
         margin-top 80px
 
       > p
@@ -39,17 +40,24 @@
         margin-top 80px
 
       > ul
-        list-style none
+        list-style-type none
         display flex
         flex-wrap wrap
-        text-align center
+        flex-direction row
+        justify-content center
+        align-items flex-start
+        align-content stretch
 
         > li
+          display inline-block
           flex-grow 1
           flex-shrink 1
-          flex-basis 1px
-          min-width 200px
+          flex-basis 180px
+          width 180px
+          min-width 180px
+          max-width 50%
           margin 0 0 30px 0
+          text-align center
 
           > .pic
             display inline-block
