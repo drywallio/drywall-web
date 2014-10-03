@@ -2,11 +2,13 @@ define([
   'jquery', 'underscore', 'backbone', 'app',
   'constants',
   'modules/GitHub',
+  'modules/LocalStorage'
 ],
 function (
   $, _, Backbone, app,
   constants,
-  GitHub
+  GitHub,
+  LocalStorage
 ) {
 
   var Models = {};
@@ -18,6 +20,8 @@ function (
     initialize: function (options) {
       this.options = options || {};
 
+      this.options.LastVisitedWalls =
+        new LocalStorage.Collections.LastVisitedWalls();
       this.options.OrganizationRepositories =
         new GitHub.Collections.OrganizationRepositories();
       this.options.UserRepositories =
@@ -42,10 +46,17 @@ function (
         this._getUserOrganizations);
 
       this._getUserOrganizations();
+      this.options.LastVisitedWalls.fetch();
+      this.options.LastVisitedWalls.create({
+        repo: 'polymer/polymer',
+        timestamp: new Date().getTime()
+      });
+
     },
     serialize: function () {
       return {
-        host: location.host
+        host: location.host,
+        lastVisitedWalls: this.options.LastVisitedWalls.toJSON()
       };
     },
     events: {
