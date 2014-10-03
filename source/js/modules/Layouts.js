@@ -128,12 +128,16 @@ function (
       })
       .fetch({
         success: function (preload) {
-          var stickies = new Stickies.Collections.Stickies(null, preload.pick(
-            'coordinates', 'issues', 'repo', 'owner', 'repository'
-          ));
-          stickies.each(function (stickie) {
-            this._addStickie(stickie);
-          }, this);
+          this.setViews({
+            '> .main > .demo': new Walls.Views.Wall({
+              coordinates: preload.get('coordinates'),
+              issues: preload.get('issues'),
+              repo: preload.get('repo'),
+              stickies: new Stickies.Collections.Stickies(null, preload.pick(
+                'coordinates', 'issues', 'repo', 'owner', 'repository'
+              ))
+            })
+          }).render();
         }.bind(this)
       });
     },
@@ -142,14 +146,6 @@ function (
       this.setViews({
         '> .main > article > .gotowall': new GoToWall.Views.Navigator()
       });
-    },
-    _addStickie: function (stickie) {
-      this.insertView('.zoom > .stickies', new Stickies.Views.Stickie({
-        model: stickie,
-        repo: new GitHub.Models.Repo({
-          permissions: {pull: true}
-        })
-      })).render();
     }
   });
 

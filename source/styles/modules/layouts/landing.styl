@@ -1,8 +1,16 @@
 #app > .layouts.landing
   > .main
-    > .zoom
-      > .stickies
-        list-style-type none
+    > .demo
+      overflow hidden
+      position absolute
+      top 0
+      right 0
+      bottom 0
+      left 0
+      > .wall
+        background-color transparent
+        > .grid
+          background none
     > article
       text-align center
       background-color rgba(255, 255, 255, 0.8)
@@ -32,3 +40,5 @@
         //
       > .gotowall
         margin-top 20px
+    > footer
+      z-index 1
