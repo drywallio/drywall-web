@@ -1,6 +1,6 @@
 .gotowall.navigator
   font-size 24px
-  font-family 'Roboto Slab', serif
+  font-family 'Roboto', sans-serif
   font-weight 400
   > *,
   > .segment > *
@@ -17,7 +17,7 @@
     > .repository
       > input
         font-size 24px
-        font-family 'Roboto Slab', serif
+        font-family 'Roboto', sans-serif
         font-weight 400
         padding 5px 10px
         background-color white
@@ -58,6 +58,28 @@
         top 0
         line-height 48px
 
+  > .lastVisited
+    margin-top 20px
+    font-size 18px
+    font-weight 300
+    display flex
+    justify-content center
+    line-height 1.5
+    > span
+      padding 0 10px
+    > .lastVisitedWalls
+      list-style none
+      margin 0px
+      padding 0px
+      text-align left
+      > .visitedWall
+        display inline
+        &:after
+          content ', '
+          padding-right 2px
+        &:last-child:after
+          content ''
+
 @media (max-width: 960px)
   .gotowall.navigator
     > .host
@@ -75,3 +97,5 @@
           max-width 480px
     > .control
       margin-top 10px
+    > .lastVisited > .lastVisitedWalls > .visitedWall
+      display list-item

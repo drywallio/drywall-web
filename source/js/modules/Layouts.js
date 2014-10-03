@@ -62,6 +62,7 @@ function (
     template: 'layouts/preload',
     initialize: function (options) {
       Views.Base.prototype.initialize.apply(this, arguments);
+
       new Walls.Models.Preload(null,
         _.pick(this.options, 'owner', 'repository'))
       .fetch({
@@ -85,6 +86,14 @@ function (
   Views.Repository = Views.Nav.extend({
     template: 'layouts/repository',
     beforeRender: function () {
+      var wall = this.options.owner + '/' + this.options.repository;
+      new GoToWall.Collections.LastVisitedWalls()
+        .create({
+          wallId: wall.toLowerCase(),
+          wall: wall,
+          timestamp: new Date().getTime()
+        });
+
       this.insertViews({
         '> header': new Navigation.Views.Breadcrumbs({
           repo: this.options.repo
