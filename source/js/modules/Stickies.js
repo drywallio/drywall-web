@@ -24,7 +24,33 @@ function (
   var tileWidth = constants.TILE.WIDTH;
   var tileHeight = constants.TILE.HEIGHT;
 
-  Collections.Stickies = Backbone.Collection.extend({
+  Collections.Boundaries = Backbone.Collection.extend({
+    bounds: function (models) {
+      var coordinates = models || this;
+      var x = coordinates.map(function (coordinate) {
+        return coordinate.get('x');
+      });
+      var y = coordinates.map(function (coordinate) {
+        return coordinate.get('y');
+      });
+      x = _.isEmpty(x) ? [0] : x;
+      y = _.isEmpty(y) ? [0] : y;
+
+      var box = {
+        left: _.min(x),
+        right: _.max(x) + stickieWidth,
+        top: _.min(y),
+        bottom: _.max(y) + stickieHeight
+      };
+
+      return _.extend({
+        width: box.right - box.left,
+        height: box.bottom - box.top
+      }, box);
+    }
+  });
+
+  Collections.Stickies = Collections.Boundaries.extend({
     initialize: function (models, options) {
       this.options = options || {};
       this.options.untouchedBounds = this._untouchedBounds();
@@ -75,7 +101,7 @@ function (
       var left = 0;
 
       if (this.options.coordinates.length > 0) {
-        var bounds = this.bounds();
+        var bounds = this.bounds(this.options.coordinates);
         top = bounds.bottom + stickieHeight;
         left = bounds.left;
       }
@@ -88,29 +114,6 @@ function (
         maxX: 0,
         maxY: 0
       };
-    },
-    bounds: function () {
-      var coordinates = this.options.coordinates;
-      var x = coordinates.map(function (coordinate) {
-        return coordinate.get('x');
-      });
-      var y = coordinates.map(function (coordinate) {
-        return coordinate.get('y');
-      });
-      x = _.isEmpty(x) ? [0] : x;
-      y = _.isEmpty(y) ? [0] : y;
-
-      var box = {
-        left: _.min(x),
-        right: _.max(x) + stickieWidth,
-        top: _.min(y),
-        bottom: _.max(y) + stickieHeight
-      };
-
-      return _.extend({
-        width: box.right - box.left,
-        height: box.bottom - box.top
-      }, box);
     }
   });
 

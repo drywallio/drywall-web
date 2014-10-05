@@ -98,7 +98,8 @@ function (
       if (models.length === this.state.pageSize) {
         this.getNextPage({remove: false});
       }
-    }
+    },
+    comparator: 'number'
   });
 
   Collections.OrganizationRepositories = ghCollection.extend({
