@@ -162,29 +162,13 @@ function (
           });
         };
       }
-      var wall = this;
-      var stickies = wall.options.stickies;
-      var frames = [
-        function () { wall.zoomTo(2); },
-        function () { wall.panTo(stickies.at(0)); },
-        function () { wall.panTo(stickies.at(1)); },
-        function () { wall.zoomTo(1); },
-        function () { wall.panTo(stickies.at(2)); },
-        function () { wall.panTo(stickies.at(3)); },
-        function () { wall.zoomTo(4); }
-
-        // function () { wall.zoomTo(2); },
-        // function () { wall.panTo(stickies.first(2)); },
-        // function () { wall.zoomTo(3); },
-        // function () { wall.panTo(stickies.at(3)); },
-        // function () { wall.zoomTo(4); }
-      ];
       _.delay(function loop() {
-        frames.reduce(function (timeline, play) {
+        this.options.frames.reduce(function (timeline, play) {
           var wait = delay(_.random(1500, 5000));
-          return timeline.then(play).then(wait);
+          return timeline.then(play).then(wait)
+            .catch(console.error.bind(console));
         }, Promise.resolve()).then(loop);
-      }, 1000);
+      }.bind(this), 1000);
     },
     _getStickies: function (input) {
       function isCollection(obj) {
@@ -224,7 +208,7 @@ function (
         'w', viewport.width * scaleMultiplier,
         'h', viewport.height * scaleMultiplier
       );
-      console.log('number: %d (x:%d, y:%d)', input.get('number'), x, y);
+      console.log('number: %d (x:%d, y:%d)', (input.get ? input.get('number') : input.length), x, y);
 
       this.prevX = 0;
       this.prevY = 0;
