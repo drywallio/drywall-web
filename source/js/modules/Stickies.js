@@ -31,7 +31,7 @@ function (
     model: Models.Stickies,
     initialize: function (models, options) {
       this.options = options || {};
-      this.options.bounds = this._bounds();
+      this.options.bounds = this.bounds();
       options.issues.each(this._layoutStickie, this);
       this.listenTo(options.issues, 'add', this._layoutStickie);
     },
@@ -62,13 +62,8 @@ function (
       var stickie = new this.model(data);
       this.add(stickie);
     },
-    _bounds: function () {
-      var coordinates = this.options.coordinates.filter(
-        function (coordinate) {
-          return !coordinate.get('autocreated');
-        }
-      );
-
+    bounds: function () {
+      var coordinates = this.options.coordinates;
       var x = coordinates.map(function (coordinate) {
         return coordinate.get('x');
       });
@@ -84,9 +79,11 @@ function (
         top: _.min(y),
         bottom: _.max(y) + stickieHeight
       };
-      box.width = box.right - box.left;
 
-      return box;
+      return _.extend({
+        width: box.right - box.left,
+        height: box.bottom - box.top
+      }, box);
     }
   });
 
