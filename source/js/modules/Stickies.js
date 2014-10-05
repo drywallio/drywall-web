@@ -27,7 +27,7 @@ function (
   Collections.Stickies = Backbone.Collection.extend({
     initialize: function (models, options) {
       this.options = options || {};
-      this.options.bounds = this.bounds();
+      this.options.untouchedBounds = this._untouchedBounds();
       options.issues.each(this._layoutStickie, this);
       this.listenTo(options.issues, 'add', this._layoutStickie);
     },
@@ -44,18 +44,50 @@ function (
       this._addStickie(issue, coordinate);
     },
     _randomCoordinates: function (issue) {
-      var bounds = this.options.bounds;
+      var bounds = this.options.untouchedBounds;
+      var startY = bounds.top;
+      var x = this._getRandomNum(bounds.left, bounds.left + bounds.width);
+      if (x < bounds.left + bounds.width * 0.5) {
+        startY = bounds.top + bounds.height * 0.5;
+      }
+      var y = this._getRandomNum(startY, bounds.top + bounds.height);
+      bounds.maxX = Math.max(x, bounds.maxX);
+      bounds.maxY = Math.max(y, bounds.maxY);
+      bounds.width =  bounds.maxX - bounds.left + stickieWidth;
+      bounds.height = bounds.maxY - bounds.top + stickieHeight / 2;
+
       return {
         number: issue.get('number'),
-        x: (Math.random() * bounds.width / 2) + bounds.left,
-        y: (Math.random() * 200) + bounds.bottom + stickieWidth,
-        autocreated: true
+        x: x,
+        y: y
       };
+    },
+    _getRandomNum: function (min, max) {
+      return Math.random() * (max - min) + min;
     },
     _addStickie: function(issue, coordinate) {
       var data = _.extend(issue.toJSON(), coordinate.toJSON());
       var stickie = new this.model(data);
       this.add(stickie);
+    },
+    _untouchedBounds: function () {
+      var top = 0;
+      var left = 0;
+
+      if (this.options.coordinates.length > 0) {
+        var bounds = this.bounds();
+        top = bounds.bottom + stickieHeight;
+        left = bounds.left;
+      }
+
+      return {
+        top: top,
+        left: left,
+        width: 0,
+        height: 0,
+        maxX: 0,
+        maxY: 0
+      }
     },
     bounds: function () {
       var coordinates = this.options.coordinates;
