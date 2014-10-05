@@ -128,16 +128,35 @@ function (
       })
       .fetch({
         success: function (preload) {
+          var wall = new Walls.Views.Wall({
+            coordinates: preload.get('coordinates'),
+            issues: preload.get('issues'),
+            repo: preload.get('repo'),
+            stickies: new Stickies.Collections.Stickies(null, preload.pick(
+              'coordinates', 'issues', 'repo', 'owner', 'repository'
+            ))
+          });
           this.setViews({
-            '> .main > .demo': new Walls.Views.Wall({
-              coordinates: preload.get('coordinates'),
-              issues: preload.get('issues'),
-              repo: preload.get('repo'),
-              stickies: new Stickies.Collections.Stickies(null, preload.pick(
-                'coordinates', 'issues', 'repo', 'owner', 'repository'
-              ))
-            })
+            '> .main > .demo': wall
           }).render();
+          setTimeout(function() {
+            wall.zoomTo(2);
+          }, 1000);
+          setTimeout(function() {
+            wall.zoomTo(3);
+          }, 1500);
+          setTimeout(function() {
+            wall.panTo(wall.options.stickies.first(1));
+          }, 3000);
+          setTimeout(function() {
+            wall.panTo(wall.options.stickies.first(2));
+          }, 3250);
+          setTimeout(function() {
+            wall.zoomTo(1);
+          }, 4000);
+          setTimeout(function() {
+            wall.panTo(wall.options.stickies.first(3));
+          }, 5000);
         }.bind(this)
       });
     },
