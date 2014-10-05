@@ -31,57 +31,49 @@ function (
     model: Models.Stickies,
     initialize: function (models, options) {
       this.options = options || {};
-      var untouchedIssues = [];
-      options.issues.reduce(this._layoutStickies, untouchedIssues, this);
-      this._layoutUntouchedIssues(untouchedIssues);
-
-      this.listenTo(
-        options.issues,
-        'add remove change',
-        this._merge
-      );
-      this.listenTo(
-        options.coordinates,
-        'add remove change',
-        this._merge
-      );
+      this.options.bounds = this._bounds();
+      options.issues.each(this._layoutStickie, this);
+      this.listenTo(options.issues, 'add', this._layoutStickie);
     },
-    _layoutStickies: function(arr, issue) {
+    _layoutStickie: function (issue) {
       var match = issue.pick('number');
       var coordinate = this.options.coordinates.findWhere(match);
 
-      if (coordinate) {
-        this.addStickie(issue, coordinate);
-      } else {
-        arr.push(issue);
+      if (!coordinate) {
+        var bounds = this.options.bounds;
+        coordinate = new this.options.coordinates.model(
+          this._randomCoordinates(issue)
+        );
+        this.options.coordinates.add(coordinate);
       }
-      return arr;
+      this._addStickie(issue, coordinate);
     },
-    _layoutUntouchedIssues: function (issues) {
-      var that = this;
-      var bounds = that.bounds();
-
-      issues.forEach(function (issue) {
-        var coordinate = new that.options.coordinates.model({
-          number: issue.get('number'),
-          x: (Math.random() * bounds.width / 2) + bounds.left,
-          y: (Math.random() * 200) + bounds.bottom + stickieWidth
-        });
-        that.options.coordinates.add(coordinate);
-        that.addStickie(issue, coordinate);
-      });
+    _randomCoordinates: function (issue) {
+      var bounds = this.options.bounds;
+      return {
+        number: issue.get('number'),
+        x: (Math.random() * bounds.width / 2) + bounds.left,
+        y: (Math.random() * 200) + bounds.bottom + stickieWidth,
+        autocreated: true
+      };
     },
-    addStickie: function(issue, coordinate) {
+    _addStickie: function(issue, coordinate) {
       var data = _.extend(issue.toJSON(), coordinate.toJSON());
       var stickie = new this.model(data);
       this.add(stickie);
     },
-    bounds: function () {
-      var x = this.map(function (stickie) {
-        return stickie.get('x');
+    _bounds: function () {
+      var coordinates = this.options.coordinates.filter(
+        function (coordinate) {
+          return !coordinate.get('autocreated');
+        }
+      );
+
+      var x = coordinates.map(function (coordinate) {
+        return coordinate.get('x');
       });
-      var y = this.map(function (stickie) {
-        return stickie.get('y');
+      var y = coordinates.map(function (coordinate) {
+        return coordinate.get('y');
       });
       x = _.isEmpty(x) ? [0] : x;
       y = _.isEmpty(y) ? [0] : y;
@@ -92,11 +84,9 @@ function (
         top: _.min(y),
         bottom: _.max(y) + stickieHeight
       };
+      box.width = box.right - box.left;
 
-      return _.extend(box, {
-        width: box.right - box.left,
-        height: box.bottom - box.top
-      });
+      return box;
     }
   });
 

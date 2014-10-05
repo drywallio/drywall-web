@@ -1,10 +1,12 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
-  'libs/api'
+  'libs/api',
+  'backbone.paginator'
 ],
 function (
   $, _, Backbone, app,
-  api
+  api,
+  PageableCollection
 ) {
   var Models = {};
   var Collections = {};
@@ -75,13 +77,27 @@ function (
     }
   });
 
-  Collections.Issues = ghCollection.extend({
+  Collections.Issues = PageableCollection.extend({
+    sync: ghSync,
+    initialize: function (models, options) {
+      this.options = options || {};
+      this.options.numPages = 1;
+      this.on('sync', this._addNextPage);
+    },
     url: function () {
       return ghApi(
         'repos/:owner/:repository/issues',
         this.options,
         {state: 'all'}
       );
+    },
+    state: {
+      pageSize: 100
+    },
+    _addNextPage: function (collection, models) {
+      if (models.length === this.state.pageSize) {
+        this.getNextPage({remove: false});
+      }
     }
   });
 

@@ -10,6 +10,7 @@ require.config({
     'jquery': '//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min',
     'backbone.layoutmanager': '//cdnjs.cloudflare.com/ajax/libs/backbone.layoutmanager/0.9.4/backbone.layoutmanager.min',
     'backbone.localstorage': '//cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.13/backbone.localStorage-min',
+    'backbone.paginator': '../bower_components/backbone.paginator/lib/backbone.paginator.min',
     'underscore': '//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min',
     'backbone-loading': '../bower_components/backbone-loading/backbone-loading',
     'urlbuilder': '../bower_components/urlbuilder/urlbuilder',
@@ -51,6 +52,9 @@ require.config({
       deps: ['backbone']
     },
     'backbone.localstorage': {
+      deps: ['backbone']
+    },
+    'backbone.paginator': {
       deps: ['backbone']
     },
     'mustache': {
