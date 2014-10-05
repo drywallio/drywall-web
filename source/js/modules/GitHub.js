@@ -82,7 +82,8 @@ function (
         this.options,
         {state: 'all'}
       );
-    }
+    },
+    comparator: 'number'
   });
 
   Collections.OrganizationRepositories = ghCollection.extend({
