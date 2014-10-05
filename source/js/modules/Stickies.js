@@ -87,7 +87,7 @@ function (
         height: 0,
         maxX: 0,
         maxY: 0
-      }
+      };
     },
     bounds: function () {
       var coordinates = this.options.coordinates;
