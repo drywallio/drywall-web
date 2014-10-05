@@ -102,10 +102,10 @@ function (
         repo: this.options.repo
       }));
     },
-    _placeStickies: function (stickies, x, y, duration) {
-      var scaleMultiplier = 1 / this.options.controls.get('scaleValue');
-      var xDest = this.prevX + (x * scaleMultiplier);
-      var yDest = this.prevY + (y * scaleMultiplier);
+    _tweenStickies: function (stickies, duration, x, y) {
+      var xDest = this.prevX + x;
+      var yDest = this.prevY + y;
+      console.log('tween x:%d, y:%d', xDest, yDest);
       TweenLite.to(stickies, duration || 0, {x: xDest, y: yDest});
     },
     _scaleGrid: function () {
@@ -135,7 +135,10 @@ function (
           app.trigger('walls.views.wall.pan.start');
         },
         onDrag: function () {
-          that._placeStickies(stickies, this.x, this.y);
+          var scaleMultiplier = 1 / that.options.controls.get('scaleValue');
+          var x = this.x * scaleMultiplier;
+          var y = this.y * scaleMultiplier;
+          that._tweenStickies(stickies, 0, x, y);
         },
         onDragEnd: function () {
           app.trigger('walls.views.wall.pan.end');
@@ -146,6 +149,42 @@ function (
           TweenLite.to(this.target, 0, {x: 0, y: 0});
         }
       });
+    }
+  });
+
+  Views.Demo = Views.Wall.extend({
+    afterRender: function () {
+      Views.Wall.prototype.afterRender.apply(this, arguments);
+      function delay(ms) {
+        return function () {
+          return new Promise(function (resolve, reject) {
+            setTimeout(resolve, ms);
+          });
+        };
+      }
+      var wall = this;
+      var stickies = wall.options.stickies;
+      var frames = [
+        function () { wall.zoomTo(2); },
+        function () { wall.panTo(stickies.at(0)); },
+        function () { wall.panTo(stickies.at(1)); },
+        function () { wall.zoomTo(1); },
+        function () { wall.panTo(stickies.at(2)); },
+        function () { wall.panTo(stickies.at(3)); },
+        function () { wall.zoomTo(4); }
+
+        // function () { wall.zoomTo(2); },
+        // function () { wall.panTo(stickies.first(2)); },
+        // function () { wall.zoomTo(3); },
+        // function () { wall.panTo(stickies.at(3)); },
+        // function () { wall.zoomTo(4); }
+      ];
+      _.delay(function loop() {
+        frames.reduce(function (timeline, play) {
+          var wait = delay(_.random(1500, 5000));
+          return timeline.then(play).then(wait);
+        }, Promise.resolve()).then(loop);
+      }, 1000);
     },
     _getStickies: function (input) {
       function isCollection(obj) {
@@ -168,10 +207,31 @@ function (
     panTo: function (input) {
       var collection = this._getStickies(input);
       var bounds = collection.bounds();
+
       var stickies = this.$el.find('.stickies').get(0);
-      var x = bounds.left + (bounds.right - bounds.left) / 2;
-      var y = bounds.top + (bounds.bottom - bounds.top) / 2;
-      this._placeStickies(stickies, bounds.left, bounds.top, 0.5);
+      var viewport = stickies.parentNode.getBoundingClientRect();
+
+      var scaleMultiplier = 1 / this.options.controls.get('scaleValue');
+
+      var x = -(bounds.left + (bounds.right - bounds.left) / 2) +
+        (viewport.width * scaleMultiplier) / 2;
+      var y = -(bounds.top + (bounds.bottom - bounds.top) / 2) +
+        (viewport.height * scaleMultiplier) / 2;
+
+      console.log(
+        'w', viewport.width * scaleMultiplier,
+        'h', viewport.height * scaleMultiplier
+      );
+      console.log('number: %d (x:%d, y:%d)', input.get('number'), x, y);
+
+      this.prevX = 0;
+      this.prevY = 0;
+
+      this._tweenStickies(stickies, 0.5, x, y);
+
+      this.prevX = x;
+      this.prevY = y;
+
       return this;
     },
     zoomTo: function (level) {
