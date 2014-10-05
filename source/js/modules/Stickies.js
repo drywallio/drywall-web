@@ -24,11 +24,7 @@ function (
   var tileWidth = constants.TILE.WIDTH;
   var tileHeight = constants.TILE.HEIGHT;
 
-  Models.Stickies = Backbone.Model.extend({
-  });
-
   Collections.Stickies = Backbone.Collection.extend({
-    model: Models.Stickies,
     initialize: function (models, options) {
       this.options = options || {};
       this.options.bounds = this.bounds();
@@ -40,7 +36,6 @@ function (
       var coordinate = this.options.coordinates.findWhere(match);
 
       if (!coordinate) {
-        var bounds = this.options.bounds;
         coordinate = new this.options.coordinates.model(
           this._randomCoordinates(issue)
         );
