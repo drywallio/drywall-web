@@ -9,7 +9,7 @@ define(['underscore'], function (_) {
     predicate: matchDomain(['drywall.cf.sg']),
     type: 'production',
     api: {
-      base: 'http://drywall-api-production.herokuapp.com'
+      base: '//drywall-api-production.herokuapp.com'
     },
     googletagmanager: {
       id: 'GTM-PKNHQH'
@@ -18,7 +18,7 @@ define(['underscore'], function (_) {
     predicate: matchDomain(['staging.drywall.cf.sg']),
     type: 'staging',
     api: {
-      base: 'http://drywall-api-staging.herokuapp.com'
+      base: '//drywall-api-staging.herokuapp.com'
     },
     googletagmanager: {
       id: 'GTM-W65W3Q'
@@ -27,7 +27,7 @@ define(['underscore'], function (_) {
     predicate: function () { return true; },
     type: 'development',
     api: {
-      base: 'http://drywall-api-staging.herokuapp.com'
+      base: '//drywall-api-staging.herokuapp.com'
     },
     googletagmanager: {
       id: ''

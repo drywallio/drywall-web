@@ -105,7 +105,6 @@ function (
     _tweenStickies: function (stickies, duration, x, y) {
       var xDest = this.prevX + x;
       var yDest = this.prevY + y;
-      console.log('tween x:%d, y:%d', xDest, yDest);
       TweenLite.to(stickies, duration || 0, {x: xDest, y: yDest});
     },
     _scaleGrid: function () {
@@ -165,7 +164,7 @@ function (
       var frames = this.options.frames;
       _.delay(function loop() {
         frames.reduce(function (timeline, play) {
-          var wait = delay(_.random(150, 500));
+          var wait = delay(_.random(500, 1500));
           return timeline.then(play).then(wait);
         }, Promise.resolve()).then(loop);
       }.bind(this), 1000);
@@ -204,17 +203,9 @@ function (
       var y = -(bounds.top + (bounds.bottom - bounds.top) / 2) +
         (viewport.height * scaleMultiplier) / 2;
 
-      console.log(
-        'w', viewport.width * scaleMultiplier,
-        'h', viewport.height * scaleMultiplier
-      );
-      console.log('number: %d (x:%d, y:%d)', (input.get ? input.get('number') : input.length), x, y);
-
       this.prevX = 0;
       this.prevY = 0;
-
       this._tweenStickies(stickies, 0.5, x, y);
-
       this.prevX = x;
       this.prevY = y;
 
@@ -226,7 +217,6 @@ function (
       $scale.data('prevY', 0);
       $scale.data('prevScale', 1);
       var zoom = parseFloat(level === undefined ? $scale.val() : level, 10);
-      console.log(zoom, $scale.val(), level);
       $scale.val(zoom).trigger('input');
       return this;
     },
@@ -326,7 +316,6 @@ function (
       var mouseYinCurScale = mouseYinPrevScale * curScale + prevY;
       var newY = prevY + mouseY - mouseYinCurScale;
 
-      console.log('setScale x:%f y:%f scale:%f', newX, newY, curScale);
       TweenLite.to(this.options.zoomTarget, 0, {
         scale: curScale,
         x: newX,
