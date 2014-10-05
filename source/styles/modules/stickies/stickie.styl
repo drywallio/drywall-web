@@ -136,8 +136,6 @@
         color inherit
         text-decoration none
         display inline-block
-        background-color rgba(255, 255, 255, 0.25)
-        border 1px solid rgba(0, 0, 0, 0.1)
         &:before
           content 'comments'
           font-family icons
@@ -148,6 +146,13 @@
       animation-name wiggle
       animation-duration .4s
       animation-iteration-count infinite
+      animation-timing-function ease
+
+  &.konami
+    > .card
+      animation-name wiggle
+      animation-duration .4s
+      animation-iteration-count 25
       animation-timing-function ease
 
 @keyframes wiggle

@@ -1,20 +1,22 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
+  'constants',
   'modules/Billing',
-  'modules/Coordinates',
   'modules/GitHub',
   'modules/Navigation',
-  'modules/Wall',
-  'modules/Stickies'
+  'modules/Walls',
+  'modules/Stickies',
+  'modules/GoToWall'
 ],
 function (
   $, _, Backbone, app,
+  constants,
   Billing,
-  Coordinates,
   GitHub,
   Navigation,
-  Wall,
-  Stickies
+  Walls,
+  Stickies,
+  GoToWall
 ) {
   var Models = {};
   var Collections = {};
@@ -27,6 +29,15 @@ function (
   });
 
   Views.Nav = Views.Base.extend({
+    initialize: function () {
+      Views.Base.prototype.initialize.apply(this, arguments);
+      this.listenTo(app, 'walls.views.wall.pan.start', function (event) {
+        this.$el.find('> header').addClass('wall-panning');
+      });
+      this.listenTo(app, 'walls.views.wall.pan.end', function (event) {
+        this.$el.find('> header').removeClass('wall-panning');
+      });
+    },
     beforeRender: function (options) {
       this.insertViews({
         '> header': [
@@ -51,35 +62,23 @@ function (
     template: 'layouts/preload',
     initialize: function (options) {
       Views.Base.prototype.initialize.apply(this, arguments);
-      var path = {
-        owner: this.options.owner,
-        repository: this.options.repository
-      };
-      var coordinates = new Coordinates.Collections.Coordinates(null, path);
-      var issues = new GitHub.Collections.Issues(null, path);
-      var repo = new GitHub.Models.Repo(null, path);
-      Promise.all(
-        [coordinates, issues, repo]
-          .map(function (collection) {
-            return collection.fetch();
-          })
-      )
-      .then(function (data) {
-        app.useLayout(Views.Repository, {
-          coordinates: coordinates,
-          issues: issues,
-          repo: repo,
-          owner: this.options.owner,
-          repository: this.options.repository
-        }).render();
-      }.bind(this))
-      .catch(function (err) {
-        if (err.status === 404) {
-          err.message = 'Wall not Found';
+
+      new Walls.Models.Preload(null,
+        _.pick(this.options, 'owner', 'repository'))
+      .fetch({
+        success: function (preload) {
+          app.useLayout(Views.Repository, preload.pick(
+            'coordinates', 'issues', 'repo', 'owner', 'repository'
+          )).render();
+        },
+        error: function (preload, err) {
+          if (err.status === 404) {
+            err.message = 'Wall not Found';
+          }
+          app.useLayout(Views.Error, {
+            error: err
+          }).render();
         }
-        app.useLayout(Views.Error, {
-          error: err
-        }).render();
       });
     }
   });
@@ -87,6 +86,14 @@ function (
   Views.Repository = Views.Nav.extend({
     template: 'layouts/repository',
     beforeRender: function () {
+      var wall = this.options.owner + '/' + this.options.repository;
+      new GoToWall.Collections.LastVisitedWalls()
+        .create({
+          wallId: wall.toLowerCase(),
+          wall: wall,
+          timestamp: new Date().getTime()
+        });
+
       this.insertViews({
         '> header': new Navigation.Views.Breadcrumbs({
           repo: this.options.repo
@@ -94,7 +101,7 @@ function (
       });
       Views.Nav.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '> .main > article': new Wall.Views.Draggable({
+        '> .main > article': new Walls.Views.Wall({
           coordinates: this.options.coordinates,
           issues: this.options.issues,
           repo: this.options.repo,
@@ -108,13 +115,43 @@ function (
   });
 
   Views.Landing = Views.Content.extend({
+    title: 'Project Management Tool for GitHub Issues',
     template: 'layouts/landing',
+    serialize: function () {
+      return app.session.toJSON();
+    },
+    initialize: function (options) {
+      Views.Base.prototype.initialize.apply(this, arguments);
+      new Walls.Models.Preload(null, {
+        owner: constants.DEMO_WALL.OWNER,
+        repository: constants.DEMO_WALL.REPOSITORY
+      })
+      .fetch({
+        success: function (preload) {
+          this.setViews({
+            '> .main > .demo': new Walls.Views.Wall({
+              coordinates: preload.get('coordinates'),
+              issues: preload.get('issues'),
+              repo: preload.get('repo'),
+              stickies: new Stickies.Collections.Stickies(null, preload.pick(
+                'coordinates', 'issues', 'repo', 'owner', 'repository'
+              ))
+            })
+          }).render();
+        }.bind(this)
+      });
+    },
     beforeRender: function () {
       Views.Content.prototype.beforeRender.apply(this, arguments);
       this.setViews({
-        '> .main > article .sign-in': new Navigation.Views.SignIn()
+        '> .main > article > .gotowall': new GoToWall.Views.Navigator()
       });
     }
+  });
+
+  Views.About = Views.Content.extend({
+    title: 'About',
+    template: 'layouts/about'
   });
 
   Views.Pricing = Views.Content.extend({

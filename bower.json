@@ -2,6 +2,7 @@
   "name": "drywall-web",
   "dependencies": {
     "backbone-loading": "*",
+    "backbone.paginator": "*",
     "hammerjs": "*",
     "handlebars-helpers-pack": "*",
     "urlbuilder": "*",
@@ -12,6 +13,7 @@
     "es6-shim": "*",
     "backbone-session": "*",
     "query-string": "~0.4.1",
-    "tinycolor": "~1.0.0"
+    "tinycolor": "~1.0.0",
+    "konami-js": "*"
   }
 }

@@ -38,15 +38,16 @@
 
   // > aside
 
-#app.wall-draggable-moving > .layouts.nav
-  > header
-    opacity 0
-    transition-delay 0.5s
-
 #app.navigation-primary-reveal > .layouts.nav
   > header,
   > .main
     transform translateX(calc(-100vw + 50px))
+
+@media (max-width: 640px)
+  #app > .layouts.nav
+    > header
+      &.wall-panning
+        opacity 0
 
 @media (min-width: 320px)
   #app.navigation-primary-reveal > .layouts.nav

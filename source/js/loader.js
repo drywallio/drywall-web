@@ -9,6 +9,8 @@ require.config({
     'hammerjs': '../bower_components/hammerjs/hammer.min',
     'jquery': '//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min',
     'backbone.layoutmanager': '//cdnjs.cloudflare.com/ajax/libs/backbone.layoutmanager/0.9.4/backbone.layoutmanager.min',
+    'backbone.localstorage': '//cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.13/backbone.localStorage-min',
+    'backbone.paginator': '../bower_components/backbone.paginator/lib/backbone.paginator.min',
     'underscore': '//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min',
     'backbone-loading': '../bower_components/backbone-loading/backbone-loading',
     'urlbuilder': '../bower_components/urlbuilder/urlbuilder',
@@ -24,7 +26,8 @@ require.config({
     'Draggable': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/utils/Draggable.min',
     'TweenLite': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/TweenLite.min',
     'CSSPlugin': '//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/plugins/CSSPlugin.min',
-    'tinycolor': '../bower_components/tinycolor/tinycolor'
+    'tinycolor': '../bower_components/tinycolor/tinycolor',
+    'konami': '../bower_components/konami-js/konami'
   },
   shim: {
     'backbone': {
@@ -48,11 +51,20 @@ require.config({
     'backbone.layoutmanager': {
       deps: ['backbone']
     },
+    'backbone.localstorage': {
+      deps: ['backbone']
+    },
+    'backbone.paginator': {
+      deps: ['backbone']
+    },
     'mustache': {
       exports: 'mustache'
     },
     'underscore': {
       exports: '_'
+    },
+    'konami': {
+      exports: 'Konami'
     }
   }
 });

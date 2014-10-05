@@ -1,5 +1,5 @@
 define([
-  'jquery', 'underscore', 'backbone',
+  'jquery', 'underscore', 'backbone', 'app',
   'constants',
   'Draggable',
   'tinycolor',
@@ -7,7 +7,7 @@ define([
   'modules/References'
 ],
 function (
-  $, _, Backbone,
+  $, _, Backbone, app,
   constants,
   Draggable,
   tinycolor,
@@ -24,64 +24,78 @@ function (
   var tileWidth = constants.TILE.WIDTH;
   var tileHeight = constants.TILE.HEIGHT;
 
-  Models.Stickies = Backbone.Model.extend({
-  });
-
   Collections.Stickies = Backbone.Collection.extend({
-    model: Models.Stickies,
     initialize: function (models, options) {
       this.options = options || {};
-      var untouchedIssues = [];
-      options.issues.reduce(this._layoutStickies, untouchedIssues, this);
-      this._layoutUntouchedIssues(untouchedIssues);
-
-      this.listenTo(
-        options.issues,
-        'add remove change',
-        this._merge
-      );
-      this.listenTo(
-        options.coordinates,
-        'add remove change',
-        this._merge
-      );
+      this.options.untouchedBounds = this._untouchedBounds();
+      options.issues.each(this._layoutStickie, this);
+      this.listenTo(options.issues, 'add', this._layoutStickie);
     },
-    _layoutStickies: function(arr, issue) {
+    _layoutStickie: function (issue) {
       var match = issue.pick('number');
       var coordinate = this.options.coordinates.findWhere(match);
 
-      if (coordinate) {
-        this.addStickie(issue, coordinate);
-      } else {
-        arr.push(issue);
+      if (!coordinate) {
+        coordinate = new this.options.coordinates.model(
+          this._randomCoordinates(issue)
+        );
+        this.options.coordinates.add(coordinate);
       }
-      return arr;
+      this._addStickie(issue, coordinate);
     },
-    _layoutUntouchedIssues: function (issues) {
-      var that = this;
-      var bounds = that.bounds();
+    _randomCoordinates: function (issue) {
+      var bounds = this.options.untouchedBounds;
+      var startY = bounds.top;
+      var x = this._getRandomNum(bounds.left, bounds.left + bounds.width);
+      if (x < bounds.left + bounds.width * 0.5) {
+        startY = bounds.top + bounds.height * 0.5;
+      }
+      var y = this._getRandomNum(startY, bounds.top + bounds.height);
+      bounds.maxX = Math.max(x, bounds.maxX);
+      bounds.maxY = Math.max(y, bounds.maxY);
+      bounds.width =  bounds.maxX - bounds.left + stickieWidth;
+      bounds.height = bounds.maxY - bounds.top + stickieHeight / 2;
 
-      issues.forEach(function (issue) {
-        var coordinate = new that.options.coordinates.model({
-          number: issue.get('number'),
-          x: (Math.random() * bounds.width / 2) + bounds.left,
-          y: (Math.random() * 200) + bounds.bottom + stickieWidth
-        });
-        that.options.coordinates.add(coordinate);
-        that.addStickie(issue, coordinate);
-      });
+      return {
+        number: issue.get('number'),
+        x: x,
+        y: y
+      };
     },
-    addStickie: function(issue, coordinate) {
+    _getRandomNum: function (min, max) {
+      return Math.random() * (max - min) + min;
+    },
+    _addStickie: function(issue, coordinate) {
       var data = _.extend(issue.toJSON(), coordinate.toJSON());
       var stickie = new this.model(data);
       this.add(stickie);
     },
+    _untouchedBounds: function () {
+      var top = 0;
+      var left = 0;
+
+      if (this.options.coordinates.length > 0) {
+        var bounds = this.bounds();
+        top = bounds.bottom + stickieHeight;
+        left = bounds.left;
+      }
+
+      return {
+        top: top,
+        left: left,
+        width: 0,
+        height: 0,
+        maxX: 0,
+        maxY: 0
+      };
+    },
     bounds: function () {
-      var x = this.map(function (stickie) {
-        return stickie.get('x');
+      var coordinates = this.options.coordinates;
+      var x = coordinates.map(function (coordinate) {
+        return coordinate.get('x');
       });
-      var y = this.map(function (stickie) {
-        return stickie.get('y');
+      var y = coordinates.map(function (coordinate) {
+        return coordinate.get('y');
       });
       x = _.isEmpty(x) ? [0] : x;
       y = _.isEmpty(y) ? [0] : y;
@@ -93,10 +107,10 @@ function (
         bottom: _.max(y) + stickieHeight
       };
 
-      return _.extend(box, {
+      return _.extend({
         width: box.right - box.left,
         height: box.bottom - box.top
-      });
+      }, box);
     }
   });
 
@@ -121,6 +135,7 @@ function (
     initialize: function (options) {
       this.listenTo(this.model, 'change:title', this._setTitle);
       this.listenTo(this.model, 'change:labels', this._setColor);
+      this.listenTo(app, 'konami', this._konami);
     },
     serialize: function () {
       var json = _.extend(
@@ -230,6 +245,12 @@ function (
       textarea.toggleClass('hidden', !isEdit);
       title.filter('div').toggleClass('hidden', isEdit);
       textarea.focus();
+    },
+    _konami: function () {
+      this.$el.removeClass('konami');
+      _.delay(function () {
+        this.$el.addClass('konami');
+      }.bind(this), _.random(0, 10000));
     },
     afterRender: function () {
       var that = this;

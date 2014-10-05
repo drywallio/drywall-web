@@ -14,6 +14,7 @@ define([
   return Backbone.Router.extend({
     routes: {
       '': 'landing',
+      'about': 'about',
       'pricing': 'pricing',
       'pricing/:owner': 'pricing',
       'authentication': 'authentication',
@@ -27,19 +28,30 @@ define([
       }).render();
     },
 
+    about: function () {
+      app.useLayout(Layouts.Views.About, {
+      }).setViews({
+      }).render();
+    },
+
     pricing: function (owner) {
-      var owners = app.session.has('id_token') ?
-        new Billing.Collections.Billings() : null;
       app.useLayout(Layouts.Views.Pricing, {
       }).setViews({
-        'article': new Billing.Views.Plans({
-          owner: owner,
-          owners: owners
-        })
+        'article': new Billing.Views.Free()
       }).render();
-      if (owners) {
-        owners.fetch();
-      }
+
+      // var owners = app.session.has('id_token') ?
+      //   new Billing.Collections.Billings() : null;
+      // app.useLayout(Layouts.Views.Pricing, {
+      // }).setViews({
+      //   'article': new Billing.Views.Plans({
+      //     owner: owner,
+      //     owners: owners
+      //   })
+      // }).render();
+      // if (owners) {
+      //   owners.fetch();
+      // }
     },
 
     authentication: function () {

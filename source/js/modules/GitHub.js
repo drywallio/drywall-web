@@ -1,10 +1,12 @@
 define([
   'jquery', 'underscore', 'backbone', 'app',
-  'libs/api'
+  'libs/api',
+  'backbone.paginator'
 ],
 function (
   $, _, Backbone, app,
-  api
+  api,
+  PageableCollection
 ) {
   var Models = {};
   var Collections = {};
@@ -25,7 +27,7 @@ function (
     if (method === 'read') {
       // Adds query param in GET request
       extendedOptions.data = _.defaults({
-        per_page: 100,
+        per_page: this.options.per_page || 100,
       }, extendedOptions.data || {});
     }
     return Backbone.sync(method, model, extendedOptions);
@@ -75,12 +77,76 @@ function (
     }
   });
 
-  Collections.Issues = ghCollection.extend({
+  Collections.Issues = PageableCollection.extend({
+    sync: ghSync,
+    initialize: function (models, options) {
+      this.options = options || {};
+      this.options.numPages = 1;
+      this.on('sync', this._addNextPage);
+    },
     url: function () {
       return ghApi(
         'repos/:owner/:repository/issues',
         this.options,
         {state: 'all'}
+      );
+    },
+    state: {
+      pageSize: 100
+    },
+    _addNextPage: function (collection, models) {
+      if (models.length === this.state.pageSize) {
+        this.getNextPage({remove: false});
+      }
+    }
+  });
+
+  Collections.OrganizationRepositories = ghCollection.extend({
+    url: function () {
+      return ghApi('orgs/:org/repos', _.defaults(this.options, {
+        type: 'all'
+      }));
+    }
+  });
+
+  Collections.UserRepositories = ghCollection.extend({
+    url: function () {
+      return ghApi('users/:user/repos', _.defaults(this.options, {
+        type: 'owner'
+      }));
+    }
+  });
+
+  Collections.UserOrganizations = ghCollection.extend({
+    comparator: function (model) {
+      return model.get('login').toLowerCase();
+    },
+    url: function () {
+      return ghApi('user/orgs' , this.options);
+    },
+    addUser: function () {
+      return this.add(new this.model({
+        isUser: true,
+        login: this.options.user
+      }));
+    }
+  });
+
+  Collections.SearchUsers = ghCollection.extend({
+    initialize: function (models, options) {
+      this.options = options || {};
+      this.options.per_page = 7;
+    },
+    comparator: function (model) {
+      return model.get('login').toLowerCase();
+    },
+    parse: function (response) {
+      return response.items;
+    },
+    url: function () {
+      return ghApi(
+        'search/users?q=:query+in:login+repos:>1',
+        this.options
       );
     }
   });

@@ -1,12 +1,24 @@
 #app > .layouts.landing
   > .main
+    > .demo
+      overflow hidden
+      position absolute
+      top 0
+      right 0
+      bottom 0
+      left 0
+      > .wall
+        background-color transparent
+        > .grid
+          background none
     > article
       text-align center
-      background-color white
+      background-color rgba(255, 255, 255, 0.8)
       width 100%
       box-sizing border-box
       padding 40px 10px 60px 10px
       margin 80px auto 20px auto
+      z-index 1
       > h1
         font-size 72px
         margin 0
@@ -24,15 +36,9 @@
         font-weight 400
         font-size 28px
         margin 10px 0 0 0
-      > ul
-        text-align left
-        display inline-block
-        padding 0 0 0 20px
-        margin 0
-        > li
-          color #444444
-          margin 15px 0
-          > a
-            color #5A2876
-      > .sign-in
-        width 100%
+      > p
+        //
+      > .gotowall
+        margin-top 20px
+    > footer
+      z-index 1

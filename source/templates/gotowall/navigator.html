@@ -1,0 +1,31 @@
+<form class="gotowall navigator">
+  <span class="host">{{host}}</span>
+  <span class="segment">
+    <span class="divider">/</span>
+    <label class="owner">
+      <input list="owner" placeholder="GitHub username" required />
+      <datalist id="owner"></datalist>
+    </label>
+  </span>
+  <span class="segment">
+    <span class="divider">/</span>
+    <label class="repository">
+      <input list="repository" placeholder="GitHub repository" required />
+      <datalist id="repository"></datalist>
+    </label>
+  </span>
+  <span class="control">
+    <button type="submit">Show My Wall</button>
+  </span>
+
+  {{#if lastVisitedWalls}}
+  <article class="lastVisited">
+    <span>Last Visited:</span>
+    <ul class="lastVisitedWalls">
+      {{#each lastVisitedWalls}}
+      <li class="visitedWall"><a href="{{wall}}">{{wall}}</a></li>
+      {{/each}}
+    </ul>
+  </article>
+  {{/if}}
+</form>

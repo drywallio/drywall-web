@@ -20,5 +20,9 @@ define({
   },
   XMLNS: {
     SVG: 'http://www.w3.org/2000/svg'
+  },
+  DEMO_WALL: {
+    OWNER: 'drywallio',
+    REPOSITORY: 'demo'
   }
 });

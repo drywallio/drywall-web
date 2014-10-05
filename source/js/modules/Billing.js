@@ -127,6 +127,10 @@ function (
     }
   });
 
+  Views.Free = Backbone.View.extend({
+    template: 'billing/free'
+  });
+
   return {
     Models: Models,
     Collections: Collections,

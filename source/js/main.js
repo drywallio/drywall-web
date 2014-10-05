@@ -7,6 +7,7 @@ define(
   'templates.built',
   'session',
   'googletagmanager',
+  'konami',
   'fastclick',
   'backbone-loading',
   'handlebars',
@@ -21,6 +22,7 @@ function (
   templatesBuilt,
   Session,
   googletagmanager,
+  Konami,
   FastClick,
   bbLoading,
   Handlebars,
@@ -85,16 +87,12 @@ function (
     }
   })
   .then(function () {
-    Backbone.history.start({
-      pushState: true,
-      root: app.root
+    _.defer(function () {
+      Backbone.history.start({
+        pushState: true,
+        root: app.root
+      });
     });
-  })
-  .catch(function (err) {
-    console.error(err);
-    app.useLayout(Layouts.Views.Error, {
-      error: err
-    }).render();
   });
 
   googletagmanager(app.env.googletagmanager.id);
@@ -122,5 +120,9 @@ function (
 
   $(document).on('click', 'a[href="#"]', function (event) {
     event.preventDefault();
+  });
+
+  var konami = new Konami(function () {
+    app.trigger('konami');
   });
 });
