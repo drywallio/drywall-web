@@ -162,11 +162,11 @@ function (
           });
         };
       }
+      var frames = this.options.frames;
       _.delay(function loop() {
-        this.options.frames.reduce(function (timeline, play) {
-          var wait = delay(_.random(1500, 5000));
-          return timeline.then(play).then(wait)
-            .catch(console.error.bind(console));
+        frames.reduce(function (timeline, play) {
+          var wait = delay(_.random(150, 500));
+          return timeline.then(play).then(wait);
         }, Promise.resolve()).then(loop);
       }.bind(this), 1000);
     },
