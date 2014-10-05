@@ -73,12 +73,17 @@ function (
     template: 'walls/wall',
     initialize: function (options) {
       this.options.scaleVal = 1;
-      this.listenTo(options.stickies, 'add', this.addStickie);
+      this.listenTo(options.stickies, 'add', this._addStickie);
       this.options.controls = new Models.Controls();
-      this.listenTo(this.options.controls, 'change', this.scaleGrid);
+      this.listenTo(this.options.controls, 'change', this._scaleGrid);
 
       // this.listenTo(options.stickies, 'change', this.changeStickie);
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
+    },
+    beforeRender: function () {
+      this.options.stickies.each(function (stickie) {
+        this._addStickie(stickie);
+      }, this);
     },
     afterRender: function () {
       this.insertView('aside', new Views.Controls({
@@ -86,36 +91,23 @@ function (
         zoomInput: this.$el,
         zoomTarget: this.$el.find('.zoom')
       })).render();
-
-      this.options.stickies.each(function (stickie) {
-        this.addStickie(stickie);
-      }, this);
-      this.createDraggableScreen();
+      this._createDraggableScreen();
     },
-    addStickie: function (stickie) {
+    _addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
       this.insertView('> .zoom > .stickies', new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
-      })).render();
+      }));
     },
-    dragStickies: function (options) {
-      var that = this;
-      return function () {
-        app.trigger('walls.views.wall.pan.start');
-        var scaleMultiplier = 1 / options.controls.get('scaleValue');
-        var stickies = this.target.parentNode.querySelector('.stickies');
-        var xDest = that.prevX + (this.x * scaleMultiplier);
-        var yDest = that.prevY + (this.y * scaleMultiplier);
-        TweenLite.to(stickies, 0, {
-          x: xDest,
-          y: yDest
-        });
-      };
+    _tweenStickies: function (stickies, duration, x, y) {
+      var xDest = this.prevX + x;
+      var yDest = this.prevY + y;
+      TweenLite.to(stickies, duration || 0, {x: xDest, y: yDest});
     },
-    scaleGrid: function () {
+    _scaleGrid: function () {
       var scaleVal = this.options.controls.get('scaleValue');
       if (scaleVal > 0.25) {
         var scaleMultiplier = 1 / scaleVal;
@@ -131,13 +123,22 @@ function (
     },
     prevX: 0,
     prevY: 0,
-    createDraggableScreen: function () {
+    _createDraggableScreen: function () {
       var that = this;
+      var stickies = this.$el.find('.stickies').get(0);
       Draggable.create(this.$el.find('.draggablescreen'), {
         type: 'x,y',
         dragResistance: 0,
         zIndexBoost: false,
-        onDrag: this.dragStickies(this.options),
+        onDragStart: function () {
+          app.trigger('walls.views.wall.pan.start');
+        },
+        onDrag: function () {
+          var scaleMultiplier = 1 / that.options.controls.get('scaleValue');
+          var x = this.x * scaleMultiplier;
+          var y = this.y * scaleMultiplier;
+          that._tweenStickies(stickies, 0, x, y);
+        },
         onDragEnd: function () {
           app.trigger('walls.views.wall.pan.end');
           this.target.style.zIndex = 0;
@@ -147,6 +148,80 @@ function (
           TweenLite.to(this.target, 0, {x: 0, y: 0});
         }
       });
+    }
+  });
+
+  Views.Demo = Views.Wall.extend({
+    afterRender: function () {
+      Views.Wall.prototype.afterRender.apply(this, arguments);
+      function delay(ms) {
+        return function () {
+          return new Promise(function (resolve, reject) {
+            setTimeout(resolve, ms);
+          });
+        };
+      }
+      var frames = this.options.frames;
+      _.delay(function loop() {
+        frames.reduce(function (timeline, play) {
+          var wait = delay(_.random(500, 1500));
+          return timeline.then(play).then(wait);
+        }, Promise.resolve()).then(loop);
+      }.bind(this), 1000);
+    },
+    _getStickies: function (input) {
+      function isCollection(obj) {
+        return obj instanceof Backbone.Collection;
+      }
+      function hasModels(list) {
+        return list.length > 0 &&
+          list[0] instanceof Backbone.Model;
+      }
+      if (isCollection(input)) {
+        return input;
+      }
+      var list = _.isArray(input) ? input : [input];
+      var models = hasModels(list) ? list :
+        this.options.stickies.filter(function (stickie) {
+          return _.contains(list, stickie.get('number'));
+        });
+      return new Stickies.Collections.Boundaries(models);
+    },
+    panTo: function (input) {
+      this.zoomTo();
+
+      var collection = this._getStickies(input);
+      var bounds = collection.bounds();
+
+      var stickies = this.$el.find('.stickies').get(0);
+      var viewport = stickies.parentNode.getBoundingClientRect();
+
+      var scaleMultiplier = 1 / this.options.controls.get('scaleValue');
+
+      var x = -(bounds.left + (bounds.right - bounds.left) / 2) +
+        (viewport.width * scaleMultiplier) / 2;
+      var y = -(bounds.top + (bounds.bottom - bounds.top) / 2) +
+        (viewport.height * scaleMultiplier) / 2;
+
+      this.prevX = 0;
+      this.prevY = 0;
+      this._tweenStickies(stickies, 0.5, x, y);
+      this.prevX = x;
+      this.prevY = y;
+
+      return this;
+    },
+    zoomTo: function (level) {
+      var $scale = this.$el.find('.scale');
+      $scale.data('prevX', 0);
+      $scale.data('prevY', 0);
+      $scale.data('prevScale', 1);
+      var zoom = parseFloat(level === undefined ? $scale.val() : level, 10);
+      $scale.val(zoom).trigger('input');
+      return this;
+    },
+    drag: function (number, x, y) {
+      return this;
     }
   });
 
@@ -199,13 +274,11 @@ function (
       var $scale = this.$el.find('.scale');
       $scale.data('mouseX', evt.clientX);
       $scale.data('mouseY', evt.clientY);
-
       if (evt.deltaY < 0) {
         this.zoomInStep();
       } else if (evt.deltaY > 0) {
         this.zoomOutStep();
       }
-
       $scale.removeData('mouseX');
       $scale.removeData('mouseY');
     },
@@ -224,8 +297,7 @@ function (
       var min = parseFloat($scale.attr('min'), 10);
       var max = parseFloat($scale.attr('max'), 10);
       var capped = Math.min(max, Math.max(min, value + step));
-      $scale.val(capped);
-      $scale.trigger('change').trigger('input');
+      $scale.val(capped).trigger('change').trigger('input');
     },
     setScale: function (event) {
       var $scale = this.$el.find('.scale');
