@@ -205,6 +205,8 @@ function (
       return new Stickies.Collections.Stickies(models);
     },
     panTo: function (input) {
+      this.zoomTo();
+
       var collection = this._getStickies(input);
       var bounds = collection.bounds();
 
@@ -235,7 +237,13 @@ function (
       return this;
     },
     zoomTo: function (level) {
-      this.$el.find('.scale').val(level).trigger('input');
+      var $scale = this.$el.find('.scale');
+      $scale.data('prevX', 0);
+      $scale.data('prevY', 0);
+      $scale.data('prevScale', 1);
+      var zoom = parseFloat(level === undefined ? $scale.val() : level, 10);
+      console.log(zoom, $scale.val(), level);
+      $scale.val(zoom).trigger('input');
       return this;
     },
     drag: function (number, x, y) {
@@ -292,13 +300,11 @@ function (
       var $scale = this.$el.find('.scale');
       $scale.data('mouseX', evt.clientX);
       $scale.data('mouseY', evt.clientY);
-
       if (evt.deltaY < 0) {
         this.zoomInStep();
       } else if (evt.deltaY > 0) {
         this.zoomOutStep();
       }
-
       $scale.removeData('mouseX');
       $scale.removeData('mouseY');
     },
@@ -317,8 +323,7 @@ function (
       var min = parseFloat($scale.attr('min'), 10);
       var max = parseFloat($scale.attr('max'), 10);
       var capped = Math.min(max, Math.max(min, value + step));
-      $scale.val(capped);
-      $scale.trigger('change').trigger('input');
+      $scale.val(capped).trigger('change').trigger('input');
     },
     setScale: function (event) {
       var $scale = this.$el.find('.scale');
@@ -337,6 +342,7 @@ function (
       var mouseYinCurScale = mouseYinPrevScale * curScale + prevY;
       var newY = prevY + mouseY - mouseYinCurScale;
 
+      console.log('setScale x:%f y:%f scale:%f', newX, newY, curScale);
       TweenLite.to(this.options.zoomTarget, 0, {
         scale: curScale,
         x: newX,
