@@ -73,12 +73,17 @@ function (
     template: 'walls/wall',
     initialize: function (options) {
       this.options.scaleVal = 1;
-      this.listenTo(options.stickies, 'add', this.addStickie);
+      this.listenTo(options.stickies, 'add', this._addStickie);
       this.options.controls = new Models.Controls();
-      this.listenTo(this.options.controls, 'change', this.scaleGrid);
+      this.listenTo(this.options.controls, 'change', this._scaleGrid);
 
       // this.listenTo(options.stickies, 'change', this.changeStickie);
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
+    },
+    beforeRender: function () {
+      this.options.stickies.each(function (stickie) {
+        this._addStickie(stickie);
+      }, this);
     },
     afterRender: function () {
       this.insertView('aside', new Views.Controls({
@@ -86,36 +91,24 @@ function (
         zoomInput: this.$el,
         zoomTarget: this.$el.find('.zoom')
       })).render();
-
-      this.options.stickies.each(function (stickie) {
-        this.addStickie(stickie);
-      }, this);
-      this.createDraggableScreen();
+      this._createDraggableScreen();
     },
-    addStickie: function (stickie) {
+    _addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
       this.insertView('> .zoom > .stickies', new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
-      })).render();
+      }));
     },
-    dragStickies: function (options) {
-      var that = this;
-      return function () {
-        app.trigger('walls.views.wall.pan.start');
-        var scaleMultiplier = 1 / options.controls.get('scaleValue');
-        var stickies = this.target.parentNode.querySelector('.stickies');
-        var xDest = that.prevX + (this.x * scaleMultiplier);
-        var yDest = that.prevY + (this.y * scaleMultiplier);
-        TweenLite.to(stickies, 0, {
-          x: xDest,
-          y: yDest
-        });
-      };
+    _placeStickies: function (stickies, x, y, duration) {
+      var scaleMultiplier = 1 / this.options.controls.get('scaleValue');
+      var xDest = this.prevX + (x * scaleMultiplier);
+      var yDest = this.prevY + (y * scaleMultiplier);
+      TweenLite.to(stickies, duration || 0, {x: xDest, y: yDest});
     },
-    scaleGrid: function () {
+    _scaleGrid: function () {
       var scaleVal = this.options.controls.get('scaleValue');
       if (scaleVal > 0.25) {
         var scaleMultiplier = 1 / scaleVal;
@@ -131,13 +124,19 @@ function (
     },
     prevX: 0,
     prevY: 0,
-    createDraggableScreen: function () {
+    _createDraggableScreen: function () {
       var that = this;
+      var stickies = this.$el.find('.stickies').get(0);
       Draggable.create(this.$el.find('.draggablescreen'), {
         type: 'x,y',
         dragResistance: 0,
         zIndexBoost: false,
-        onDrag: this.dragStickies(this.options),
+        onDragStart: function () {
+          app.trigger('walls.views.wall.pan.start');
+        },
+        onDrag: function () {
+          that._placeStickies(stickies, this.x, this.y);
+        },
         onDragEnd: function () {
           app.trigger('walls.views.wall.pan.end');
           this.target.style.zIndex = 0;
@@ -147,6 +146,40 @@ function (
           TweenLite.to(this.target, 0, {x: 0, y: 0});
         }
       });
+    },
+    _getStickies: function (input) {
+      function isCollection(obj) {
+        return obj instanceof Backbone.Collection;
+      }
+      function hasModels(list) {
+        return list.length > 0 &&
+          list[0] instanceof Backbone.Model;
+      }
+      if (isCollection(input)) {
+        return input;
+      }
+      var list = _.isArray(input) ? input : [input];
+      var models = hasModels(list) ? list :
+        this.options.stickies.filter(function (stickie) {
+          return _.contains(list, stickie.get('number'));
+        });
+      return new Stickies.Collections.Stickies(models);
+    },
+    panTo: function (input) {
+      var collection = this._getStickies(input);
+      var bounds = collection.bounds();
+      var stickies = this.$el.find('.stickies').get(0);
+      var x = bounds.left + (bounds.right - bounds.left) / 2;
+      var y = bounds.top + (bounds.bottom - bounds.top) / 2;
+      this._placeStickies(stickies, bounds.left, bounds.top, 0.5);
+      return this;
+    },
+    zoomTo: function (level) {
+      this.$el.find('.scale').val(level).trigger('input');
+      return this;
+    },
+    drag: function (number, x, y) {
+      return this;
     }
   });
 

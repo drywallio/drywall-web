@@ -31,20 +31,19 @@ function (
     model: Models.Stickies,
     initialize: function (models, options) {
       this.options = options || {};
-      var untouchedIssues = [];
-      options.issues.reduce(this._layoutStickies, untouchedIssues, this);
-      this._layoutUntouchedIssues(untouchedIssues);
-
-      this.listenTo(
-        options.issues,
-        'add remove change',
-        this._merge
-      );
-      this.listenTo(
-        options.coordinates,
-        'add remove change',
-        this._merge
-      );
+      if (this.options.issues) {
+        var untouched = [];
+        this.options.issues.reduce(this._layoutStickies, untouched, this);
+        this._layoutUntouchedIssues(untouched);
+      }
+      if (this.options.issues) {
+        this.listenTo(this.options.issues,
+          'add remove change', this._merge);
+      }
+      if (this.options.coordinates) {
+        this.listenTo(this.options.coordinates,
+          'add remove change', this._merge);
+      }
     },
     _layoutStickies: function(arr, issue) {
       var match = issue.pick('number');
