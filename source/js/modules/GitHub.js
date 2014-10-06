@@ -79,14 +79,16 @@ function (
 
   Collections.Issues = PageableCollection.extend({
     sync: ghSync,
-    fetch: function(options) {
-      PageableCollection.prototype.fetch.apply(this, arguments);
-      return this.options.promise;
-    },
     initialize: function (models, options) {
       this.options = options || {};
       this.options.promise = $.Deferred();
+      this.options.continueLoading = true;
       this.on('sync', this._addNextPage);
+      this.listenTo(app.router, 'route', this._stopLoading);
+    },
+    fetch: function (options) {
+      PageableCollection.prototype.fetch.apply(this, arguments);
+      return this.options.promise;
     },
     url: function () {
       return ghApi(
@@ -99,10 +101,18 @@ function (
       pageSize: 100
     },
     _addNextPage: function (collection, models) {
-      if (models.length === this.state.pageSize) {
-        this.getNextPage({remove: false});
-      } else {
+      if (models.length < this.state.pageSize) {
         this.options.promise.resolve(collection);
+      } else if (models.length === this.state.pageSize &&
+                this.options.continueLoading) {
+        this.getNextPage({remove: false});
+      }
+    },
+    _stopLoading: function (e, pathArray) {
+      var urlPath = pathArray.join('');
+      var wallPath = this.options.owner + this.options.repository;
+      if (urlPath !== wallPath) {
+        this.options.continueLoading = false;
       }
     },
     comparator: 'number'
