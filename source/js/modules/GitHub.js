@@ -79,9 +79,13 @@ function (
 
   Collections.Issues = PageableCollection.extend({
     sync: ghSync,
+    fetch: function(options) {
+      PageableCollection.prototype.fetch.apply(this, arguments);
+      return this.options.promise;
+    },
     initialize: function (models, options) {
       this.options = options || {};
-      this.options.numPages = 1;
+      this.options.promise = $.Deferred();
       this.on('sync', this._addNextPage);
     },
     url: function () {
@@ -97,6 +101,8 @@ function (
     _addNextPage: function (collection, models) {
       if (models.length === this.state.pageSize) {
         this.getNextPage({remove: false});
+      } else {
+        this.options.promise.resolve(collection);
       }
     },
     comparator: 'number'

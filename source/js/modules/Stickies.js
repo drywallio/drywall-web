@@ -55,7 +55,6 @@ function (
       this.options = options || {};
       this.options.untouchedBounds = this._untouchedBounds();
       options.issues.each(this._layoutStickie, this);
-      this.listenTo(options.issues, 'add', this._layoutStickie);
     },
     _layoutStickie: function (issue) {
       var match = issue.pick('number');
