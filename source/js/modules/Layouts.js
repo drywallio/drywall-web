@@ -68,7 +68,7 @@ function (
       .fetch({
         success: function (preload) {
           app.useLayout(Views.Repository, preload.pick(
-            'coordinates', 'issues', 'repo', 'owner', 'repository'
+            'coordinates', 'issues', 'repo', 'owner', 'repository', 'labels'
           )).render();
         },
         error: function (preload, err) {
@@ -107,7 +107,7 @@ function (
           repo: this.options.repo,
           stickies: new Stickies.Collections.Stickies(null, _.pick(
             this.options,
-            'coordinates', 'issues', 'repo', 'owner', 'repository'
+            'coordinates', 'issues', 'repo', 'owner', 'repository', 'labels'
           ))
         })
       });

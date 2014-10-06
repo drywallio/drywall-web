@@ -43,9 +43,10 @@ function (
       var coordinates = new Coordinates.Collections.Coordinates(null, path);
       var issues = new GitHub.Collections.Issues(null, path);
       var repo = new GitHub.Models.Repo(null, path);
+      var labels = new GitHub.Collections.Labels(null, path);
 
       Promise.all(
-        [coordinates, issues, repo]
+        [coordinates, issues, repo, labels]
           .map(function (collection) {
             return collection.fetch();
           })
@@ -55,6 +56,7 @@ function (
           coordinates: coordinates,
           issues: issues,
           repo: repo,
+          labels: labels,
           owner: this.options.owner,
           repository: this.options.repository
         });

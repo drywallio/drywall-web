@@ -108,6 +108,12 @@ function (
     comparator: 'number'
   });
 
+  Collections.Labels = ghCollection.extend({
+    url: function () {
+      return ghApi('repos/:owner/:repository/labels', this.options);
+    }
+  });
+
   Collections.OrganizationRepositories = ghCollection.extend({
     url: function () {
       return ghApi('orgs/:org/repos', _.defaults(this.options, {
