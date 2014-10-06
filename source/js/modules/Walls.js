@@ -43,10 +43,9 @@ function (
       var coordinates = new Coordinates.Collections.Coordinates(null, path);
       var issues = new GitHub.Collections.Issues(null, path);
       var repo = new GitHub.Models.Repo(null, path);
-      var labels = new GitHub.Collections.Labels(null, path);
 
       Promise.all(
-        [coordinates, issues, repo, labels]
+        [coordinates, issues, repo]
           .map(function (collection) {
             return collection.fetch();
           })
@@ -56,7 +55,6 @@ function (
           coordinates: coordinates,
           issues: issues,
           repo: repo,
-          labels: labels,
           owner: this.options.owner,
           repository: this.options.repository
         });
@@ -82,12 +80,10 @@ function (
       // this.listenTo(options.stickies, 'change', this.changeStickie);
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
     },
-    beforeRender: function () {
+    afterRender: function () {
       this.options.stickies.each(function (stickie) {
         this._addStickie(stickie);
       }, this);
-    },
-    afterRender: function () {
       this.insertView('aside', new Views.Controls({
         model: this.options.controls,
         zoomInput: this.$el,
@@ -102,7 +98,7 @@ function (
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
-      }));
+      })).render();
     },
     _tweenStickies: function (stickies, duration, x, y) {
       var xDest = this.prevX + x;
