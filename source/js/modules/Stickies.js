@@ -24,6 +24,9 @@ function (
   var tileWidth = constants.TILE.WIDTH;
   var tileHeight = constants.TILE.HEIGHT;
 
+  var stickiePadding = constants.CLUSTER.INTERNAL_PADDING;
+  var clusterPadding = constants.CLUSTER.EXTERNAL_PADDING;
+
   Collections.Boundaries = Backbone.Collection.extend({
     bounds: function (models) {
       var coordinates = models || this;
@@ -54,37 +57,53 @@ function (
     initialize: function (models, options) {
       this.options = options || {};
       this.options.untouchedBounds = this._untouchedBounds();
+      this.options.clusters = {};
       options.issues.each(this._layoutStickie, this);
+      this.options.clusterIdx = 1;
+      this.options.clusterSize = this._clusterSize(
+        _.size(this.options.clusters)
+      );
+      _.each(this.options.clusters, this._layoutCluster, this);
     },
     _layoutStickie: function (issue) {
       var match = issue.pick('number');
       var coordinate = this.options.coordinates.findWhere(match);
 
       if (!coordinate) {
-        coordinate = new this.options.coordinates.model(
-          this._randomCoordinates(issue)
-        );
-        this.options.coordinates.add(coordinate);
+        var labels = issue.get('labels');
+        var label = labels.length > 0 ? labels[0].name : 'default';
+        this.options.clusters[label] = this.options.clusters[label] || [];
+        this.options.clusters[label].push(issue);
+      } else {
+        this._addStickie(issue, coordinate);
       }
-      this._addStickie(issue, coordinate);
     },
-    _randomCoordinates: function (issue) {
+    _layoutCluster: function (issues, label) {
       var bounds = this.options.untouchedBounds;
-      var startY = bounds.top;
-      var x = this._getRandomNum(bounds.left, bounds.left + bounds.width);
-      if (x < bounds.left + bounds.width * 0.5) {
-        startY = bounds.top + bounds.height * 0.5;
-      }
-      var y = this._getRandomNum(startY, bounds.top + bounds.height);
-      bounds.maxX = Math.max(x, bounds.maxX);
-      bounds.maxY = Math.max(y, bounds.maxY);
-      bounds.width =  bounds.maxX - bounds.left + stickieWidth;
-      bounds.height = bounds.maxY - bounds.top + stickieHeight / 2;
+      var size = this._clusterSize(issues.length);
+      console.log(label, issues.length, size);
+      issues.forEach(function (issue, index) {
+        var rowIdx = Math.floor(index / size.numColumns);
+        var colIdx = index % size.numColumns;
+        var coordinate = new this.options.coordinates.model({
+          x: bounds.clusterX + colIdx * (stickieWidth + stickiePadding),
+          y: bounds.clusterY + rowIdx * (stickieHeight + stickiePadding)
+        });
+        this._addStickie(issue, coordinate);
+      }, this);
 
+      var clusterWidth = size.numColumns * (stickieWidth + stickiePadding);
+      var clusterHeight = size.numRows * (stickieHeight + stickiePadding);
+
+      this.options.clusterIdx += 1;
+      bounds.clusterX += clusterWidth + clusterPadding;
+    },
+    _clusterSize: function (numItems) {
+      var ratio = this._getRandomNum(0.5, 1.5);
+      var numCols = Math.round(Math.sqrt(numItems / ratio));
       return {
-        number: issue.get('number'),
-        x: x,
-        y: y
+        numColumns: numCols,
+        numRows: Math.floor(numItems / numCols)
       };
     },
     _getRandomNum: function (min, max) {
@@ -108,10 +127,8 @@ function (
       return {
         top: top,
         left: left,
-        width: 0,
-        height: 0,
-        maxX: 0,
-        maxY: 0
+        clusterX: left,
+        clusterY: top
       };
     }
   });
