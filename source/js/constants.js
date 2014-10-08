@@ -3,7 +3,11 @@ define({
     WIDTH: 288,
     HEIGHT: 288,
     BACKGROUND_COLOR: 'lemonchiffon',
-    FOREGROUND_COLOR: ['black', 'white']
+    FOREGROUND_COLOR: ['black', 'white'],
+  },
+  CLUSTER: {
+    INTERNAL_PADDING: 30,
+    EXTERNAL_PADDING: 250
   },
   TILE: {
     WIDTH: 56,

@@ -93,8 +93,8 @@ function (
     url: function () {
       return ghApi(
         'repos/:owner/:repository/issues',
-        this.options,
-        {state: 'all'}
+        this.options
+        //{state: 'all'}
       );
     },
     state: {
