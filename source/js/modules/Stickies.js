@@ -56,7 +56,6 @@ function (
   Collections.Stickies = Collections.Boundaries.extend({
     initialize: function (models, options) {
       this.options = options || {};
-      this.options.untouchedBounds = this._untouchedBounds();
       this._layoutStickies();
     },
     _layoutStickies: function() {
@@ -64,6 +63,14 @@ function (
       this.options.issues.reduce(this._layoutStickie, untouchedIssues, this);
 
       if (untouchedIssues.length > 0) {
+        var bounds = this.bounds(this.options.coordinates);
+        var size = this._clusterSize(untouchedIssues.length);
+        this.options.clusterBounds = {
+          x: bounds.left,
+          y: this.options.coordinates.length ?
+            bounds.bottom + stickieHeight : 0,
+          width: size.width
+        };
         this._layoutClusters(
           this._createClusters(untouchedIssues, 'label')
         );
@@ -81,18 +88,16 @@ function (
       return arr;
     },
     _layoutClusters: function (clusters) {
-      this._addStickies(clusters[0]);
-      var size = this._clusterSize(clusters[0].length);
-      var totalWidth = size.width + clusterPadding;
-      var bounds = this.options.untouchedBounds;
-
-      var clusterIdx = 1;
+      var clusterIdx = 0;
+      var bounds = this.options.clusterBounds;
       while (clusterIdx < clusters.length) {
         var startIdx = clusterIdx;
-        bounds.clusterX = bounds.left + totalWidth;
-        clusterIdx = this._addClusterRow(clusters, clusterIdx, totalWidth);
-        size = this._clusterSize(clusters[startIdx].length);
-        bounds.clusterY += size.height + clusterPadding;
+        clusterIdx = this._addClusterRow(
+          clusters, clusterIdx, bounds.width
+        );
+        var size = this._clusterSize(clusters[startIdx].length);
+        bounds.x = 0;
+        bounds.y += size.height + clusterPadding;
       }
     },
     _createClusters: function (issues, type) {
@@ -122,21 +127,21 @@ function (
         this._addStickies(issues);
         var size = this._clusterSize(issues.length);
         cumulativeWidth += size.width;
-        this.options.untouchedBounds.clusterX += (size.width + clusterPadding);
+        this.options.clusterBounds.x += (size.width + clusterPadding);
       }
 
       return clusterIdx;
     },
     _addStickies: function(issues) {
-      var bounds = this.options.untouchedBounds;
+      var bounds = this.options.clusterBounds;
       var size = this._clusterSize(issues.length);
 
       issues.forEach(function (issue, index) {
         var rowIdx = Math.floor(index / size.numColumns);
         var colIdx = index % size.numColumns;
         var coordinate = new this.options.coordinates.model({
-          x: bounds.clusterX + colIdx * (stickieWidth + stickiePadding),
-          y: bounds.clusterY + rowIdx * (stickieHeight + stickiePadding)
+          x: bounds.x + colIdx * (stickieWidth + stickiePadding),
+          y: bounds.y + rowIdx * (stickieHeight + stickiePadding)
         });
         this._addStickie(issue, coordinate);
       }, this);
@@ -158,23 +163,6 @@ function (
     },
     _getRandomNum: function (min, max) {
       return Math.random() * (max - min) + min;
-    },
-    _untouchedBounds: function () {
-      var top = 0;
-      var left = 0;
-
-      if (this.options.coordinates.length > 0) {
-        var bounds = this.bounds(this.options.coordinates);
-        top = bounds.bottom + stickieHeight;
-        left = bounds.left;
-      }
-
-      return {
-        top: top,
-        left: left,
-        clusterX: left,
-        clusterY: top
-      };
     }
   });
 
