@@ -106,16 +106,21 @@ function (
       return clusters.reverse();
     },
     _clusterBy: function (type) {
+      var defaultKey = 'default';
       return function (issue) {
         switch (type) {
           case 'none':
             return 'none';
+          case 'comments':
+            return issue.get(type);
+          case 'assignee':
+            return issue.get(type) ? issue.get(type) : defaultKey;
           case 'milestone':
-            var milestone = issue.get('milestone');
-            return milestone ? milestone.title : 'default';
+            var milestone = issue.get(type);
+            return milestone ? milestone.title : defaultKey;
           default:
             var labels = issue.get('labels');
-            return labels.length > 0 ? labels[0].name : 'default';
+            return labels.length > 0 ? labels[0].name : defaultKey;
         }
       };
     },
