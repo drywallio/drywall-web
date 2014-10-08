@@ -27,6 +27,28 @@ function (
   var stickiePadding = constants.CLUSTER.INTERNAL_PADDING;
   var clusterPadding = constants.CLUSTER.EXTERNAL_PADDING;
 
+  Collections.IssuesCluster = Backbone.Collection.extend({
+    comparator: function (model) {
+      return model.get('state') === 'open' ? -1 : 1;
+    }
+  });
+
+  Models.Cluster = Backbone.Model.extend({
+    initialize: function (options) {
+      this.set({
+        issues: new Collections.IssuesCluster()
+      });
+    }
+  });
+
+  Collections.Clusters = Backbone.Collection.extend({
+    model: Models.Cluster,
+    idAttribute: 'label',
+    comparator: function (model) {
+      return -model.get('issues').length;
+    }
+  });
+
   Collections.Boundaries = Backbone.Collection.extend({
     bounds: function (models) {
       var coordinates = models || this;
@@ -57,32 +79,41 @@ function (
     initialize: function (models, options) {
       this.options = options || {};
       this.options.untouchedBounds = this._untouchedBounds();
-      this.options.clusters = {};
+      this.options.untouchedIssues = [];
+      this.options.clusters = new Collections.Clusters();
       options.issues.each(this._layoutStickie, this);
+
       this.options.clusterIdx = 1;
       this.options.clusterSize = this._clusterSize(
-        _.size(this.options.clusters)
+        this.options.clusters.length
       );
-      _.each(this.options.clusters, this._layoutCluster, this);
+      this.options.clusters.each(this._layoutCluster, this);
     },
     _layoutStickie: function (issue) {
       var match = issue.pick('number');
-      var coordinate = this.options.coordinates.findWhere(match);
+      var coordinate = this.options.coordinates.find(match);
 
       if (!coordinate) {
+        this.options.untouchedIssues.push(issue);
         var labels = issue.get('labels');
         var label = labels.length > 0 ? labels[0].name : 'default';
-        this.options.clusters[label] = this.options.clusters[label] || [];
-        this.options.clusters[label].push(issue);
+        var cluster = this.options.clusters.findWhere({label: label});
+        if (!cluster) {
+          cluster = new this.options.clusters.model({label: label});
+          this.options.clusters.add(cluster);
+        }
+        cluster.get('issues').add(issue);
       } else {
         this._addStickie(issue, coordinate);
       }
     },
-    _layoutCluster: function (issues, label) {
+    _layoutCluster: function (model) {
+      var issues = model.get('issues');
+      var label = model.get('label');
       var bounds = this.options.untouchedBounds;
       var size = this._clusterSize(issues.length);
-      console.log(label, issues.length, size);
-      issues.forEach(function (issue, index) {
+      issues.each(function (issue, index) {
+        console.log(label, index, issue.get('state'));
         var rowIdx = Math.floor(index / size.numColumns);
         var colIdx = index % size.numColumns;
         var coordinate = new this.options.coordinates.model({
