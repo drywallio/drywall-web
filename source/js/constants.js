@@ -9,6 +9,13 @@ define({
     INTERNAL_PADDING: 30,
     EXTERNAL_PADDING: 250
   },
+  CLUSTER_BY: {
+    LABEL: 'label',
+    MILESTONE: 'milestone',
+    ASSIGNEE: 'assignee',
+    STATE: 'state',
+    NONE: 'none'
+  },
   TILE: {
     WIDTH: 56,
     HEIGHT: 56

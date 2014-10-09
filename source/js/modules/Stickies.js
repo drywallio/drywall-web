@@ -107,15 +107,17 @@ function (
     },
     _clusterBy: function (type) {
       var defaultKey = 'default';
+      var consts = constants.CLUSTER_BY;
+
       return function (issue) {
         switch (type) {
-          case 'none':
-            return 'none';
-          case 'state':
+          case consts.NONE:
+            return type;
+          case consts.STATE:
             return issue.get('pull_request') ? 'pull' : issue.get(type);
-          case 'assignee':
+          case consts.ASSIGNEE:
             return issue.get(type) ? issue.get(type).id : defaultKey;
-          case 'milestone':
+          case consts.MILESTONE:
             var milestone = issue.get(type);
             return milestone ? milestone.title : defaultKey;
           default:
