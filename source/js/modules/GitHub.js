@@ -36,14 +36,22 @@ function (
     this.options = options || {};
   };
   var ghApi = api('https://api.github.com');
+  var ghFetch = function (options) {
+    var xhr = Backbone.Collection.prototype.fetch.apply(this, arguments);
+    app.xhrPool.push(xhr);
+
+    return xhr;
+  };
 
   var ghCollection = Backbone.Collection.extend({
     initialize: ghInitialize,
-    sync: ghSync
+    sync: ghSync,
+    fetch: ghFetch
   });
   var ghModel = Backbone.Model.extend({
     initialize: ghInitialize,
-    sync: ghSync
+    sync: ghSync,
+    fetch: ghFetch
   });
 
   Models.Repo = ghModel.extend({
@@ -84,17 +92,18 @@ function (
       this.options.promise = $.Deferred();
       this.options.continueLoading = true;
       this.on('sync', this._addNextPage);
-      this.listenTo(app.router, 'route', this._stopLoading);
     },
     fetch: function (options) {
-      PageableCollection.prototype.fetch.apply(this, arguments);
+      app.xhrPool.push(
+        PageableCollection.prototype.fetch.apply(this, arguments)
+      );
       return this.options.promise;
     },
     url: function () {
       return ghApi(
         'repos/:owner/:repository/issues',
-        this.options
-        //{state: 'all'}
+        this.options,
+        {state: 'all'}
       );
     },
     state: {
@@ -103,16 +112,8 @@ function (
     _addNextPage: function (collection, models) {
       if (models.length < this.state.pageSize) {
         this.options.promise.resolve(collection);
-      } else if (models.length === this.state.pageSize &&
-                this.options.continueLoading) {
+      } else {
         this.getNextPage({remove: false});
-      }
-    },
-    _stopLoading: function (e, pathArray) {
-      var urlPath = pathArray.join('');
-      var wallPath = this.options.owner + this.options.repository;
-      if (urlPath !== wallPath) {
-        this.options.continueLoading = false;
       }
     },
     comparator: 'number'

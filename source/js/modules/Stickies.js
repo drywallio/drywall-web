@@ -131,7 +131,7 @@ function (
       for (; cumulativeWidth < totalWidth && clusterIdx < clusters.length;
             clusterIdx = clusterIdx + 1) {
         var issues = clusters[clusterIdx];
-        this._addStickies(issues);
+        this._addNewStickies(issues);
         var size = this._clusterSize(issues.length);
         cumulativeWidth += size.width;
         this.options.clusterBounds.x += (size.width + clusterPadding);
@@ -139,7 +139,7 @@ function (
 
       return clusterIdx;
     },
-    _addStickies: function(issues) {
+    _addNewStickies: function(issues) {
       var bounds = this.options.clusterBounds;
       var size = this._clusterSize(issues.length);
 
@@ -147,9 +147,11 @@ function (
         var rowIdx = Math.floor(index / size.numColumns);
         var colIdx = index % size.numColumns;
         var coordinate = new this.options.coordinates.model({
+          number: issue.get('number'),
           x: bounds.x + colIdx * (stickieWidth + stickiePadding),
           y: bounds.y + rowIdx * (stickieHeight + stickiePadding)
         });
+        this.options.coordinates.add(coordinate); // allows editing
         this._addStickie(issue, coordinate);
       }, this);
     },

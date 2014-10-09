@@ -25,6 +25,12 @@ function (
   Views.Base = Backbone.View.extend({
     initialize: function (options) {
       window.scrollTo(0, 0);
+    },
+    cleanup: function() {
+      app.xhrPool.forEach(function (xhr) {
+        xhr.abort();
+      });
+      app.xhrPool = [];
     }
   });
 
