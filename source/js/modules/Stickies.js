@@ -111,10 +111,10 @@ function (
         switch (type) {
           case 'none':
             return 'none';
-          case 'comments':
-            return issue.get(type);
+          case 'state':
+            return issue.get('pull_request') ? 'pull' : issue.get(type);
           case 'assignee':
-            return issue.get(type) ? issue.get(type) : defaultKey;
+            return issue.get(type) ? issue.get(type).id : defaultKey;
           case 'milestone':
             var milestone = issue.get(type);
             return milestone ? milestone.title : defaultKey;
