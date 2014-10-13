@@ -114,7 +114,8 @@ function (
           case consts.NONE:
             return type;
           case consts.STATE:
-            return issue.get('pull_request') ? 'pull' : issue.get(type);
+            return (issue.get('pull_request') &&
+              issue.get('state') !== 'closed') ? 'pull' : issue.get(type);
           case consts.ASSIGNEE:
             return issue.get(type) ? issue.get(type).id : defaultKey;
           case consts.MILESTONE:
@@ -156,7 +157,19 @@ function (
       }, this);
     },
     _addStickie: function(issue, coordinate) {
-      var data = _.extend(issue.toJSON(), coordinate.toJSON());
+      var labels = issue.get('labels');
+      var stickieData = {
+        title: issue.get('title'),
+        assignee: issue.get('assignee') ? issue.get('assignee').name : null,
+        milestone: issue.get('milestone') ? issue.get('milestone').title : null,
+        color: labels.length > 0 ? '#' + labels[0].color : null,
+        state: issue.get('pull_request') && issue.get('state') !== 'closed' ?
+          'pull' : issue.get('state'),
+      };
+      var data = _.extend(
+        _.defaults(stickieData, issue.toJSON()),
+        coordinate.toJSON()
+      );
       var stickie = new this.model(data);
       this.add(stickie);
     },
@@ -259,10 +272,8 @@ function (
       }
     },
     _setColor: function () {
-      var labels = this.model.get('labels') || [];
-      var first = _.find(labels, function (label) { return !!label.color; });
-      var bgColor = first ? '#' + first.color :
-        constants.STICKIE.BACKGROUND_COLOR;
+      var color = this.model.get('color');
+      var bgColor = color ? color : constants.STICKIE.BACKGROUND_COLOR;
       var fgColor = tinycolor.mostReadable(
         bgColor, constants.STICKIE.FOREGROUND_COLOR
       ).toHexString();
