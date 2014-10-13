@@ -193,6 +193,7 @@ function (
         code: code,
         title: error.message || (
           code === 402 ? 'Plan Upgrade Needed' :
+          code === 403 ? 'GitHub Limit Reached' :
           code === 404 ? 'Wall not Found' :
           'Oops!')
       };
