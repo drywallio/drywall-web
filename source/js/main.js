@@ -69,6 +69,7 @@ function (
   app.title.message = '';
 
   app.router = new Router();
+  app.xhrPool = [];
 
   app.session = new Session(null, {
     domain: app.env.auth0.domain,

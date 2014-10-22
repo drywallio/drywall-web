@@ -17,9 +17,7 @@ define([
     signIn: function (event) {
       event.preventDefault();
       app.session.signIn(_.extend(app.env.auth0.signIn, {
-        state: Backbone.history.fragment === '' ?
-          '/cofounders/drywall-web' :
-          '/' + Backbone.history.fragment
+        state: '/' + Backbone.history.fragment
       }));
     }
   });

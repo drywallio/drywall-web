@@ -36,14 +36,22 @@ function (
     this.options = options || {};
   };
   var ghApi = api('https://api.github.com');
+  var ghFetch = function (options) {
+    var xhr = Backbone.Collection.prototype.fetch.apply(this, arguments);
+    app.xhrPool.push(xhr);
+
+    return xhr;
+  };
 
   var ghCollection = Backbone.Collection.extend({
     initialize: ghInitialize,
-    sync: ghSync
+    sync: ghSync,
+    fetch: ghFetch
   });
   var ghModel = Backbone.Model.extend({
     initialize: ghInitialize,
-    sync: ghSync
+    sync: ghSync,
+    fetch: ghFetch
   });
 
   Models.Repo = ghModel.extend({
@@ -81,8 +89,15 @@ function (
     sync: ghSync,
     initialize: function (models, options) {
       this.options = options || {};
-      this.options.numPages = 1;
+      this.options.promise = $.Deferred();
+      this.options.continueLoading = true;
       this.on('sync', this._addNextPage);
+    },
+    fetch: function (options) {
+      app.xhrPool.push(
+        PageableCollection.prototype.fetch.apply(this, arguments)
+      );
+      return this.options.promise;
     },
     url: function () {
       return ghApi(
@@ -95,11 +110,19 @@ function (
       pageSize: 100
     },
     _addNextPage: function (collection, models) {
-      if (models.length === this.state.pageSize) {
+      if (models.length < this.state.pageSize) {
+        this.options.promise.resolve(collection);
+      } else {
         this.getNextPage({remove: false});
       }
     },
     comparator: 'number'
+  });
+
+  Collections.Labels = ghCollection.extend({
+    url: function () {
+      return ghApi('repos/:owner/:repository/labels', this.options);
+    }
   });
 
   Collections.OrganizationRepositories = ghCollection.extend({

@@ -62,8 +62,10 @@ function (
         promise.resolve(this);
       }.bind(this))
       .catch(function (err) {
-        error(this, err, options);
-        promise.reject(err);
+        if (err.statusText !== 'abort' && err.status !== 0) {
+          error(this, err, options);
+          promise.reject(err);
+        }
       });
       return promise;
     }
@@ -80,10 +82,12 @@ function (
       // this.listenTo(options.stickies, 'change', this.changeStickie);
       // this.listenTo(options.stickies, 'remove', this.removeStickie);
     },
-    afterRender: function () {
+    beforeRender: function () {
       this.options.stickies.each(function (stickie) {
         this._addStickie(stickie);
       }, this);
+    },
+    afterRender: function () {
       this.insertView('aside', new Views.Controls({
         model: this.options.controls,
         zoomInput: this.$el,
@@ -94,11 +98,12 @@ function (
     _addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
+
       this.insertView('> .zoom > .stickies', new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
         repo: this.options.repo
-      })).render();
+      }));
     },
     _tweenStickies: function (stickies, duration, x, y) {
       var xDest = this.prevX + x;

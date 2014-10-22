@@ -3,7 +3,18 @@ define({
     WIDTH: 288,
     HEIGHT: 288,
     BACKGROUND_COLOR: 'lemonchiffon',
-    FOREGROUND_COLOR: ['black', 'white']
+    FOREGROUND_COLOR: ['black', 'white'],
+  },
+  CLUSTER: {
+    INTERNAL_PADDING: 30,
+    EXTERNAL_PADDING: 250
+  },
+  CLUSTER_BY: {
+    LABEL: 'label',
+    MILESTONE: 'milestone',
+    ASSIGNEE: 'assignee',
+    STATE: 'state',
+    NONE: 'none'
   },
   TILE: {
     WIDTH: 56,
