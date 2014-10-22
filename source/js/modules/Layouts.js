@@ -25,6 +25,12 @@ function (
   Views.Base = Backbone.View.extend({
     initialize: function (options) {
       window.scrollTo(0, 0);
+    },
+    cleanup: function() {
+      app.xhrPool.forEach(function (xhr) {
+        xhr.abort();
+      });
+      app.xhrPool = [];
     }
   });
 
@@ -68,7 +74,7 @@ function (
       .fetch({
         success: function (preload) {
           app.useLayout(Views.Repository, preload.pick(
-            'coordinates', 'issues', 'repo', 'owner', 'repository', 'labels'
+            'coordinates', 'issues', 'repo', 'owner', 'repository'
           )).render();
         },
         error: function (preload, err) {
@@ -107,7 +113,7 @@ function (
           repo: this.options.repo,
           stickies: new Stickies.Collections.Stickies(null, _.pick(
             this.options,
-            'coordinates', 'issues', 'repo', 'owner', 'repository', 'labels'
+            'coordinates', 'issues', 'repo', 'owner', 'repository'
           ))
         })
       });
@@ -187,6 +193,7 @@ function (
         code: code,
         title: error.message || (
           code === 402 ? 'Plan Upgrade Needed' :
+          code === 403 ? 'GitHub Limit Reached' :
           code === 404 ? 'Wall not Found' :
           'Oops!')
       };

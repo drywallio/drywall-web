@@ -62,8 +62,10 @@ function (
         promise.resolve(this);
       }.bind(this))
       .catch(function (err) {
-        error(this, err, options);
-        promise.reject(err);
+        if (err.statusText !== 'abort' && err.status !== 0) {
+          error(this, err, options);
+          promise.reject(err);
+        }
       });
       return promise;
     }
@@ -96,6 +98,7 @@ function (
     _addStickie: function (stickie) {
       var coordinate = this.options.coordinates
         .findWhere(stickie.pick('number'));
+
       this.insertView('> .zoom > .stickies', new Stickies.Views.Stickie({
         model: stickie,
         coordinate: coordinate,
