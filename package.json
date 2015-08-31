@@ -13,22 +13,22 @@
   },
   "license": "UNLICENSED",
   "scripts": {
+    "postinstall": "bower install",
     "test": "grunt test",
     "start": "grunt prod"
   },
   "dependencies": {
     "backbone": "*",
-    "bower": "*",
+    "bower": "^1.5.2",
     "grunt": "0.4.5",
     "grunt-bower-task": "0.4.0",
     "grunt-casper": "0.4.1",
-    "grunt-cli": "0.1.13",
+    "grunt-cli": "^0.1.13",
     "grunt-contrib-clean": "0.6.0",
     "grunt-contrib-connect": "0.8.0",
     "grunt-contrib-copy": "0.5.0",
     "grunt-contrib-cssmin": "0.10.0",
-    "grunt-contrib-handlebars":
-      "git://github.com/cbas/grunt-contrib-handlebars.git",
+    "grunt-contrib-handlebars": "git://github.com/cbas/grunt-contrib-handlebars.git",
     "grunt-contrib-htmlmin": "0.3.0",
     "grunt-contrib-imagemin": "0.8.1",
     "grunt-contrib-jshint": "0.10.0",
