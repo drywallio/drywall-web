@@ -11,11 +11,7 @@
     "type": "git",
     "url": "git@github.com:cofounders/drywall-web.git"
   },
-  "licenses": [
-    {
-      "type": "All rights reserved"
-    }
-  ],
+  "license": "UNLICENSED",
   "scripts": {
     "test": "grunt test",
     "start": "grunt prod"
