@@ -8,27 +8,12 @@ define(['underscore'], function (_) {
   return _.chain([{
     predicate: matchDomain(['drywall.cf.sg']),
     type: 'production',
-    api: {
-      base: '//drywall-api-production.herokuapp.com'
-    },
     googletagmanager: {
       id: 'GTM-PKNHQH'
     }
   }, {
-    predicate: matchDomain(['staging.drywall.cf.sg']),
-    type: 'staging',
-    api: {
-      base: '//drywall-api-staging.herokuapp.com'
-    },
-    googletagmanager: {
-      id: 'GTM-W65W3Q'
-    }
-  }, {
     predicate: function () { return true; },
     type: 'development',
-    api: {
-      base: '//drywall-api-staging.herokuapp.com'
-    },
     googletagmanager: {
       id: ''
     }
@@ -36,6 +21,9 @@ define(['underscore'], function (_) {
   .find(function (env) { return env.predicate(); })
   .omit('predicate')
   .defaults({
+    api: {
+      base: '//drywall-api.herokuapp.com'
+    },
     auth0: {
       signIn: {
         connection: 'github',
