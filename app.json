@@ -1,5 +1,7 @@
 {
-  "scripts": {
-    "postdeploy": "npm run heroku-build"
-  }
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+    }
+  ]
 }
