@@ -76,7 +76,13 @@ function (
     serialize: function () {
       return {
         host: location.host,
-        lastVisitedWalls: this.options.LastVisitedWalls.toJSON()
+        suggestions: _.union(
+          this.options.LastVisitedWalls.pluck('wall'),
+          [
+            'drywallio/drywall-web',
+            'webuildsg/webuild'
+          ]
+        )
       };
     },
     events: {

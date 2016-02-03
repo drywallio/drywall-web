@@ -18,14 +18,12 @@
     <button type="submit">Show My Wall</button>
   </span>
 
-  {{#if lastVisitedWalls}}
-  <article class="lastVisited">
-    <span>Last Visited:</span>
-    <ul class="lastVisitedWalls">
-      {{#each lastVisitedWalls}}
-      <li class="visitedWall"><a href="{{wall}}">{{wall}}</a></li>
+  <article class="suggested">
+    <span>Suggestions:</span>
+    <ul class="walls">
+      {{#each suggestions}}
+      <li class="wall"><a href="{{this}}">{{this}}</a></li>
       {{/each}}
     </ul>
   </article>
-  {{/if}}
 </form>
