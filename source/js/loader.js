@@ -1,5 +1,6 @@
 /*jslint maxlen: 240 */
 require.config({
+  waitSeconds: 0,
   baseUrl: '/js',
   deps: ['main'],
   paths: {
