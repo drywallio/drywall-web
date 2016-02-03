@@ -15,7 +15,7 @@
   "scripts": {
     "postinstall": "bower install",
     "test": "grunt test",
-    "start": "grunt prod"
+    "start": "echo \"here comes npm start\" && grunt prod"
   },
   "dependencies": {
     "backbone": "*",
