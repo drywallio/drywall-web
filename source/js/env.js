@@ -6,7 +6,7 @@ define(['underscore'], function (_) {
   };
 
   return _.chain([{
-    predicate: matchDomain(['drywall.cf.sg']),
+    predicate: matchDomain(['drywall.cf.sg', 'drywall.io']),
     type: 'production',
     googletagmanager: {
       id: 'GTM-PKNHQH'
