@@ -15,7 +15,8 @@
   "scripts": {
     "postinstall": "bower install",
     "test": "grunt test",
-    "start": "echo \"here comes npm start\" && grunt prod"
+    "heroku": "grunt connect:production:keepalive",
+    "start": "grunt prod"
   },
   "dependencies": {
     "backbone": "*",
