@@ -1,5 +1,5 @@
 module.exports = function (grunt) {
-  grunt.registerTask('heroku', [
+  grunt.registerTask('heroku-build', [
     'default'
   ]);
 };
