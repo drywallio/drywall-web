@@ -2,7 +2,7 @@
   "name": "drywall-web",
   "description": "",
   "version": "0.1.0",
-  "homepage": "https://drywall.cf.sg/",
+  "homepage": "https://drywall.io/",
   "author": {
     "name": "Cofounders Pte Ltd",
     "email": "drywall@cf.sg"
@@ -13,9 +13,9 @@
   },
   "license": "UNLICENSED",
   "scripts": {
-    "postinstall": "bower install",
+    "postinstall": "bower install && grunt",
     "test": "grunt test",
-    "heroku": "grunt heroku",
+    "heroku": "grunt connect:production:keepalive",
     "start": "grunt prod"
   },
   "dependencies": {
