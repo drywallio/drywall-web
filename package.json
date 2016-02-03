@@ -15,7 +15,8 @@
   "scripts": {
     "postinstall": "bower install",
     "test": "grunt test",
-    "heroku": "grunt heroku",
+    "heroku-build": "grunt heroku-build",
+    "heroku-run": "grunt heroku-run",
     "start": "grunt prod"
   },
   "dependencies": {
