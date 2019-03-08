@@ -1,0 +1,5 @@
+{
+  "hosts": [{
+    "fallback": { "200": "./index.html" }
+  }]
+}

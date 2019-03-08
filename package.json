@@ -10,10 +10,11 @@
   "scripts": {
     "postinstall": "bower install && grunt",
     "test": "grunt test",
-    "heroku": "grunt connect:production:keepalive",
-    "start": "grunt prod"
+    "start": "grunt prod",
+    "deploy": "commonshost deploy"
   },
   "dependencies": {
+    "@commonshost/cli": "^4.1.0",
     "backbone": "1.2.3",
     "handlebars": "2.0.0",
     "requirejs": "2.1.22",
