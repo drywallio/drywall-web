@@ -20,8 +20,12 @@
   },
   "dependencies": {
     "backbone": "1.2.3",
+    "handlebars": "2.0.0",
+    "requirejs": "2.1.22",
+    "underscore": "1.8.3"
+  },
+  "devDependencies": {
     "bower": "^1.8.8",
-    "grunt": "^1.0.3",
     "grunt-cli": "^1.3.2",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-contrib-connect": "^2.0.0",
@@ -30,22 +34,18 @@
     "grunt-contrib-handlebars": "git://github.com/cbas/grunt-contrib-handlebars.git",
     "grunt-contrib-htmlmin": "^3.0.0",
     "grunt-contrib-imagemin": "^3.1.0",
+    "grunt-contrib-jshint": "^2.0.0",
+    "grunt-contrib-nodeunit": "^2.0.0",
     "grunt-contrib-requirejs": "^1.0.0",
     "grunt-contrib-stylus": "^1.2.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-lintspaces": "^0.8.5",
     "grunt-open": "0.2.3",
     "grunt-rev": "0.1.0",
     "grunt-usemin": "^3.1.1",
-    "handlebars": "2.0.0",
+    "grunt": "^1.0.3",
     "load-grunt-config": "^1.0.1",
-    "normalize": "0.3.1",
-    "requirejs": "2.1.22",
-    "underscore": "1.8.3"
-  },
-  "devDependencies": {
-    "grunt-contrib-jshint": "^2.0.0",
-    "grunt-contrib-nodeunit": "^2.0.0",
-    "grunt-contrib-watch": "^1.1.0",
-    "grunt-lintspaces": "^0.8.5"
+    "normalize": "0.3.1"
   },
   "engines": {
     "node": ">=5",
