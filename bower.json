@@ -1,19 +1,19 @@
 {
   "name": "drywall-web",
   "dependencies": {
-    "backbone-loading": "*",
-    "backbone.paginator": "*",
-    "hammerjs": "*",
-    "handlebars-helpers-pack": "*",
-    "urlbuilder": "*",
-    "doctit": "*",
-    "auth0.js": "*",
-    "backbone.analytics": "*",
-    "googletagmanager": "*",
-    "es6-shim": "*",
-    "backbone-session": "*",
+    "backbone-loading": "0.1.0",
+    "backbone.paginator": "2.0.3",
+    "hammerjs": "2.0.6",
+    "handlebars-helpers-pack": "0.0.8",
+    "urlbuilder": "0.4.0",
+    "doctit": "0.0.1",
+    "auth0.js": "6.8.0",
+    "backbone.analytics": "1.0.1",
+    "googletagmanager": "0.0.2",
+    "es6-shim": "0.34.2",
+    "backbone-session": "0.1.0",
     "query-string": "~0.4.1",
     "tinycolor": "~1.0.0",
-    "konami-js": "*"
+    "konami-js": "1.4.2"
   }
 }
