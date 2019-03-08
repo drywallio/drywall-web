@@ -14,11 +14,7 @@ module.exports = {
           .split('.').slice(0, -1).join('.');
       },
       namespace: 'JST',
-      amd: true,
-      handlebars: {
-        parse: require('handlebars').parse,
-        precompile: require('handlebars').precompile
-      }
+      amd: true
     },
     files: {
       '<%= staging %>/js/templates.built.js':
