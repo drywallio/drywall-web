@@ -1,16 +1,11 @@
 {
   "name": "drywall-web",
-  "description": "",
-  "version": "0.1.0",
-  "homepage": "https://drywall.io/",
-  "author": {
-    "name": "Cofounders Pte Ltd",
-    "email": "drywall@cf.sg"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:cofounders/drywall-web.git"
-  },
+  "description": "GitHub Issues visualisation tool",
+  "version": "1.0.0",
+  "private": true,
+  "homepage": "https://drywall.cf.sg",
+  "author": "Drywall Contributors <drywall@cf.sg>",
+  "repository": "github:drywallio/drywall-web",
   "license": "UNLICENSED",
   "scripts": {
     "postinstall": "bower install && grunt",
@@ -48,8 +43,7 @@
     "normalize": "0.3.1"
   },
   "engines": {
-    "node": ">=5",
-    "npm": ">=3"
-  },
-  "keywords": []
+    "node": ">=11.11.0",
+    "npm": ">=6.7.0"
+  }
 }
