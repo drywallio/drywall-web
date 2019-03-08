@@ -1,7 +1,5 @@
 # Drywall Web
 
-[ ![Codeship Status for cofounders/drywall-web](https://codeship.io/projects/53dc4160-0466-0132-04bb-1a827ae27d2a/status)](https://codeship.io/projects/30643)
-
 ## The Build
 
 1. Install [Node.js & NPM](http://nodejs.org/)
